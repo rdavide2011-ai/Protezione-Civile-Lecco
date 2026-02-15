@@ -24,10 +24,8 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
-        /* Top Bar */
         .top-bar {
             background: var(--panel-bg);
             padding: 10px 15px;
@@ -42,44 +40,52 @@
         .top-bar-text h1 { margin: 0; font-size: 14px; color: var(--pc-yellow); text-transform: uppercase; font-weight: 900; }
         .top-bar-text p { margin: 0; font-size: 10px; color: #8b949e; }
 
+        /* Area Form */
         .main-ui {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            max-width: 800px;
+            gap: 12px;
+            max-width: 600px;
             margin: 0 auto;
             width: 100%;
         }
 
-        .section-label {
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
             font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 2px;
             color: var(--pc-yellow);
-            margin-bottom: 5px;
+            font-weight: bold;
+            margin-left: 5px;
         }
 
-        textarea {
+        input[type="text"], textarea {
             width: 100%;
-            flex: 1;
             background: var(--panel-bg);
             border: 1px solid #30363d;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
-            padding: 15px;
-            font-size: 15px;
-            font-family: monospace;
+            padding: 12px;
+            font-size: 14px;
             outline: none;
-            resize: none;
         }
 
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        textarea { resize: none; height: 80px; }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; padding-bottom: 20px;}
+        
         .btn {
-            padding: 20px; border: none; border-radius: 10px;
-            font-weight: bold; font-size: 13px; text-transform: uppercase;
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;
+            padding: 15px; border: none; border-radius: 10px;
+            font-weight: bold; font-size: 12px; text-transform: uppercase;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
 
         .btn-alert { background: var(--danger); color: white; }
@@ -120,17 +126,26 @@
 </div>
 
 <div class="main-ui">
-    <div style="flex: 1; display: flex; flex-direction: column;">
-        <span class="section-label">Compilazione Tabella Allerta</span>
-        <textarea id="mainText" placeholder="EVENTO: 
-LUOGO: 
-MEZZI: 
-NOTE: "></textarea>
+    <div class="input-group">
+        <label>Evento</label>
+        <input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
+    </div>
+    <div class="input-group">
+        <label>Luogo</label>
+        <input type="text" id="f_luogo" placeholder="Es: Comune di Lecco">
+    </div>
+    <div class="input-group">
+        <label>Mezzi</label>
+        <input type="text" id="f_mezzi" placeholder="Es: Defender, Unità Cinofila">
+    </div>
+    <div class="input-group">
+        <label>Note aggiuntive</label>
+        <textarea id="f_note" placeholder="Dettagli extra..."></textarea>
     </div>
 
     <div class="btn-group">
-        <button class="btn btn-alert" onclick="openGate('allerta')"><span>🚨</span> TRASMETTI TABELLA</button>
-        <button class="btn btn-gps" onclick="openGate('gps')"><span>🛰️</span> GPS TABLE</button>
+        <button class="btn btn-alert" onclick="openGate('allerta')"><span>🚨</span> INVIA ALLERTA</button>
+        <button class="btn btn-gps" onclick="openGate('gps')"><span>🛰️</span> POSIZIONE GPS</button>
     </div>
 </div>
 
@@ -142,7 +157,7 @@ NOTE: "></textarea>
         <input type="password" id="gateInput" class="input-control" placeholder="PIN">
         <div class="modal-footer-btns">
             <button class="btn-cancel" onclick="closeGate()">CHIUDI</button>
-            <button id="gateConfirm" class="btn-confirm">INVIA</button>
+            <button id="gateConfirm" class="btn-confirm">CONFERMA</button>
         </div>
         <span class="forgot-link" onclick="sendReminder()">Recupera PIN</span>
     </div>
@@ -158,37 +173,48 @@ NOTE: "></textarea>
         const input = document.getElementById('gateInput');
         const btn = document.getElementById('gateConfirm');
         input.value = ""; input.type = "password";
+        if(tipo === 'gps') { input.placeholder = "COORD. GPS"; input.type = "text"; } else { input.placeholder = "PIN"; }
+        
         modal.style.display = "block";
         input.focus();
 
         btn.onclick = function() {
-            if (input.value !== PIN_CORRETTO) { alert("NEGATO"); return; }
-            transmit(document.getElementById('mainText').value, tipo);
+            if (tipo === 'allerta') {
+                if (input.value !== PIN_CORRETTO) { alert("PIN ERRATO"); return; }
+                transmit('allerta');
+            } else {
+                transmit('gps', input.value);
+            }
         };
     }
 
     function closeGate() { document.getElementById('gate').style.display = "none"; }
 
     function sendReminder() {
-        const msg = "🔔 *PROMEMORIA SICUREZZA*\nIl codice di sblocco console è: `" + PIN_CORRETTO + "`";
+        const msg = "🔔 *PROMEMORIA*\nIl PIN è: `" + PIN_CORRETTO + "`";
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
-        alert("PIN inviato.");
+        alert("Inviato.");
     }
 
-    function transmit(val, tipo) {
-        if (!val.trim()) { alert("VUOTO"); return; }
+    function transmit(tipo, gpsVal = "") {
         let msg = "";
         const ora = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
         if (tipo === 'allerta') {
-            // COSTRUZIONE TABELLA TESTUALE
+            const ev = document.getElementById('f_evento').value || "N/D";
+            const lu = document.getElementById('f_luogo').value || "N/D";
+            const me = document.getElementById('f_mezzi').value || "N/D";
+            const no = document.getElementById('f_note').value || "Nessuna";
+
             msg = "📂 *SCHEDA OPERATIVA UNITÀ MERLINI*\n";
             msg += "```\n";
             msg += "╔════════════════════════════════╗\n";
             msg += "║ DATA: 15/02/2026   ORA: " + ora + "  ║\n";
             msg += "╠════════════════════════════════╣\n";
-            msg += "  DETTAGLI MISSIONE:\n\n";
-            msg += val.toUpperCase() + "\n";
+            msg += "  EVENTO: " + ev.toUpperCase() + "\n";
+            msg += "  LUOGO : " + lu.toUpperCase() + "\n";
+            msg += "  MEZZI : " + me.toUpperCase() + "\n";
+            msg += "  NOTE  : " + no.toUpperCase() + "\n";
             msg += "╚════════════════════════════════╝\n";
             msg += "```\n";
             msg += "🔴 **ATTIVAZIONE IMMEDIATA** 🔴";
@@ -196,15 +222,25 @@ NOTE: "></textarea>
             msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n";
             msg += "```\n";
             msg += "┌──────────────────────────────┐\n";
-            msg += "  COORDINATE: " + val + "\n";
+            msg += "  COORDINATE: " + gpsVal + "\n";
             msg += "└──────────────────────────────┘\n";
             msg += "```\n";
-            msg += "📍 [MAPPA LIVE](http://googleusercontent.com/maps.google.com/q=" + val.replace(/\s/g, '') + ")";
+            msg += "📍 [MAPPA LIVE](https://www.google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
         }
 
         closeGate();
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { if(res.ok) { alert("TABELLA TRASMESSA"); document.getElementById('mainText').value = ""; }});
+        .then(res => { 
+            if(res.ok) { 
+                alert("TRASMESSO"); 
+                if(tipo === 'allerta') {
+                    document.getElementById('f_evento').value = "";
+                    document.getElementById('f_luogo').value = "";
+                    document.getElementById('f_mezzi').value = "";
+                    document.getElementById('f_note').value = "";
+                }
+            }
+        });
     }
 </script>
 </body>
