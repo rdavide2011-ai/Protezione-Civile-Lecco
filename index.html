@@ -20,8 +20,7 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -35,38 +34,13 @@
             display: flex;
             align-items: center;
             border-bottom: 3px solid var(--pc-yellow);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
 
-        .logo-container {
-            width: 45px;
-            height: 45px;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .logo-container { width: 45px; height: 45px; margin-right: 15px; }
+        .logo-container img { width: 100%; height: auto; }
 
-        .logo-container img {
-            width: 100%;
-            height: auto;
-        }
-
-        .top-bar-text h1 { 
-            margin: 0; 
-            font-size: 14px; 
-            letter-spacing: 1.5px; 
-            color: var(--pc-yellow); 
-            text-transform: uppercase; 
-            font-weight: 900;
-        }
-        
-        .top-bar-text p { 
-            margin: 0; 
-            font-size: 10px; 
-            opacity: 0.8; 
-            color: #8b949e;
-        }
+        .top-bar-text h1 { margin: 0; font-size: 14px; color: var(--pc-yellow); text-transform: uppercase; font-weight: 900; }
+        .top-bar-text p { margin: 0; font-size: 10px; color: #8b949e; }
 
         .main-ui {
             flex: 1;
@@ -85,7 +59,6 @@
             letter-spacing: 2px;
             color: var(--pc-yellow);
             margin-bottom: 5px;
-            font-weight: bold;
         }
 
         textarea {
@@ -96,94 +69,50 @@
             border-radius: 10px;
             color: white;
             padding: 15px;
-            font-size: 16px;
+            font-size: 15px;
+            font-family: monospace;
             outline: none;
             resize: none;
         }
 
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .btn {
-            padding: 20px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 13px;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
+            padding: 20px; border: none; border-radius: 10px;
+            font-weight: bold; font-size: 13px; text-transform: uppercase;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
 
         .btn-alert { background: var(--danger); color: white; }
         .btn-gps { background: var(--pc-blue); color: white; }
-        .btn:active { transform: scale(0.95); }
 
         /* Modal */
         .modal {
-            display: none;
-            position: fixed;
+            display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(10, 14, 20, 0.98);
-            z-index: 999;
-            padding: 50px 20px;
+            z-index: 999; padding: 50px 20px;
         }
 
         .modal-content { max-width: 400px; margin: 0 auto; text-align: center; }
-        .modal h2 { color: var(--pc-yellow); font-size: 18px; text-transform: uppercase; }
-        
-        .modal-link { color: #58a6ff; display: block; margin-bottom: 20px; font-size: 13px; text-decoration: none; border: 1px solid #30363d; padding: 10px; border-radius: 5px; }
-        
-        .forgot-link {
-            display: block;
-            margin-top: 15px;
-            color: #8b949e;
-            font-size: 12px;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-
         .input-control {
-            width: 100%;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 5px;
-            color: white;
-            font-size: 24px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-            outline: none;
+            width: 100%; background: #161b22; border: 1px solid #30363d;
+            border-radius: 5px; color: white; font-size: 24px;
+            padding: 15px; text-align: center; margin-bottom: 20px;
         }
 
         .modal-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .btn-confirm { background: var(--pc-yellow); color: black; padding: 15px; border-radius: 5px; border: none; font-weight: bold; }
         .btn-cancel { background: #30363d; color: white; padding: 15px; border-radius: 5px; border: none; }
+        
+        .forgot-link { display: block; margin-top: 20px; color: #8b949e; font-size: 11px; text-decoration: underline; cursor: pointer; }
 
-        .status-bar {
-            background: #010409;
-            padding: 10px 20px;
-            font-size: 9px;
-            color: #484f58;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid #30363d;
-        }
+        .status-bar { background: #010409; padding: 10px 20px; font-size: 9px; color: #484f58; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <div class="logo-container">
-        <img src="logo.svg" alt="Logo PC">
-    </div>
+    <div class="logo-container"><img src="logo.svg" alt="Logo"></div>
     <div class="top-bar-text">
         <h1>Protezione Civile Lecco</h1>
         <p>CONSOLE OPERATIVA UNITÀ "A. MERLINI"</p>
@@ -192,34 +121,30 @@
 
 <div class="main-ui">
     <div style="flex: 1; display: flex; flex-direction: column;">
-        <span class="section-label">Dettagli Operativi (Seguire scaletta)</span>
-        <textarea id="mainText" placeholder="Evento:&#10;Luogo:&#10;Mezzi:&#10;Note:"></textarea>
+        <span class="section-label">Compilazione Tabella Allerta</span>
+        <textarea id="mainText" placeholder="EVENTO: 
+LUOGO: 
+MEZZI: 
+NOTE: "></textarea>
     </div>
 
     <div class="btn-group">
-        <button class="btn btn-alert" onclick="openGate('allerta')">
-            <span>🚨</span> ATTIVAZIONE
-        </button>
-        <button class="btn btn-gps" onclick="openGate('gps')">
-            <span>🛰️</span> COORDINATE
-        </button>
+        <button class="btn btn-alert" onclick="openGate('allerta')"><span>🚨</span> TRASMETTI TABELLA</button>
+        <button class="btn btn-gps" onclick="openGate('gps')"><span>🛰️</span> GPS TABLE</button>
     </div>
 </div>
 
-<div class="status-bar">
-    <span>SISTEMA ATTIVO</span>
-    <span>LECCO - SAR UNIT</span>
-</div>
+<div class="status-bar"><span>SYSTEM READY</span><span>15/02/2026 - LECCO</span></div>
 
 <div id="gate" class="modal">
     <div class="modal-content">
-        <h2 id="gateTitle">Sicurezza</h2>
-        <input type="password" id="gateInput" class="input-control" autocomplete="off" placeholder="PIN">
+        <h2 style="color:var(--pc-yellow)">AUTORIZZAZIONE</h2>
+        <input type="password" id="gateInput" class="input-control" placeholder="PIN">
         <div class="modal-footer-btns">
-            <button class="btn-cancel" onclick="closeGate()">Annulla</button>
-            <button id="gateConfirm" class="btn-confirm">Conferma</button>
+            <button class="btn-cancel" onclick="closeGate()">CHIUDI</button>
+            <button id="gateConfirm" class="btn-confirm">INVIA</button>
         </div>
-        <span class="forgot-link" onclick="sendReminder()">Hai dimenticato la password?</span>
+        <span class="forgot-link" onclick="sendReminder()">Recupera PIN</span>
     </div>
 </div>
 
@@ -232,68 +157,54 @@
         const modal = document.getElementById('gate');
         const input = document.getElementById('gateInput');
         const btn = document.getElementById('gateConfirm');
-
         input.value = ""; input.type = "password";
         modal.style.display = "block";
         input.focus();
 
         btn.onclick = function() {
-            if (input.value !== PIN_CORRETTO) { alert("PIN ERRATO"); return; }
-            if (tipo === 'allerta') { transmit(document.getElementById('mainText').value, 'alert'); } 
-            else { setupGPS(); }
-        };
-    }
-
-    function setupGPS() {
-        const input = document.getElementById('gateInput');
-        const btn = document.getElementById('gateConfirm');
-        input.value = ""; input.type = "text"; input.placeholder = "45.xx, 9.xx";
-        btn.onclick = function() {
-            if (!input.value.trim()) return;
-            transmit(input.value, 'gps');
+            if (input.value !== PIN_CORRETTO) { alert("NEGATO"); return; }
+            transmit(document.getElementById('mainText').value, tipo);
         };
     }
 
     function closeGate() { document.getElementById('gate').style.display = "none"; }
 
     function sendReminder() {
-        const msg = "🔑 *RECUPERO CREDENZIALI*\nIl PIN di accesso è: `" + PIN_CORRETTO + "`";
+        const msg = "🔔 *PROMEMORIA SICUREZZA*\nIl codice di sblocco console è: `" + PIN_CORRETTO + "`";
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
-        alert("PIN inviato nel gruppo.");
+        alert("PIN inviato.");
     }
 
     function transmit(val, tipo) {
-        if (!val.trim()) { alert("ERRORE: Campo vuoto"); return; }
-        
+        if (!val.trim()) { alert("VUOTO"); return; }
         let msg = "";
         const ora = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
-        if (tipo === 'alert') {
-            // SCALETTA PROFESSIONALE
-            msg = "🔴 *ATTIVAZIONE UNITÀ MERLINI* 🔴\n";
-            msg += "───────────────────\n";
-            msg += "📅 *DATA:* 15/02/2026\n";
-            msg += "🕒 *ORA INVIO:* " + ora + "\n\n";
-            msg += "📝 *DETTAGLI INTERVENTO:*\n";
-            msg += "_" + val + "_\n";
-            msg += "───────────────────\n";
-            msg += "📢 *STATO:* OPERATIVO IMMEDIATO";
+        if (tipo === 'allerta') {
+            // COSTRUZIONE TABELLA TESTUALE
+            msg = "📂 *SCHEDA OPERATIVA UNITÀ MERLINI*\n";
+            msg += "```\n";
+            msg += "╔════════════════════════════════╗\n";
+            msg += "║ DATA: 15/02/2026   ORA: " + ora + "  ║\n";
+            msg += "╠════════════════════════════════╣\n";
+            msg += "  DETTAGLI MISSIONE:\n\n";
+            msg += val.toUpperCase() + "\n";
+            msg += "╚════════════════════════════════╝\n";
+            msg += "```\n";
+            msg += "🔴 **ATTIVAZIONE IMMEDIATA** 🔴";
         } else {
-            const p = val.replace(/\s/g, '');
-            msg = "🛰️ *COORDINATE GPS RILEVATE*\n";
-            msg += "───────────────────\n";
-            msg += "📍 *POSIZIONE:* `" + val + "`\n\n";
-            msg += "🔗 *MAPPA:* [Apri in Google Maps](https://www.google.com/maps?q=" + p + ")";
+            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n";
+            msg += "```\n";
+            msg += "┌──────────────────────────────┐\n";
+            msg += "  COORDINATE: " + val + "\n";
+            msg += "└──────────────────────────────┘\n";
+            msg += "```\n";
+            msg += "📍 [MAPPA LIVE](http://googleusercontent.com/maps.google.com/q=" + val.replace(/\s/g, '') + ")";
         }
 
         closeGate();
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { 
-            if(res.ok) { 
-                alert("MESSAGGIO INVIATO CON SCALETTA"); 
-                document.getElementById('mainText').value = ""; 
-            }
-        });
+        .then(res => { if(res.ok) { alert("TABELLA TRASMESSA"); document.getElementById('mainText').value = ""; }});
     }
 </script>
 </body>
