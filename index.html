@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannello PC Lecco</title>
+    <style>
+        body { font-family: sans-serif; background: #003366; color: white; text-align: center; padding: 20px; }
+        .box { background: white; padding: 25px; border-radius: 15px; max-width: 380px; margin: auto; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h2 { color: #003366; margin-bottom: 5px; }
+        p { font-size: 14px; color: #666; margin-bottom: 20px; }
+        textarea { width: 100%; height: 120px; padding: 10px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; resize: none; }
+        textarea:focus { border-color: #cc0000; outline: none; }
+        button { width: 100%; padding: 15px; background: #cc0000; color: white; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 18px; margin-top: 15px; }
+        button:active { transform: scale(0.98); background: #a00000; }
+        #stato { margin-top: 15px; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>P.C. LECCO</h2>
+    <p>Scrivi il messaggio e premi il tasto rosso</p>
+    
+    <textarea id="testo" placeholder="Inserisci dettagli emergenza..."></textarea>
+    
+    <button onclick="inviaMessaggio()">🚨 INVIA ALLERTA</button>
+    
+    <div id="stato"></div>
+</div>
+
+<script>
+    function inviaMessaggio() {
+        const TOKEN = "8237203800:AAHP2-BFVbsoApqFMOlgWjAUGmjUdqzVnzI";
+        const ID = "7181181566";
+        const contenuto = document.getElementById('testo').value;
+        const stato = document.getElementById('stato');
+
+        if (contenuto.trim() === "") {
+            alert("Scrivi un messaggio prima di inviare!");
+            return;
+        }
+
+        stato.innerText = "⏳ Invio in corso...";
+        stato.style.color = "blue";
+
+        // Costruiamo l'indirizzo per Telegram
+        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID}&text=${encodeURIComponent("⚠️ ALLERTA P.C. LECCO ⚠️\n\n" + contenuto)}&parse_mode=Markdown`;
+
+        fetch(url)
+        .then(response => {
+            if (response.ok) {
+                stato.innerText = "✅ MESSAGGIO INVIATO!";
+                stato.style.color = "green";
+                document.getElementById('testo').value = ""; // Pulisce il campo
+            } else {
+                stato.innerText = "❌ ERRORE: Il Bot non ti ha trovato.";
+                stato.style.color = "red";
+                alert("Assicurati di aver premuto START sul Bot su Telegram!");
+            }
+        })
+        .catch(error => {
+            stato.innerText = "❌ ERRORE DI CONNESSIONE";
+            stato.style.color = "red";
+        });
+    }
+</script>
+
+</body>
+</html>
