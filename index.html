@@ -9,11 +9,11 @@
         body { font-family: sans-serif; background: #003366; color: white; text-align: center; padding: 20px; }
         .box { background: white; padding: 30px; border-radius: 20px; max-width: 400px; margin: auto; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .header { background: #ffcc00; color: #003366; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; font-size: 18px; }
-        textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 10px; resize: none; }
-        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; }
+        textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; resize: none; }
+        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-alert { background: #cc0000; }
         .btn-map { background: #28a745; }
-        #stato { margin-top: 10px; font-weight: bold; color: #666; }
+        #stato { margin-top: 10px; font-weight: bold; color: #555; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -21,66 +21,68 @@
 <div class="box">
     <div class="header">PROTEZIONE CIVILE - LECCO</div>
     <h2 style="margin:0;">Unità "A. Merlini"</h2>
-    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Invio Emergenze</p>
+    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Emergenze S.A.R.</p>
     
-    <textarea id="testo" placeholder="Scrivi qui il messaggio per i volontari..."></textarea>
+    <textarea id="testo" placeholder="Inserisci qui i dettagli (es. Luogo, Tipo Emergenza, Orario)..."></textarea>
     
     <button class="btn-alert" onclick="preparaMessaggio('allerta')">🚨 INVIA ATTIVAZIONE</button>
     <button class="btn-map" onclick="preparaMessaggio('mappa')">📍 INVIA LINK MAPPE GPX</button>
     
-    <div id="stato">Pronto all'invio</div>
+    <div id="stato">Sistema pronto</div>
 </div>
 
 <script>
+    // Configurazione dati Telegram
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
     function preparaMessaggio(tipo) {
-        const pin = prompt("Inserisci il PIN di sicurezza:");
+        const pin = prompt("SICUREZZA: Inserisci il PIN:");
         if (pin !== PIN_CORRETTO) {
             alert("PIN Errato!");
             return;
         }
 
-        let messaggioFinale = "";
+        let testoFinale = "";
         
         if (tipo === 'allerta') {
             const corpo = document.getElementById('testo').value;
             if (!corpo.trim()) {
-                alert("Scrivi un messaggio prima di inviare!");
+                alert("Scrivi prima un messaggio!");
                 return;
             }
-            messaggioFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
+            testoFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
         } else {
-            // Link di prova che abbiamo deciso
-            const linkMappa = "https://bit.ly/mappe-test-merlini";
-            messaggioFinale = "📍 *MAPPE E TRACCE GPX*\nAccedi qui per i file:\n" + linkMappa;
+            // Qui inseriamo il link di prova delle mappe
+            const linkMappa = "https://www.google.it/maps"; 
+            testoFinale = "📍 *MAPPE E TRACCE GPX*\nAccedi ai file qui:\n" + linkMappa;
         }
 
-        inviaATelegram(messaggioFinale);
+        inviaATelegram(testoFinale);
     }
 
     function inviaATelegram(testo) {
-        const stato = document.getElementById('stato');
-        stato.innerText = "⏳ Invio in corso...";
-        
+        const displayStato = document.getElementById('stato');
+        displayStato.innerText = "⏳ Invio in corso...";
+        displayStato.style.color = "blue";
+
         const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(testo)}&parse_mode=Markdown`;
 
         fetch(url)
-        .then(res => {
-            if(res.ok) {
-                stato.innerText = "✅ INVIATO CON SUCCESSO";
-                stato.style.color = "green";
-                document.getElementById('testo').value = "";
+        .then(response => {
+            if(response.ok) {
+                displayStato.innerText = "✅ INVIATO CORRETTAMENTE";
+                displayStato.style.color = "green";
+                document.getElementById('testo').value = ""; // Pulisce il campo
             } else {
-                stato.innerText = "❌ ERRORE (Controlla il Bot)";
-                stato.style.color = "red";
+                displayStato.innerText = "❌ ERRORE INVIO (Controlla Bot)";
+                displayStato.style.color = "red";
             }
         })
-        .catch(() => {
-            stato.innerText = "❌ ERRORE DI RETE";
-            stato.style.color = "red";
+        .catch(err => {
+            displayStato.innerText = "❌ ERRORE DI RETE";
+            displayStato.style.color = "red";
         });
     }
 </script>
