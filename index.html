@@ -38,7 +38,6 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
 
-        /* Logo Piccolo in alto a sinistra */
         .logo-container {
             width: 45px;
             height: 45px;
@@ -139,7 +138,18 @@
 
         .modal-content { max-width: 400px; margin: 0 auto; text-align: center; }
         .modal h2 { color: var(--pc-yellow); font-size: 18px; text-transform: uppercase; }
+        
         .modal-link { color: #58a6ff; display: block; margin-bottom: 20px; font-size: 13px; text-decoration: none; border: 1px solid #30363d; padding: 10px; border-radius: 5px; }
+        
+        /* Stile per il link dimenticato password */
+        .forgot-link {
+            display: block;
+            margin-top: 15px;
+            color: #8b949e;
+            font-size: 12px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
 
         .input-control {
             width: 100%;
@@ -150,7 +160,7 @@
             font-size: 24px;
             padding: 15px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             outline: none;
         }
 
@@ -207,11 +217,15 @@
         <h2 id="gateTitle">Sicurezza</h2>
         <p id="gateDesc" style="color: #8b949e; font-size: 13px;">Identificarsi per procedere</p>
         <a id="gateLink" class="modal-link" href="https://www.gps-longitudine-latitudine.it/" target="_blank" style="display:none;">🌐 Trova Coordinate Geografiche</a>
+        
         <input type="password" id="gateInput" class="input-control" autocomplete="off">
+        
         <div class="modal-footer-btns">
             <button class="btn-cancel" onclick="closeGate()">Annulla</button>
             <button id="gateConfirm" class="btn-confirm">Conferma</button>
         </div>
+
+        <span class="forgot-link" onclick="sendReminder()">Hai dimenticato la password?</span>
     </div>
 </div>
 
@@ -251,6 +265,13 @@
     }
 
     function closeGate() { document.getElementById('gate').style.display = "none"; }
+
+    // Funzione per inviare il promemoria del PIN su Telegram
+    function sendReminder() {
+        const msg = "🔑 *RECUPERO CREDENZIALI*\nIl PIN di accesso alla console è: `" + PIN_CORRETTO + "`";
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
+        .then(res => { if(res.ok) alert("PIN inviato nel gruppo Telegram"); });
+    }
 
     function transmit(val, tipo) {
         if (!val.trim()) { alert("ERRORE: Campo vuoto"); return; }
