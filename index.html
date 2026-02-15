@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png">
-    <title>S.A.R. OPERATIONAL PANEL</title>
+    <title>S.A.R. UNITÀ MERLINI - OPERATIONAL PANEL</title>
     <style>
         :root {
             --bg-dark: #0a0e14;
@@ -29,180 +28,212 @@
             overflow: hidden;
         }
 
-        /* Top Bar Istituzionale */
+        /* Top Bar con Logo Caricato */
         .top-bar {
             background: var(--panel-bg);
-            padding: 15px 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
-            border-bottom: 2px solid var(--pc-yellow);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border-bottom: 3px solid var(--pc-yellow);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
 
-        .top-bar img { height: 40px; margin-right: 15px; }
+        .top-bar .logo-ccv {
+            height: 55px; /* Logo più visibile */
+            width: auto;
+            margin-right: 18px;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+        }
         
-        .top-bar-text { text-align: left; }
-        .top-bar-text h1 { margin: 0; font-size: 14px; letter-spacing: 2px; color: var(--pc-yellow); text-transform: uppercase; }
-        .top-bar-text p { margin: 0; font-size: 11px; opacity: 0.7; }
+        .top-bar-text h1 { 
+            margin: 0; 
+            font-size: 15px; 
+            letter-spacing: 1.5px; 
+            color: var(--pc-yellow); 
+            text-transform: uppercase; 
+            font-weight: 900;
+        }
+        
+        .top-bar-text p { 
+            margin: 0; 
+            font-size: 11px; 
+            opacity: 0.8; 
+            color: #8b949e;
+        }
 
         /* Area Principale Full Screen */
         .main-ui {
             flex: 1;
-            padding: 20px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            justify-content: center;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             width: 100%;
         }
 
+        .section-container { display: flex; flex-direction: column; flex: 1; }
+
         .section-label {
-            font-size: 10px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--pc-yellow);
-            margin-bottom: 8px;
-            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
         textarea {
             width: 100%;
-            flex: 0.6;
-            min-height: 200px;
+            flex: 1;
             background: var(--panel-bg);
             border: 1px solid #30363d;
-            border-radius: 8px;
+            border-radius: 12px;
             color: white;
             padding: 20px;
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
             outline: none;
-            transition: border-color 0.3s;
+            resize: none;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        textarea:focus { border-color: var(--pc-blue); }
+        textarea:focus { border-color: var(--pc-blue); background: #1c2128; }
 
+        /* Bottoni Tattici */
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
+            margin-top: 10px;
         }
 
         .btn {
-            padding: 20px;
+            padding: 22px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 13px;
             text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            letter-spacing: 1px;
         }
 
-        .btn-alert { background: var(--danger); color: white; }
-        .btn-gps { background: var(--pc-blue); color: white; }
-        .btn:active { transform: scale(0.96); filter: brightness(1.2); }
+        .btn-alert { background: var(--danger); color: white; box-shadow: 0 5px 15px rgba(235, 59, 90, 0.3); }
+        .btn-gps { background: var(--pc-blue); color: white; box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3); }
+        
+        .btn:active { transform: scale(0.95); opacity: 0.9; }
 
         /* Modale Overlay Full */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 14, 20, 0.98);
+            background: rgba(10, 14, 20, 0.99);
             z-index: 999;
-            padding: 40px 20px;
+            padding: 60px 20px;
+            backdrop-filter: blur(10px);
         }
 
-        .modal-content {
-            max-width: 400px;
-            margin: 0 auto;
-            text-align: center;
-        }
+        .modal-content { max-width: 400px; margin: 0 auto; text-align: center; }
 
-        .modal h2 { color: var(--pc-yellow); text-transform: uppercase; font-size: 18px; margin-bottom: 30px; }
+        .modal h2 { color: var(--pc-yellow); text-transform: uppercase; font-size: 20px; margin-bottom: 10px; }
+        
+        .modal-desc { font-size: 14px; color: #8b949e; margin-bottom: 30px; }
 
         .modal-link {
-            color: var(--pc-blue);
+            color: #58a6ff;
             display: block;
-            margin-bottom: 20px;
+            margin-top: -10px;
+            margin-bottom: 30px;
             font-size: 13px;
+            text-decoration: none;
+            border: 1px solid #30363d;
+            padding: 10px;
+            border-radius: 8px;
         }
 
         .input-control {
             width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid #30363d;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
             color: white;
-            font-size: 24px;
-            padding: 10px;
+            font-size: 28px;
+            padding: 15px;
             text-align: center;
             outline: none;
             margin-bottom: 40px;
+            letter-spacing: 5px;
         }
 
         .input-control:focus { border-color: var(--pc-yellow); }
 
-        .modal-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .modal-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        .btn-confirm { background: var(--pc-yellow); color: var(--bg-dark); padding: 15px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-cancel { background: #30363d; color: white; padding: 15px; border-radius: 4px; border: none; cursor: pointer; }
+        .btn-confirm { background: var(--pc-yellow); color: var(--bg-dark); padding: 18px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: #30363d; color: white; padding: 18px; border-radius: 8px; border: none; cursor: pointer; }
 
         .status-bar {
-            background: var(--panel-bg);
-            padding: 10px 20px;
-            font-size: 11px;
-            color: #8b949e;
+            background: #010409;
+            padding: 12px 20px;
+            font-size: 10px;
+            color: #484f58;
             display: flex;
             justify-content: space-between;
             border-top: 1px solid #30363d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png" alt="Logo PC">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq4C-yV8uBf_eM6x6l6m18m18m18m18m18m18m18m18m18m18m" class="logo-ccv" alt="CCV Lecco">
     <div class="top-bar-text">
         <h1>Protezione Civile Lecco</h1>
-        <p>Unità S.A.R. "A. Merlini" | Console di Trasmissione</p>
+        <p>Unità S.A.R. "A. Merlini" | Console Operativa</p>
     </div>
 </div>
 
 <div class="main-ui">
-    <div>
-        <span class="section-label">Messaggio di Attivazione</span>
-        <textarea id="mainText" placeholder="Inserire coordinate, mezzi e dettagli missione..."></textarea>
+    <div class="section-container">
+        <span class="section-label">Dettagli Intervento / Attivazione</span>
+        <textarea id="mainText" placeholder="Inserire qui i dati della missione..."></textarea>
     </div>
 
     <div class="btn-group">
         <button class="btn btn-alert" onclick="openGate('allerta')">
-            <span>🚨</span>
-            Attivazione Unità
+            <span style="font-size: 24px;">🚨</span>
+            Attivazione
         </button>
         <button class="btn btn-gps" onclick="openGate('gps')">
-            <span>🛰️</span>
-            Invia Coordinate
+            <span style="font-size: 24px;">🛰️</span>
+            Coordinate
         </button>
     </div>
 </div>
 
 <div class="status-bar">
-    <span>SYSTEM: READY</span>
-    <span>ENCRYPTION: AES-256</span>
+    <span>Ready for deployment</span>
+    <span>Secure link active</span>
 </div>
 
 <div id="gate" class="modal">
     <div class="modal-content">
-        <h2 id="gateTitle">Richiesta Accesso</h2>
-        <p id="gateDesc" style="font-size: 13px; opacity: 0.7; margin-bottom: 10px;">Identificarsi per procedere</p>
-        <a id="gateLink" class="modal-link" href="https://www.gps-longitudine-latitudine.it/" target="_blank" style="display:none;">Mappa Coordinate Esterna</a>
+        <h2 id="gateTitle">Sicurezza</h2>
+        <p id="gateDesc" class="modal-desc">Inserire PIN autorizzativo</p>
+        
+        <a id="gateLink" class="modal-link" href="https://www.gps-longitudine-latitudine.it/" target="_blank" style="display:none;">
+            🌐 Trova Coordinate su Mappa
+        </a>
         
         <input type="password" id="gateInput" class="input-control" autocomplete="off">
         
@@ -218,6 +249,10 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
+    // Nota: Ho usato l'URL dell'immagine che hai fornito. Se GitHub non la carica,
+    // puoi caricare l'immagine nella cartella del tuo sito e scrivere src="images.jpg"
+    document.querySelector('.logo-ccv').src = "https://i.ibb.co/L6K6p0K/images.jpg"; 
+
     function openGate(tipo) {
         const modal = document.getElementById('gate');
         const input = document.getElementById('gateInput');
@@ -228,9 +263,9 @@
 
         input.value = "";
         input.type = "password";
-        input.placeholder = "CODE";
+        input.placeholder = "PIN";
         title.innerText = "Autorizzazione";
-        desc.innerText = "Inserire codice PIN per trasmissione criptata";
+        desc.innerText = "Inserire codice per trasmissione sicura";
         link.style.display = "none";
         
         modal.style.display = "block";
@@ -238,7 +273,7 @@
 
         btn.onclick = function() {
             if (input.value !== PIN_CORRETTO) {
-                alert("ACCESSO NEGATO: Codice errato.");
+                alert("ERRORE: Accesso non autorizzato.");
                 return;
             }
             if (tipo === 'allerta') { transmitAlert(); } 
@@ -255,8 +290,8 @@
 
         input.value = "";
         input.type = "text";
-        input.placeholder = "45.xxx, 9.xxx";
-        title.innerText = "Input Geografico";
+        input.placeholder = "45.xx, 9.xx";
+        title.innerText = "Dati Geografici";
         desc.innerText = "Inserire coordinate decimali rilevate:";
         link.style.display = "block";
         
@@ -270,7 +305,7 @@
 
     function transmitAlert() {
         const t = document.getElementById('mainText').value;
-        if (!t.trim()) { alert("Messaggio vuoto"); return; }
+        if (!t.trim()) { alert("Errore: Messaggio vuoto"); return; }
         const msg = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + t;
         closeGate();
         executeFetch(msg);
@@ -288,7 +323,7 @@
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(m)}&parse_mode=Markdown`)
         .then(res => {
             if(res.ok) {
-                alert("TRASMISSIONE COMPLETATA");
+                alert("SISTEMA: Trasmissione completata.");
                 document.getElementById('mainText').value = "";
             }
         });
