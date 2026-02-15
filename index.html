@@ -1,55 +1,270 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta http-equiv="Content-Style-Type" content="text/css" />
-    <meta name="generator" content="Aspose.Words for .NET 25.11.0" />
-    <title>CCV-LC Lecco - Protezione Civile</title>
-    <style type="text/css">
-        /* Qui ci sono tutti gli stili originali che mantengono l'impaginazione di Word */
-        body { 
-            font-family:'Times New Roman'; 
-            font-size:12pt; 
-            background-color: #ffffff;
-            margin: 0;
-            padding: 0;
-        }
-        p { margin:0pt; text-align:justify; }
-        
-        /* Contenitore per centrare il documento come se fosse un foglio A4 */
-        .page-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            padding: 20px 0;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S.A.R. UNITÀ MERLINI - OPERATIONAL PANEL</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e14;
+            --panel-bg: #161b22;
+            --pc-yellow: #ffcc00;
+            --pc-blue: #0056b3;
+            --danger: #eb3b5a;
+            --text-main: #e6edf3;
         }
 
-        /* Stile specifico per l'immagine del logo */
-        .logo-svg {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            width: 816px; /* Larghezza originale del tuo file Word */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--panel-bg);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid var(--pc-yellow);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        /* Logo Piccolo in alto a sinistra */
+        .logo-container {
+            width: 45px;
+            height: 45px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            width: 100%;
             height: auto;
-            -aw-left-pos:0pt; 
-            -aw-rel-hpos:column; 
-            -aw-rel-vpos:paragraph; 
-            -aw-top-pos:0pt; 
-            -aw-wrap-type:inline;
+        }
+
+        .top-bar-text h1 { 
+            margin: 0; 
+            font-size: 14px; 
+            letter-spacing: 1.5px; 
+            color: var(--pc-yellow); 
+            text-transform: uppercase; 
+            font-weight: 900;
+        }
+        
+        .top-bar-text p { 
+            margin: 0; 
+            font-size: 10px; 
+            opacity: 0.8; 
+            color: #8b949e;
+        }
+
+        .main-ui {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--pc-yellow);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            outline: none;
+            resize: none;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-alert { background: var(--danger); color: white; }
+        .btn-gps { background: var(--pc-blue); color: white; }
+        .btn:active { transform: scale(0.95); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 14, 20, 0.98);
+            z-index: 999;
+            padding: 50px 20px;
+        }
+
+        .modal-content { max-width: 400px; margin: 0 auto; text-align: center; }
+        .modal h2 { color: var(--pc-yellow); font-size: 18px; text-transform: uppercase; }
+        .modal-link { color: #58a6ff; display: block; margin-bottom: 20px; font-size: 13px; text-decoration: none; border: 1px solid #30363d; padding: 10px; border-radius: 5px; }
+
+        .input-control {
+            width: 100%;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            color: white;
+            font-size: 24px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            outline: none;
+        }
+
+        .modal-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-confirm { background: var(--pc-yellow); color: black; padding: 15px; border-radius: 5px; border: none; font-weight: bold; }
+        .btn-cancel { background: #30363d; color: white; padding: 15px; border-radius: 5px; border: none; }
+
+        .status-bar {
+            background: #010409;
+            padding: 10px 20px;
+            font-size: 9px;
+            color: #484f58;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #30363d;
         }
     </style>
 </head>
 <body>
-    <div class="page-container">
-        <div>
-            <p>
-                <img src="logo.svg" class="logo-svg" alt="Logo Coordinamento Volontari Lecco" />
-            </p>
-            
-            <p style="text-align:center; margin-top:20pt;">
-                <strong>COORDINAMENTO VOLONTARI PROTEZIONE CIVILE LECCO</strong>
-            </p>
+
+<div class="top-bar">
+    <div class="logo-container">
+        <img src="logo.svg" alt="Logo PC">
+    </div>
+    <div class="top-bar-text">
+        <h1>Protezione Civile Lecco</h1>
+        <p>CONSOLE OPERATIVA UNITÀ "A. MERLINI"</p>
+    </div>
+</div>
+
+<div class="main-ui">
+    <div style="flex: 1; display: flex; flex-direction: column;">
+        <span class="section-label">Dettagli Operativi</span>
+        <textarea id="mainText" placeholder="Inserire testo allerta qui..."></textarea>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-alert" onclick="openGate('allerta')">
+            <span>🚨</span> ATTIVAZIONE
+        </button>
+        <button class="btn btn-gps" onclick="openGate('gps')">
+            <span>🛰️</span> COORDINATE
+        </button>
+    </div>
+</div>
+
+<div class="status-bar">
+    <span>SISTEMA ATTIVO</span>
+    <span>LECCO - SAR UNIT</span>
+</div>
+
+<div id="gate" class="modal">
+    <div class="modal-content">
+        <h2 id="gateTitle">Sicurezza</h2>
+        <p id="gateDesc" style="color: #8b949e; font-size: 13px;">Identificarsi per procedere</p>
+        <a id="gateLink" class="modal-link" href="https://www.gps-longitudine-latitudine.it/" target="_blank" style="display:none;">🌐 Trova Coordinate Geografiche</a>
+        <input type="password" id="gateInput" class="input-control" autocomplete="off">
+        <div class="modal-footer-btns">
+            <button class="btn-cancel" onclick="closeGate()">Annulla</button>
+            <button id="gateConfirm" class="btn-confirm">Conferma</button>
         </div>
     </div>
+</div>
+
+<script>
+    const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
+    const ID_GRUPPO = "-1003709844017";
+    const PIN_CORRETTO = "1234";
+
+    function openGate(tipo) {
+        const modal = document.getElementById('gate');
+        const input = document.getElementById('gateInput');
+        const link = document.getElementById('gateLink');
+        const btn = document.getElementById('gateConfirm');
+
+        input.value = ""; input.type = "password"; input.placeholder = "PIN";
+        link.style.display = "none";
+        modal.style.display = "block";
+        input.focus();
+
+        btn.onclick = function() {
+            if (input.value !== PIN_CORRETTO) { alert("PIN ERRATO"); return; }
+            if (tipo === 'allerta') { transmit(document.getElementById('mainText').value, 'alert'); } 
+            else { setupGPS(); }
+        };
+    }
+
+    function setupGPS() {
+        const input = document.getElementById('gateInput');
+        const link = document.getElementById('gateLink');
+        const btn = document.getElementById('gateConfirm');
+        input.value = ""; input.type = "text"; input.placeholder = "45.xx, 9.xx";
+        link.style.display = "block";
+        btn.onclick = function() {
+            if (!input.value.trim()) return;
+            transmit(input.value, 'gps');
+        };
+    }
+
+    function closeGate() { document.getElementById('gate').style.display = "none"; }
+
+    function transmit(val, tipo) {
+        if (!val.trim()) { alert("ERRORE: Campo vuoto"); return; }
+        let msg = "";
+        if (tipo === 'alert') {
+            msg = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + val;
+        } else {
+            const p = val.replace(/\s/g, '');
+            msg = "🛰️ *POSIZIONE GPS RILEVATA*\n\n`" + val + "`\n\n📍 Navigatore:\nhttps://www.google.com/maps?q=" + p;
+        }
+        closeGate();
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
+        .then(res => { if(res.ok) { alert("TRASMESSO"); document.getElementById('mainText').value = ""; }});
+    }
+</script>
 </body>
 </html>
