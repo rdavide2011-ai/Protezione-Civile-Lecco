@@ -3,237 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - OPERATIONAL PANEL</title>
+    <title>S.A.R. UNITÀ MERLINI - PRO</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <style>
         :root {
-            --bg-dark: #0a0e14;
-            --panel-bg: #161b22;
+            --bg-dark: #0a1118;
+            --panel-bg: #1c222d;
             --pc-yellow: #ffcc00;
-            --pc-blue: #0056b3;
-            --danger: #eb3b5a;
-            --text-main: #e6edf3;
+            --pc-blue: #0066cc;
+            --danger: #d63031;
+            --success: #27ae60;
+            --text-main: #f0f0f0;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text-main); margin:0; padding:0; }
+        
+        /* Navbar Navigazione Moduli */
+        .module-nav {
+            display: flex; background: #000; padding: 10px; gap: 10px;
+            overflow-x: auto; border-bottom: 2px solid var(--pc-yellow);
+        }
+        .nav-btn {
+            padding: 8px 15px; background: var(--panel-bg); color: white;
+            border: 1px solid #444; border-radius: 5px; font-size: 11px; white-space: nowrap;
+        }
+        .nav-btn.active { background: var(--pc-yellow); color: black; font-weight: bold; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            margin: 0; padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        .container { padding: 15px; max-width: 800px; margin: auto; }
+        
+        /* Sezione Squadre */
+        .squadra-box {
+            background: var(--panel-bg); border-left: 5px solid var(--pc-blue);
+            padding: 15px; margin-bottom: 15px; border-radius: 5px;
+        }
+        .volontario-tag {
+            display: inline-block; background: #34495e; padding: 5px 10px;
+            border-radius: 15px; font-size: 12px; margin: 3px; border: 1px solid #555;
+        }
+        .special-badge { color: var(--pc-yellow); font-weight: bold; font-size: 10px; margin-left: 5px; }
+
+        .btn-action {
+            width: 100%; padding: 15px; margin-top: 10px; border: none;
+            border-radius: 8px; font-weight: bold; text-transform: uppercase; cursor: pointer;
+        }
+        
+        /* Pannello Allerta con Tasti Risposta */
+        .alert-preview {
+            border: 2px dashed var(--danger); padding: 15px; border-radius: 10px; margin-bottom: 20px;
         }
 
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark); z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center;
         }
 
-        .top-bar {
-            background: var(--panel-bg);
-            padding: 10px 15px;
-            display: flex; align-items: center;
-            border-bottom: 3px solid var(--pc-yellow);
-        }
-
-        .logo-container { width: 45px; height: 45px; margin-right: 15px; }
-        .logo-container img { width: 100%; height: auto; }
-
-        .top-bar-text h1 { margin: 0; font-size: 14px; color: var(--pc-yellow); text-transform: uppercase; font-weight: 900; }
-        .top-bar-text p { margin: 0; font-size: 10px; color: #8b949e; }
-
-        .main-ui {
-            flex: 1; padding: 15px; display: flex; flex-direction: column;
-            gap: 12px; max-width: 600px; margin: 0 auto; width: 100%;
-        }
-
-        .input-group { display: flex; flex-direction: column; gap: 5px; }
-        .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; margin-left: 5px; }
-
-        input, textarea, select {
-            width: 100%; background: var(--panel-bg); border: 1px solid #30363d;
-            border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none;
-        }
-
-        #programmataGroup { display: none; flex-direction: column; gap: 12px; }
-
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; padding-bottom: 20px;}
-        .btn {
-            padding: 15px; border: none; border-radius: 10px;
-            font-weight: bold; font-size: 12px; text-transform: uppercase;
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
-        }
-        .btn-alert { background: var(--danger); color: white; }
-        .btn-gps { background: var(--pc-blue); color: white; }
-
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark); z-index: 1000;
-        }
-        .modal-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--panel-bg); border-bottom: 1px solid var(--pc-blue); }
-        
-        #map { width: 100%; flex: 1; min-height: 300px; }
-
-        /* FIX VISIBILITÀ BARRA RICERCA MAPPA */
-        .leaflet-control-geocoder { 
-            background: #161b22 !important; 
-            border: 1px solid #30363d !important;
-        }
-        .leaflet-control-geocoder-form input { 
-            color: #ffffff !important; 
-            background: #161b22 !important;
-        }
-        .leaflet-control-geocoder-alternatives {
-            background: #161b22 !important;
-            color: #ffffff !important;
-        }
-        .leaflet-control-geocoder-alternatives li:hover {
-            background: #30363d !important;
-        }
-        .leaflet-control-geocoder-alternatives li a {
-            color: #ffffff !important;
-        }
-        .leaflet-control-geocoder-icon { filter: invert(1); }
-
-        .status-bar { background: #010409; padding: 10px 20px; font-size: 9px; color: #484f58; display: flex; justify-content: space-between; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <div style="max-width: 300px; width: 90%; text-align: center;">
-        <h2 style="color:var(--pc-yellow); font-size: 16px;">ACCESSO CONSOLE</h2>
-        <input type="password" id="loginInput" style="font-size: 24px; text-align: center; margin-bottom: 20px;" placeholder="PIN">
-        <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ENTRA</button>
-        <span style="display:block; margin-top:15px; font-size:11px; color:#8b949e; text-decoration:underline; cursor:pointer;" onclick="sendReminder()">Hai dimenticato la password?</span>
+    <div style="text-align: center; width: 80%;">
+        <h2 style="color:var(--pc-yellow)">ACCESSO UNITÀ MERLINI</h2>
+        <input type="password" id="loginInput" style="width:100%; padding:15px; text-align:center; font-size:24px;" placeholder="PIN">
+        <button onclick="checkLogin()" class="btn-action" style="background:var(--pc-yellow); color:black;">ENTRA NELLA CONSOLE</button>
     </div>
 </div>
 
-<div class="top-bar">
-    <div class="logo-container"><img src="logo.svg" alt="Logo"></div>
-    <div class="top-bar-text">
-        <h1>Protezione Civile Lecco</h1>
-        <p>CONSOLE OPERATIVA UNITÀ "A. MERLINI"</p>
-    </div>
+<div class="module-nav">
+    <button class="nav-btn active" onclick="showModule('allerta')">🚨 INVIO ALLERTA</button>
+    <button class="nav-btn" onclick="showModule('squadre')">👥 GESTIONE SQUADRE</button>
+    <button class="nav-btn" onclick="showModule('anagrafica')">🗂️ ANAGRAFICA</button>
 </div>
 
-<div class="main-ui">
-    <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
-    <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo" placeholder="Es: Comune di Lecco"></div>
-    <div class="input-group">
-        <label>Tipo Attivazione</label>
-        <select id="f_tipoAttivazione" onchange="toggleProgrammata()">
-            <option value="IMMEDIATA">IMMEDIATA</option>
-            <option value="PROGRAMMATA">PROGRAMMATA</option>
+<div class="container">
+    
+    <div id="mod-allerta">
+        <h3 style="color:var(--pc-yellow)">EMISSIONE ALLERTA / PRE-ALLERTA</h3>
+        <div class="alert-preview">
+            <label style="font-size:10px;">MESSAGGIO CHE RICEVERÀ IL VOLONTARIO:</label>
+            <div id="msg-preview" style="font-family:monospace; font-size:12px; margin-top:10px;">
+                [ATTIVAZIONE] - Unità Merlini<br>
+                Evento: ... <br>
+                --------------------------<br>
+                Tasti risposta disponibili:<br>
+                [PRESENTE] [ASSENTE] [RITARDO]
+            </div>
+        </div>
+        
+        <input type="text" id="ev_name" placeholder="NOME EVENTO (es. Ricerca Persona)">
+        <select id="ev_type" style="margin-top:10px;">
+            <option value="PRE-ALLERTA">PRE-ALLERTA (Monitoraggio)</option>
+            <option value="ATTIVAZIONE">ATTIVAZIONE (Emergenza)</option>
         </select>
+        <button class="btn-action" style="background:var(--danger); color:white;" onclick="sendAlert()">LANCIA ALLERTA NEL GRUPPO</button>
     </div>
-    <div id="programmataGroup">
-        <div class="input-group"><label>Data</label><input type="date" id="f_dataIntervento" value="2026-02-15"></div>
-        <div class="input-group"><label>Ora</label><input type="time" id="f_orarioIntervento"></div>
-    </div>
-    <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi" placeholder="Es: Defender"></div>
-    <div class="input-group"><label>Note</label><textarea id="f_note" placeholder="Dettagli..."></textarea></div>
 
-    <div class="btn-group">
-        <button class="btn btn-alert" onclick="transmit('allerta')"><span>🚨</span> INVIA ALLERTA</button>
-        <button class="btn btn-gps" onclick="openMapModal()"><span>🛰️</span> MAPPA GPS</button>
+    <div id="mod-squadre" class="hidden">
+        <h3 style="color:var(--pc-blue)">COMPOSIZIONE SQUADRE OPERATIVE</h3>
+        <div class="squadra-box">
+            <h4 style="margin:0">SQUADRA SAR 1</h4>
+            <div id="squadra1-list">
+                <span class="volontario-tag">G. Rossi <span class="special-badge">Caposquadra</span></span>
+                <span class="volontario-tag">M. Bianchi <span class="special-badge">Cinofilo</span></span>
+            </div>
+            <button style="font-size:10px; background:none; border:1px solid #777; color:#ccc; margin-top:10px;">+ AGGIUNGI VOLONTARIO</button>
+        </div>
+        
+        <button class="btn-action" style="background:var(--pc-blue); color:white;" onclick="generatePDF()">GENERA FOGLIO FIRME (PDF)</button>
     </div>
+
+    <div id="mod-anagrafica" class="hidden">
+        <h3 style="color:var(--success)">RICERCA SPECIALISTI</h3>
+        <input type="text" placeholder="Cerca per specializzazione (es. Cinofilo, AIB, Autista)...">
+        <div style="margin-top:20px;">
+            <div class="volontario-tag">Mario Verdi - <span style="color:#27ae60">Cinofilo</span></div>
+            <div class="volontario-tag">Luca Neri - <span style="color:#27ae60">Autista Mezzi Speciali</span></div>
+            <div class="volontario-tag">Anna Blu - <span style="color:#27ae60">Logistica</span></div>
+        </div>
+    </div>
+
 </div>
 
-<div id="gpsModal" class="modal" style="display:none; flex-direction: column;">
-    <div class="modal-header">
-        <span style="color: var(--pc-blue); font-weight: bold; font-size: 11px;">CERCA VIA O TOCCA LA MAPPA</span>
-        <button onclick="closeMapModal()" style="background:none; border:none; color:white; font-size: 24px;">×</button>
-    </div>
-    <div id="map"></div>
-    <div style="padding: 15px; background: var(--panel-bg); display: flex; gap: 10px;">
-        <input type="text" id="gpsCoords" readonly placeholder="Coordinate..." style="background: #0d1117;">
-        <button onclick="confirmGps()" style="background: var(--pc-blue); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold;">INVIA</button>
-    </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <script>
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
-    let map, marker;
-
     function checkLogin() {
-        if (document.getElementById('loginInput').value === PIN_CORRETTO) {
+        if(document.getElementById('loginInput').value === PIN_CORRETTO) {
             document.getElementById('loginOverlay').style.display = 'none';
-            initMap();
-        } else { alert("PIN ERRATO"); }
+        } else { alert("Accesso Negato"); }
     }
 
-    function initMap() {
-        map = L.map('map').setView([45.856, 9.397], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-        L.Control.geocoder({
-            defaultMarkGeocode: false,
-            placeholder: "Cerca via...",
-            errorMessage: "Non trovato"
-        })
-        .on('markgeocode', function(e) {
-            const latlng = e.geocode.center;
-            map.setView(latlng, 16);
-            updateMarker(latlng);
-        })
-        .addTo(map);
-
-        map.on('click', function(e) { updateMarker(e.latlng); });
+    function showModule(modId) {
+        document.getElementById('mod-allerta').classList.add('hidden');
+        document.getElementById('mod-squadre').classList.add('hidden');
+        document.getElementById('mod-anagrafica').classList.add('hidden');
+        document.getElementById('mod-' + modId).classList.remove('hidden');
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
     }
 
-    function updateMarker(latlng) {
-        const lat = latlng.lat.toFixed(6);
-        const lng = latlng.lng.toFixed(6);
-        document.getElementById('gpsCoords').value = lat + ", " + lng;
-        if (marker) { marker.setLatLng(latlng); } 
-        else { marker = L.marker(latlng).addTo(map); }
+    function sendAlert() {
+        const name = document.getElementById('ev_name').value;
+        const type = document.getElementById('ev_type').value;
+        
+        // Costruzione messaggio con tastiera inline (Tasti cliccabili su Telegram)
+        const msg = `🚨 *${type} UNITÀ MERLINI*\n\n📌 *Evento:* ${name}\n\nConferma la tua disponibilità tramite i tasti sottostanti:`;
+        
+        const keyboard = {
+            inline_keyboard: [
+                [
+                    { text: "✅ PRESENTE", callback_data: "pres_si" },
+                    { text: "❌ ASSENTE", callback_data: "pres_no" }
+                ],
+                [
+                    { text: "⏳ IN RITARDO", callback_data: "pres_rit" }
+                ]
+            ]
+        };
+
+        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: ID_GRUPPO,
+                text: msg,
+                parse_mode: 'Markdown',
+                reply_markup: keyboard
+            })
+        }).then(res => alert("Allerta inviata con tasti risposta!"));
     }
 
-    function openMapModal() {
-        document.getElementById('gpsModal').style.display = 'flex';
-        setTimeout(() => { map.invalidateSize(); }, 300);
-    }
-
-    function closeMapModal() { document.getElementById('gpsModal').style.display = 'none'; }
-
-    function confirmGps() {
-        const coords = document.getElementById('gpsCoords').value;
-        if (!coords) return;
-        transmit('gps', coords);
-        closeMapModal();
-    }
-
-    function toggleProgrammata() {
-        document.getElementById('programmataGroup').style.display = (document.getElementById('f_tipoAttivazione').value === 'PROGRAMMATA') ? 'flex' : 'none';
-    }
-
-    function sendReminder() {
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=🔑 *PIN:* \`1234\`&parse_mode=Markdown`);
-        alert("PIN inviato.");
-    }
-
-    function transmit(tipo, gpsVal = "") {
-        let msg = "";
-        if (tipo === 'allerta') {
-            const ev = document.getElementById('f_evento').value || "N/D";
-            const lu = document.getElementById('f_luogo').value || "N/D";
-            msg = "📂 *ALLERTA*\n```\nEVENTO: " + ev.toUpperCase() + "\nLUOGO : " + lu.toUpperCase() + "\n```";
-        } else {
-            msg = "🛰️ *GPS*\n`" + gpsVal + "`\n📍 [MAPPA](http://googleusercontent.com/maps.google.com/q=" + gpsVal.replace(/\s/g, '') + ")";
-        }
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { if(res.ok) alert("INVIATO"); });
+    function generatePDF() {
+        alert("Generazione PDF in corso... (Questa funzione richiede la libreria jsPDF)");
+        // Qui si integrerebbe jsPDF per scaricare il file pre-compilato
     }
 </script>
 </body>
