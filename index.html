@@ -6,6 +6,7 @@
     <title>S.A.R. UNITÀ MERLINI - OPERATIVE SYSTEM</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --bg-dark: #0a0e14;
@@ -21,38 +22,39 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* LOGIN */
+        /* LOGIN (Impostazione originale) */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .login-box { max-width: 350px; width: 90%; text-align: center; }
 
-        /* HEADER & NAV */
+        /* HEADER */
         .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 3px solid var(--pc-yellow); }
         .logo-container { width: 45px; height: 45px; margin-right: 15px; }
+        
+        /* NAVIGATION */
         .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid #30363d; }
         .nav-btn { padding: 8px 12px; background: var(--panel-bg); color: #8b949e; border: 1px solid #30363d; border-radius: 6px; font-size: 10px; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
         .nav-btn.active { background: var(--pc-yellow); color: black; font-weight: bold; }
 
-        /* CONTENUTO */
+        /* MAIN UI */
         .main-ui { flex: 1; padding: 15px; max-width: 600px; margin: 0 auto; width: 100%; }
         .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
         .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; }
         input, textarea, select { width: 100%; background: var(--panel-bg); border: 1px solid #30363d; border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none; }
         
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; width: 100%; margin-top: 10px; }
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; text-align: center; width: 100%; margin-top: 10px; }
 
-        /* PRESENZE */
+        /* PRESENZE STYLE */
         .presenza-row { background: var(--panel-bg); padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #30363d; }
         .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
-        .p-btn { padding: 8px; border: none; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; background: #0d1117; color: #8b949e; border: 1px solid #30363d; }
-        .p-btn.active-si { background: var(--success); color: white; border-color: var(--success); }
-        .p-btn.active-no { background: var(--danger); color: white; border-color: var(--danger); }
-        .p-btn.active-rit { background: var(--warning); color: white; border-color: var(--warning); }
-        .ritardo-info { font-size: 10px; color: var(--warning); margin-top: 5px; display: block; }
+        .p-btn { padding: 8px; border: none; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; background: #0d1117; color: #8b949e; }
+        .p-btn.active-si { background: var(--success); color: white; }
+        .p-btn.active-no { background: var(--danger); color: white; }
+        .p-btn.active-rit { background: var(--warning); color: white; }
+        .rit-time { font-size: 10px; color: var(--warning); margin-top: 5px; display: block; }
 
-        /* CARDS GESTIONE */
         .card { background: var(--panel-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--pc-blue); margin-top: 10px; }
-        .item-list { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 8px 12px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #30363d; font-size: 13px; }
-        .remove-btn { color: var(--danger); font-weight: bold; cursor: pointer; padding: 5px; }
+        .item-list { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 8px 12px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #30363d; }
+        .remove-btn { color: var(--danger); font-weight: bold; cursor: pointer; }
 
         .hidden { display: none; }
         .modal-map { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 1000; flex-direction: column; }
@@ -63,24 +65,24 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2 style="color:var(--pc-yellow)">ACCESSO CONSOLE</h2>
+        <h2 style="color:var(--pc-yellow)">S.A.R. UNITÀ MERLINI</h2>
         <input type="password" id="loginInput" style="font-size: 24px; text-align: center; margin-bottom: 20px;" placeholder="PIN">
-        <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ENTRA</button>
+        <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ACCESSO</button>
     </div>
 </div>
 
 <div class="top-bar">
     <div class="logo-container"><img src="logo.svg" alt="Logo" style="height:40px;"></div>
     <div class="top-bar-text">
-        <h1>Protezione Civile Lecco</h1>
-        <p>UNITÀ "A. MERLINI" - OPERATIONAL APP</p>
+        <h1 style="margin:0; font-size:14px; color:var(--pc-yellow);">PROTEZIONE CIVILE LECCO</h1>
+        <p style="margin:0; font-size:10px;">UNITÀ "A. MERLINI" - CONSOLE</p>
     </div>
 </div>
 
 <div class="module-nav">
     <button class="nav-btn active" id="btn-allerta" onclick="showMod('allerta')">🚨 Allerta</button>
     <button class="nav-btn" id="btn-presenze" onclick="showMod('presenze')">📝 Presenze</button>
-    <button class="nav-btn" id="btn-squadre" onclick="showMod('squadre')">👥 Squadre SAR</button>
+    <button class="nav-btn" id="btn-squadre" onclick="showMod('squadre')">👥 Squadre</button>
     <button class="nav-btn" id="btn-volontari" onclick="showMod('volontari')">🗂️ Volontari</button>
 </div>
 
@@ -89,38 +91,36 @@
         <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
         <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo" placeholder="Es: Comune di Lecco"></div>
         <div class="input-group">
-            <label>Tipo Attivazione</label>
+            <label>Tipo</label>
             <select id="f_tipo" onchange="toggleProg()"><option value="IMMEDIATA">IMMEDIATA</option><option value="PROGRAMMATA">PROGRAMMATA</option></select>
         </div>
         <div id="group-prog" class="hidden">
-            <div class="input-group"><label>Data</label><input type="date" id="f_data" value="2026-02-15"></div>
-            <div class="input-group"><label>Ora</label><input type="time" id="f_ora"></div>
+            <input type="date" id="f_data" value="2026-02-15" style="margin-bottom:5px;">
+            <input type="time" id="f_ora">
         </div>
-        <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi" placeholder="Es: Defender"></div>
-        <div class="input-group"><label>Note</label><textarea id="f_note"></textarea></div>
+        <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi"></div>
         <button class="btn" style="background:var(--danger); color:white" onclick="transmit('allerta')">INVIA ALLERTA</button>
         <button class="btn" style="background:var(--pc-blue); color:white" onclick="openMap()">🛰️ MAPPA GPS</button>
     </div>
 
     <div id="mod-presenze" class="hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="color:var(--success); font-size:14px;">APPELLO VOLONTARI</h3>
-            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:10px; padding:2px 5px;">RESET</button>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <h3 style="color:var(--success); font-size:14px;">VERBALE PRESENZE</h3>
+            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:9px; padding:2px 8px;">RESET</button>
         </div>
-        <div id="lista-presenze-dinamica" style="margin-top:15px;"></div>
-        <button class="btn" style="background:var(--success); color:white" onclick="generaPDFPresenze()">📄 GENERA REPORT PRESENZE</button>
+        <div id="lista-presenze-dinamica"></div>
+        <button class="btn" style="background:var(--success); color:white" onclick="generaPDFPresenzeFormale()">📄 GENERA VERBALE FORMALE (PDF)</button>
     </div>
 
     <div id="mod-squadre" class="hidden">
-        <h3 style="color:var(--pc-blue); font-size:14px;">GESTIONE SQUADRE SAR</h3>
+        <h3 style="color:var(--pc-blue); font-size:14px;">COMPOSIZIONE SQUADRE</h3>
         <div class="card">
             <div id="lista-squadra"></div>
-            <div class="add-box" style="display:flex; gap:5px; margin-top:10px;">
-                <input type="text" id="nome-sq" placeholder="Nome Volontario...">
-                <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; padding:10px; border-radius:5px;">AGGIUNGI</button>
+            <div style="display:flex; gap:5px; margin-top:10px;">
+                <input type="text" id="nome-sq" placeholder="Nome...">
+                <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; padding:10px; border-radius:5px;">+</button>
             </div>
         </div>
-        <button class="btn" style="background:var(--success); color:white" onclick="generaPDFSquadra()">📄 SCARICA PDF SQUADRA</button>
     </div>
 
     <div id="mod-volontari" class="hidden">
@@ -129,8 +129,8 @@
             <div id="lista-anagrafica"></div>
             <div class="add-box" style="display:flex; flex-direction:column; gap:8px;">
                 <input type="text" id="ana-nome" placeholder="Nome Cognome">
-                <input type="text" id="ana-ruolo" placeholder="Mansione">
-                <button style="background:var(--success); color:white" onclick="aggiungiAnagrafica()">SALVA</button>
+                <input type="text" id="ana-ruolo" placeholder="Qualifica">
+                <button style="background:var(--success); color:white" onclick="aggiungiAnagrafica()">SALVA VOLONTARIO</button>
             </div>
         </div>
     </div>
@@ -140,8 +140,8 @@
     <div id="map"></div>
     <div style="padding:15px; background:var(--panel-bg); display:flex; gap:10px;">
         <input type="text" id="gpsCoords" readonly>
-        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 15px;">INVIA</button>
-        <button onclick="closeMap()" style="background:var(--danger); color:white; border:none; padding:0 15px;">X</button>
+        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 20px;">INVIA</button>
+        <button onclick="closeMap()" style="background:var(--danger); color:white; border:none; padding:0 20px;">X</button>
     </div>
 </div>
 
@@ -176,7 +176,7 @@
         const n = document.getElementById('ana-nome').value;
         const r = document.getElementById('ana-ruolo').value;
         if(!n || !r) return;
-        elencoAnagrafica.push({nome: n, ruolo: r});
+        elencoAnagrafica.push({nome: n.toUpperCase(), ruolo: r.toUpperCase()});
         localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica));
         document.getElementById('ana-nome').value = ""; document.getElementById('ana-ruolo').value = "";
         renderAnagrafica();
@@ -195,13 +195,13 @@
             const current = statoPresenze[v.nome] || {stato:''};
             cont.innerHTML += `
                 <div class="presenza-row">
-                    <div style="font-size:13px; font-weight:bold;">${v.nome}</div>
+                    <div style="font-size:12px; font-weight:bold;">${v.nome}</div>
                     <div class="presenza-btns">
-                        <button class="p-btn ${current.stato === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">PRESENTE</button>
-                        <button class="p-btn ${current.stato === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">ASSENTE</button>
+                        <button class="p-btn ${current.stato === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">PRESENT.</button>
+                        <button class="p-btn ${current.stato === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">ASSENT.</button>
                         <button class="p-btn ${current.stato === 'rit' ? 'active-rit' : ''}" onclick="setPresenza('${v.nome}', 'rit')">RITARDO</button>
                     </div>
-                    ${current.ora ? `<span class="ritardo-info">Arrivo previsto: ${current.ora}</span>` : ''}
+                    ${current.ora ? `<span class="rit-time">Ingresso: ore ${current.ora}</span>` : ''}
                 </div>`;
         });
     }
@@ -209,7 +209,7 @@
     function setPresenza(nome, stato) {
         let ora = "";
         if(stato === 'rit') {
-            ora = prompt("Inserisci l'orario di ingresso (es. 10:30):");
+            ora = prompt("Orario ingresso stimato (HH:MM):");
             if(!ora) return;
         }
         statoPresenze[nome] = {stato: stato, ora: ora};
@@ -217,31 +217,69 @@
         renderPresenze();
     }
 
-    function resetPresenze() { if(confirm("Azzerare?")) { statoPresenze = {}; localStorage.removeItem('statoPresenze'); renderPresenze(); } }
+    function resetPresenze() { if(confirm("Azzerare tutto?")) { statoPresenze = {}; localStorage.removeItem('statoPresenze'); renderPresenze(); } }
 
-    function generaPDFPresenze() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        const data = new Date().toLocaleDateString();
-        doc.text(`REPORT PRESENZE - PROTEZIONE CIVILE - ${data}`, 20, 20);
+    // --- PDF FORMALE ---
+    function generaPDFPresenzeFormale() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const dataAppello = new Date().toLocaleDateString();
+        const oraAppello = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        // Logo Grafico / Intestazione
+        doc.setFillColor(0, 86, 179);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text("S.A.R. UNITÀ MERLINI", 105, 20, {align: 'center'});
+        doc.setFontSize(10);
+        doc.text("PROTEZIONE CIVILE LECCO - VERBALE OPERATIVO PRESENZE", 105, 30, {align: 'center'});
+
+        // Info Emergenza
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text(`DATA: ${dataAppello}`, 20, 50);
+        doc.text(`ORA APPEL.: ${oraAppello}`, 150, 50);
         
-        let y = 40;
-        doc.text("PRESENTI:", 20, y); y+=10;
-        Object.keys(statoPresenze).filter(n => statoPresenze[n].stato === 'si').forEach(n => { doc.text(`- ${n}`, 25, y); y+=8; });
+        const evento = document.getElementById('f_evento').value || "N/A";
+        doc.text(`EVENTO: ${evento.toUpperCase()}`, 20, 60);
+
+        // Tabella Dati
+        const righe = [];
+        elencoAnagrafica.forEach(v => {
+            const s = statoPresenze[v.nome] || {stato:'NON RILEVATO', ora:''};
+            let statusTesto = "ASSENTE";
+            if(s.stato === 'si') statusTesto = "PRESENTE";
+            if(s.stato === 'rit') statusTesto = `RITARDO (${s.ora})`;
+            
+            righe.push([v.nome, v.ruolo, statusTesto]);
+        });
+
+        doc.autoTable({
+            startY: 70,
+            head: [['NOMINATIVO', 'QUALIFICA/RUOLO', 'STATO PRESENZA']],
+            body: righe,
+            headStyles: { fillColor: [0, 86, 179] },
+            theme: 'grid'
+        });
+
+        // Firme
+        const finalY = doc.lastAutoTable.finalY + 30;
+        doc.line(20, finalY, 80, finalY);
+        doc.text("Firma Operatore Radio", 20, finalY + 5);
         
-        y+=10; doc.text("IN RITARDO:", 20, y); y+=10;
-        Object.keys(statoPresenze).filter(n => statoPresenze[n].stato === 'rit').forEach(n => { doc.text(`- ${n} (Ore: ${statoPresenze[n].ora})`, 25, y); y+=8; });
+        doc.line(130, finalY, 190, finalY);
+        doc.text("Firma Capo Squadra", 130, finalY + 5);
 
-        y+=10; doc.text("ASSENTI:", 20, y); y+=10;
-        Object.keys(statoPresenze).filter(n => statoPresenze[n].stato === 'no').forEach(n => { doc.text(`- ${n}`, 25, y); y+=8; });
-
-        doc.save(`Report_Presenze_${data}.pdf`);
+        doc.save(`Verbale_Presenze_${dataAppello.replace(/\//g, '-')}.pdf`);
     }
 
-    // --- SQUADRE ---
+    // --- SQUADRE & MAPPA & TELEGRAM (INVARIATI) ---
     let elencoSquadra = JSON.parse(localStorage.getItem('squadraSAR')) || [];
     function aggiungiASquadra() {
         const n = document.getElementById('nome-sq').value; if(!n) return;
-        elencoSquadra.push(n); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra));
+        elencoSquadra.push(n.toUpperCase()); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra));
         document.getElementById('nome-sq').value = ""; renderSquadra();
     }
     function rimuoviDaSquadra(i) { elencoSquadra.splice(i, 1); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra)); renderSquadra(); }
@@ -249,14 +287,7 @@
         const cont = document.getElementById('lista-squadra'); cont.innerHTML = "";
         elencoSquadra.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span>${v}</span><span class="remove-btn" onclick="rimuoviDaSquadra(${i})">✕</span></div>`; });
     }
-    function generaPDFSquadra() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text("ELENCO SQUADRA S.A.R.", 20, 20);
-        elencoSquadra.forEach((v, i) => doc.text(`${i+1}. ${v}`, 20, 40+(i*10)));
-        doc.save("Squadra.pdf");
-    }
 
-    // --- MAPPA & TELEGRAM ---
     let map; function initMap() {
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -267,7 +298,7 @@
     function confirmGps() { transmit('gps', document.getElementById('gpsCoords').value); closeMap(); }
 
     function transmit(tipo, val="") {
-        let text = tipo === 'allerta' ? `🚨 *ALLERTA UNITÀ MERLINI*\n📌 *EVENTO:* ${document.getElementById('f_evento').value}\n📍 *LUOGO:* ${document.getElementById('f_luogo').value}` : `🛰️ *GPS:* ${val}`;
+        let text = tipo === 'allerta' ? `🚨 *ALLERTA:* ${document.getElementById('f_evento').value.toUpperCase()}` : `🛰️ *GPS:* ${val}`;
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
         alert("Inviato!");
     }
