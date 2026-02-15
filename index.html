@@ -33,11 +33,13 @@
 </div>
 
 <script>
+    // Configurazione dati Telegram
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
-    const PIN_CORRETTO = "123456789"; // Nuovo PIN aggiornato
+    const PIN_CORRETTO = "1234"; // PIN originale ripristinato
 
     function preparaMessaggio(tipo) {
+        // Richiesta PIN di sicurezza
         const pin = prompt("SICUREZZA: Inserisci il PIN:");
         if (pin === null) return;
         if (pin !== PIN_CORRETTO) {
@@ -55,13 +57,16 @@
             }
             testoFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
         } else {
+            // Sezione GPS
             const gps = prompt("Inserisci le coordinate (es: 45.85, 9.39):");
             if (!gps || gps.trim() === "") {
                 alert("Inserimento annullato.");
                 return;
             }
+            
+            // Pulisce le coordinate da spazi e crea il link Google Maps
             const coordsPulite = gps.replace(/\s/g, '');
-            const linkMaps = `https://www.google.com/maps/search/?api=1&query=${coordsPulite}`;
+            const linkMaps = `https://www.google.com/maps?q=${coordsPulite}`;
             
             testoFinale = "🛰️ *POSIZIONE GPS RILEVATA*\nDestinazione intervento:\n\n`" + gps + "`\n\n📍 Apri navigatore:\n" + linkMaps;
         }
@@ -81,7 +86,7 @@
             if(response.ok) {
                 displayStato.innerText = "✅ INVIATO CON SUCCESSO";
                 displayStato.style.color = "green";
-                document.getElementById('testo').value = "";
+                document.getElementById('testo').value = ""; // Svuota il box
             } else {
                 displayStato.innerText = "❌ ERRORE (Bot non Admin?)";
                 displayStato.style.color = "red";
