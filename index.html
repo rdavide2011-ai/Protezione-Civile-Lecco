@@ -21,7 +21,7 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             margin: 0; padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
@@ -40,11 +40,9 @@
         .top-bar-text h1 { margin: 0; font-size: 14px; color: var(--pc-yellow); text-transform: uppercase; font-weight: 900; }
         .top-bar-text p { margin: 0; font-size: 10px; color: #8b949e; }
 
-        /* Area Form */
         .main-ui {
             flex: 1;
             padding: 15px;
-            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -53,21 +51,10 @@
             width: 100%;
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; margin-left: 5px; }
 
-        .input-group label {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: var(--pc-yellow);
-            font-weight: bold;
-            margin-left: 5px;
-        }
-
-        input[type="text"], textarea {
+        input, textarea, select {
             width: 100%;
             background: var(--panel-bg);
             border: 1px solid #30363d;
@@ -78,40 +65,29 @@
             outline: none;
         }
 
-        textarea { resize: none; height: 80px; }
+        #orarioInterventoGroup { display: none; } /* Nascosto di default */
 
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; padding-bottom: 20px;}
-        
         .btn {
             padding: 15px; border: none; border-radius: 10px;
             font-weight: bold; font-size: 12px; text-transform: uppercase;
             cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
-
         .btn-alert { background: var(--danger); color: white; }
         .btn-gps { background: var(--pc-blue); color: white; }
 
-        /* Modal */
         .modal {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(10, 14, 20, 0.98);
             z-index: 999; padding: 50px 20px;
         }
-
         .modal-content { max-width: 400px; margin: 0 auto; text-align: center; }
-        .input-control {
-            width: 100%; background: #161b22; border: 1px solid #30363d;
-            border-radius: 5px; color: white; font-size: 24px;
-            padding: 15px; text-align: center; margin-bottom: 20px;
-        }
-
+        .input-control { width: 100%; background: #161b22; border: 1px solid #30363d; border-radius: 5px; color: white; font-size: 24px; padding: 15px; text-align: center; margin-bottom: 20px; }
         .modal-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .btn-confirm { background: var(--pc-yellow); color: black; padding: 15px; border-radius: 5px; border: none; font-weight: bold; }
         .btn-cancel { background: #30363d; color: white; padding: 15px; border-radius: 5px; border: none; }
         
-        .forgot-link { display: block; margin-top: 20px; color: #8b949e; font-size: 11px; text-decoration: underline; cursor: pointer; }
-
         .status-bar { background: #010409; padding: 10px 20px; font-size: 9px; color: #484f58; display: flex; justify-content: space-between; }
     </style>
 </head>
@@ -133,6 +109,17 @@
     <div class="input-group">
         <label>Luogo</label>
         <input type="text" id="f_luogo" placeholder="Es: Comune di Lecco">
+    </div>
+    <div class="input-group">
+        <label>Tipo Attivazione</label>
+        <select id="f_tipoAttivazione" onchange="toggleOrario()">
+            <option value="IMMEDIATA">IMMEDIATA (Adesso)</option>
+            <option value="PROGRAMMATA">PROGRAMMATA (Orario specifico)</option>
+        </select>
+    </div>
+    <div class="input-group" id="orarioInterventoGroup">
+        <label>Orario Intervento</label>
+        <input type="time" id="f_orarioIntervento">
     </div>
     <div class="input-group">
         <label>Mezzi</label>
@@ -159,7 +146,6 @@
             <button class="btn-cancel" onclick="closeGate()">CHIUDI</button>
             <button id="gateConfirm" class="btn-confirm">CONFERMA</button>
         </div>
-        <span class="forgot-link" onclick="sendReminder()">Recupera PIN</span>
     </div>
 </div>
 
@@ -168,13 +154,18 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
+    function toggleOrario() {
+        const tipo = document.getElementById('f_tipoAttivazione').value;
+        const group = document.getElementById('orarioInterventoGroup');
+        group.style.display = (tipo === 'PROGRAMMATA') ? 'flex' : 'none';
+    }
+
     function openGate(tipo) {
         const modal = document.getElementById('gate');
         const input = document.getElementById('gateInput');
         const btn = document.getElementById('gateConfirm');
-        input.value = ""; input.type = "password";
-        if(tipo === 'gps') { input.placeholder = "COORD. GPS"; input.type = "text"; } else { input.placeholder = "PIN"; }
-        
+        input.value = ""; input.type = (tipo === 'gps') ? 'text' : 'password';
+        input.placeholder = (tipo === 'gps') ? 'COORD. GPS' : 'PIN';
         modal.style.display = "block";
         input.focus();
 
@@ -190,57 +181,46 @@
 
     function closeGate() { document.getElementById('gate').style.display = "none"; }
 
-    function sendReminder() {
-        const msg = "🔔 *PROMEMORIA*\nIl PIN è: `" + PIN_CORRETTO + "`";
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
-        alert("Inviato.");
-    }
-
     function transmit(tipo, gpsVal = "") {
         let msg = "";
-        const ora = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+        const oraInvio = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
         if (tipo === 'allerta') {
             const ev = document.getElementById('f_evento').value || "N/D";
             const lu = document.getElementById('f_luogo').value || "N/D";
             const me = document.getElementById('f_mezzi').value || "N/D";
-            const no = document.getElementById('f_note').value || "Nessuna";
+            const no = document.getElementById('f_note').value || "NESSUNA";
+            const tAtt = document.getElementById('f_tipoAttivazione').value;
+            const hInt = document.getElementById('f_orarioIntervento').value;
 
             msg = "📂 *SCHEDA OPERATIVA UNITÀ MERLINI*\n";
             msg += "```\n";
             msg += "╔════════════════════════════════╗\n";
-            msg += "║ DATA: 15/02/2026   ORA: " + ora + "  ║\n";
+            msg += "║ DATA: 15/02/2026   ORA: " + oraInvio + "  ║\n";
             msg += "╠════════════════════════════════╣\n";
             msg += "  EVENTO: " + ev.toUpperCase() + "\n";
             msg += "  LUOGO : " + lu.toUpperCase() + "\n";
             msg += "  MEZZI : " + me.toUpperCase() + "\n";
+            
+            if (tAtt === "PROGRAMMATA") {
+                msg += "  RITROVO: ORE " + hInt + "\n";
+            } else {
+                msg += "  STATO : IMMEDIATA\n";
+            }
+            
             msg += "  NOTE  : " + no.toUpperCase() + "\n";
             msg += "╚════════════════════════════════╝\n";
             msg += "```\n";
-            msg += "🔴 **ATTIVAZIONE IMMEDIATA** 🔴";
+            msg += (tAtt === "IMMEDIATA") ? "🔴 **ATTIVAZIONE IMMEDIATA** 🔴" : "🟠 **ATTIVAZIONE PROGRAMMATA** 🟠";
         } else {
             msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n";
-            msg += "```\n";
-            msg += "┌──────────────────────────────┐\n";
-            msg += "  COORDINATE: " + gpsVal + "\n";
-            msg += "└──────────────────────────────┘\n";
-            msg += "```\n";
-            msg += "📍 [MAPPA LIVE](https://www.google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
+            msg += "```\n" + gpsVal + "\n```\n";
+            msg += "📍 [MAPPA LIVE](http://google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
         }
 
         closeGate();
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { 
-            if(res.ok) { 
-                alert("TRASMESSO"); 
-                if(tipo === 'allerta') {
-                    document.getElementById('f_evento').value = "";
-                    document.getElementById('f_luogo').value = "";
-                    document.getElementById('f_mezzi').value = "";
-                    document.getElementById('f_note').value = "";
-                }
-            }
-        });
+        .then(res => { if(res.ok) { alert("INVIATO"); }});
     }
 </script>
 </body>
