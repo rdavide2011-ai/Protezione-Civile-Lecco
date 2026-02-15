@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - CONSOLE</title>
+    <title>S.A.R. UNITÀ MERLINI - OPERATIVE SYSTEM</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
@@ -16,6 +15,7 @@
             --danger: #eb3b5a;
             --text-main: #e6edf3;
             --success: #2ea043;
+            --warning: #f39c12;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -28,9 +28,8 @@
         /* HEADER & NAV */
         .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 3px solid var(--pc-yellow); }
         .logo-container { width: 45px; height: 45px; margin-right: 15px; }
-        .logo-container img { width: 100%; height: auto; }
         .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid #30363d; }
-        .nav-btn { padding: 8px 12px; background: var(--panel-bg); color: #8b949e; border: 1px solid #30363d; border-radius: 6px; font-size: 10px; cursor: pointer; text-transform: uppercase; }
+        .nav-btn { padding: 8px 12px; background: var(--panel-bg); color: #8b949e; border: 1px solid #30363d; border-radius: 6px; font-size: 10px; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
         .nav-btn.active { background: var(--pc-yellow); color: black; font-weight: bold; }
 
         /* CONTENUTO */
@@ -39,16 +38,21 @@
         .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; }
         input, textarea, select { width: 100%; background: var(--panel-bg); border: 1px solid #30363d; border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none; }
         
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .btn-alert { background: var(--danger); color: white; }
-        .btn-gps { background: var(--pc-blue); color: white; width: 100%; margin-top: 10px;}
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+
+        /* PRESENZE */
+        .presenza-row { background: var(--panel-bg); padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #30363d; }
+        .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
+        .p-btn { padding: 8px; border: none; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; background: #0d1117; color: #8b949e; border: 1px solid #30363d; }
+        .p-btn.active-si { background: var(--success); color: white; border-color: var(--success); }
+        .p-btn.active-no { background: var(--danger); color: white; border-color: var(--danger); }
+        .p-btn.active-rit { background: var(--warning); color: white; border-color: var(--warning); }
 
         /* CARDS GESTIONE */
         .card { background: var(--panel-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--pc-blue); margin-top: 10px; }
         .item-list { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 8px 12px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #30363d; font-size: 13px; }
         .remove-btn { color: var(--danger); font-weight: bold; cursor: pointer; padding: 5px; }
-        .add-box { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .add-box button { background: var(--pc-blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
 
         .hidden { display: none; }
         .modal-map { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 1000; flex-direction: column; }
@@ -66,7 +70,7 @@
 </div>
 
 <div class="top-bar">
-    <div class="logo-container"><img src="logo.svg" alt="Logo"></div>
+    <div class="logo-container"><img src="logo.svg" alt="Logo" style="height:40px;"></div>
     <div class="top-bar-text">
         <h1>Protezione Civile Lecco</h1>
         <p>UNITÀ "A. MERLINI" - OPERATIONAL APP</p>
@@ -75,6 +79,7 @@
 
 <div class="module-nav">
     <button class="nav-btn active" id="btn-allerta" onclick="showMod('allerta')">🚨 Allerta</button>
+    <button class="nav-btn" id="btn-presenze" onclick="showMod('presenze')">📝 Presenze</button>
     <button class="nav-btn" id="btn-squadre" onclick="showMod('squadre')">👥 Squadre SAR</button>
     <button class="nav-btn" id="btn-volontari" onclick="showMod('volontari')">🗂️ Volontari</button>
 </div>
@@ -83,37 +88,59 @@
     <div id="mod-allerta">
         <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
         <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo" placeholder="Es: Comune di Lecco"></div>
-        <button class="btn btn-alert" style="width:100%" onclick="transmit('allerta')">INVIA ALLERTA TELEGRAM</button>
-        <button class="btn btn-gps" onclick="openMap()"><span>🛰️</span> APRI MAPPA GPS</button>
+        <div class="input-group">
+            <label>Tipo Attivazione</label>
+            <select id="f_tipo" onchange="toggleProg()"><option value="IMMEDIATA">IMMEDIATA</option><option value="PROGRAMMATA">PROGRAMMATA</option></select>
+        </div>
+        <div id="group-prog" class="hidden">
+            <div class="input-group"><label>Data</label><input type="date" id="f_data" value="2026-02-15"></div>
+            <div class="input-group"><label>Ora</label><input type="time" id="f_ora"></div>
+        </div>
+        <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi" placeholder="Es: Defender 90"></div>
+        <div class="input-group"><label>Note</label><textarea id="f_note" placeholder="Dettagli aggiuntivi..."></textarea></div>
+        <div class="btn-group">
+            <button class="btn" style="background:var(--danger); color:white" onclick="transmit('allerta')">INVIA ALLERTA</button>
+            <button class="btn" style="background:var(--pc-blue); color:white" onclick="openMap()">🛰️ MAPPA GPS</button>
+        </div>
+    </div>
+
+    <div id="mod-presenze" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="color:var(--success); font-size:14px;">APPELLO VOLONTARI</h3>
+            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:10px; border-radius:4px; padding:2px 5px;">RESET</button>
+        </div>
+        <div id="lista-presenze-dinamica" style="margin-top:15px;">
+            </div>
     </div>
 
     <div id="mod-squadre" class="hidden">
-        <h3 style="color:var(--pc-blue); font-size:14px;">GESTIONE SQUADRA OPERATIVA</h3>
+        <h3 style="color:var(--pc-blue); font-size:14px;">GESTIONE SQUADRE SAR</h3>
         <div class="card">
             <div id="lista-squadra"></div>
-            <div class="add-box">
-                <input type="text" id="nome-sq" placeholder="Nome per Squadra...">
-                <button onclick="aggiungiASquadra()">AGGIUNGI ALLA SQUADRA</button>
+            <div class="add-box" style="display:flex; gap:5px; margin-top:10px;">
+                <input type="text" id="nome-sq" placeholder="Nome Volontario...">
+                <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; padding:10px; border-radius:5px;">AGGIUNGI</button>
             </div>
         </div>
         <button class="btn" style="background:var(--success); color:white; width:100%; margin-top:20px;" onclick="generaPDF()">📄 SCARICA PDF SQUADRA</button>
     </div>
 
     <div id="mod-volontari" class="hidden">
-        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA GENERALE</h3>
+        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA VOLONTARI</h3>
         <div class="card">
             <div id="lista-anagrafica"></div>
-            <div class="add-box">
+            <div class="add-box" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
                 <input type="text" id="ana-nome" placeholder="Nome e Cognome">
-                <input type="text" id="ana-ruolo" placeholder="Ruolo (es: Autista, Cinofilo)">
-                <button style="background:var(--success)" onclick="aggiungiAnagrafica()">SALVA VOLONTARIO</button>
+                <input type="text" id="ana-ruolo" placeholder="Ruolo (es: Autista)">
+                <button style="background:var(--success); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;" onclick="aggiungiAnagrafica()">SALVA NEL DATABASE</button>
             </div>
         </div>
     </div>
 </div>
 
 <div id="gpsModal" class="modal-map">
-    <div style="padding:15px; background:var(--panel-bg); display:flex; justify-content:space-between; align-items:center;">
+    <div style="padding:15px; background:var(--panel-bg); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--pc-blue);">
+        <span style="font-size:12px;">SELEZIONA PUNTO SULLA MAPPA</span>
         <button onclick="closeMap()" style="background:none; border:none; color:white; font-size:24px;">×</button>
     </div>
     <div id="map"></div>
@@ -124,32 +151,32 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <script>
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
-    let elencoSquadra = JSON.parse(localStorage.getItem('squadraSAR')) || [];
     let elencoAnagrafica = JSON.parse(localStorage.getItem('anagraficaVolontari')) || [];
+    let statoPresenze = JSON.parse(localStorage.getItem('statoPresenze')) || {};
 
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_CORRETTO) {
             document.getElementById('loginOverlay').style.display = 'none';
-            initMap(); renderSquadra(); renderAnagrafica();
+            initMap(); renderAnagrafica(); renderPresenze(); renderSquadra();
         } else { alert("PIN ERRATO"); }
     }
 
     function showMod(id) {
-        document.getElementById('mod-allerta').classList.add('hidden');
-        document.getElementById('mod-squadre').classList.add('hidden');
-        document.getElementById('mod-volontari').classList.add('hidden');
+        ['mod-allerta', 'mod-presenze', 'mod-squadre', 'mod-volontari'].forEach(m => document.getElementById(m).classList.add('hidden'));
         document.getElementById('mod-'+id).classList.remove('hidden');
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-'+id).classList.add('active');
+        if(id === 'presenze') renderPresenze(); // Aggiorna se sono stati aggiunti volontari
     }
 
-    // --- GESTIONE ANAGRAFICA ---
+    function toggleProg() { document.getElementById('group-prog').className = (document.getElementById('f_tipo').value === 'PROGRAMMATA') ? '' : 'hidden'; }
+
+    // --- ANAGRAFICA ---
     function aggiungiAnagrafica() {
         const n = document.getElementById('ana-nome').value;
         const r = document.getElementById('ana-ruolo').value;
@@ -157,64 +184,88 @@
         elencoAnagrafica.push({nome: n, ruolo: r});
         localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica));
         document.getElementById('ana-nome').value = ""; document.getElementById('ana-ruolo').value = "";
-        renderAnagrafica();
+        renderAnagrafica(); renderPresenze();
     }
-
-    function rimuoviAnagrafica(i) { elencoAnagrafica.splice(i, 1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); renderAnagrafica(); }
-
+    function rimuoviAnagrafica(i) { elencoAnagrafica.splice(i, 1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); renderAnagrafica(); renderPresenze(); }
     function renderAnagrafica() {
-        const cont = document.getElementById('lista-anagrafica');
-        cont.innerHTML = "";
+        const cont = document.getElementById('lista-anagrafica'); cont.innerHTML = "";
+        elencoAnagrafica.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span><b>${v.nome}</b> - ${v.ruolo}</span><span class="remove-btn" onclick="rimuoviAnagrafica(${i})">✕</span></div>`; });
+    }
+
+    // --- LOGICA PRESENZE (RICHIESTA) ---
+    function renderPresenze() {
+        const cont = document.getElementById('lista-presenze-dinamica');
+        cont.innerHTML = elencoAnagrafica.length === 0 ? "<p style='font-size:11px; text-align:center; color:#666;'>Aggiungi volontari nell'anagrafica per vederli qui.</p>" : "";
+        
         elencoAnagrafica.forEach((v, i) => {
-            cont.innerHTML += `<div class="item-list"><span><b>${v.nome}</b> - ${v.ruolo}</span><span class="remove-btn" onclick="rimuoviAnagrafica(${i})">✕</span></div>`;
+            const current = statoPresenze[v.nome] || '';
+            cont.innerHTML += `
+                <div class="presenza-row">
+                    <div style="font-size:13px; font-weight:bold;">${v.nome} <span style="font-weight:normal; font-size:10px; color:#8b949e;">(${v.ruolo})</span></div>
+                    <div class="presenza-btns">
+                        <button class="p-btn ${current === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">PRESENTE</button>
+                        <button class="p-btn ${current === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">ASSENTE</button>
+                        <button class="p-btn ${current === 'rit' ? 'active-rit' : ''}" onclick="setPresenza('${v.nome}', 'rit')">RITARDO</button>
+                    </div>
+                </div>`;
         });
     }
 
-    // --- GESTIONE SQUADRE ---
+    function setPresenza(nome, stato) {
+        statoPresenze[nome] = stato;
+        localStorage.setItem('statoPresenze', JSON.stringify(statoPresenze));
+        renderPresenze();
+    }
+
+    function resetPresenze() {
+        if(confirm("Vuoi azzerare l'appello?")) {
+            statoPresenze = {};
+            localStorage.removeItem('statoPresenze');
+            renderPresenze();
+        }
+    }
+
+    // --- SQUADRE & PDF ---
+    let elencoSquadra = JSON.parse(localStorage.getItem('squadraSAR')) || [];
     function aggiungiASquadra() {
-        const n = document.getElementById('nome-sq').value;
-        if(!n) return;
-        elencoSquadra.push(n);
-        localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra));
-        document.getElementById('nome-sq').value = "";
-        renderSquadra();
+        const n = document.getElementById('nome-sq').value; if(!n) return;
+        elencoSquadra.push(n); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra));
+        document.getElementById('nome-sq').value = ""; renderSquadra();
     }
-
     function rimuoviDaSquadra(i) { elencoSquadra.splice(i, 1); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra)); renderSquadra(); }
-
     function renderSquadra() {
-        const cont = document.getElementById('lista-squadra');
-        cont.innerHTML = "";
-        elencoSquadra.forEach((v, i) => {
-            cont.innerHTML += `<div class="item-list"><span>${v}</span><span class="remove-btn" onclick="rimuoviDaSquadra(${i})">✕</span></div>`;
-        });
+        const cont = document.getElementById('lista-squadra'); cont.innerHTML = "";
+        elencoSquadra.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span>${v}</span><span class="remove-btn" onclick="rimuoviDaSquadra(${i})">✕</span></div>`; });
     }
-
     function generaPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
         doc.text("UNITÀ S.A.R. 'A. MERLINI' - ELENCO SQUADRA", 20, 20);
-        let y = 40;
-        elencoSquadra.forEach((v, i) => { doc.text(`${i+1}. ${v}`, 20, y); y += 10; });
+        elencoSquadra.forEach((v, i) => doc.text(`${i+1}. ${v}`, 20, 40+(i*10)));
         doc.save("Squadra_SAR.pdf");
     }
 
-    // --- MAPPA E INVIO ---
-    function initMap() {
-        var map = L.map('map').setView([45.856, 9.397], 13);
+    // --- MAPPA & TELEGRAM ---
+    let map; function initMap() {
+        map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        map.on('click', e => { 
-            document.getElementById('gpsCoords').value = e.latlng.lat.toFixed(6) + "," + e.latlng.lng.toFixed(6);
-        });
+        map.on('click', e => { document.getElementById('gpsCoords').value = e.latlng.lat.toFixed(6) + "," + e.latlng.lng.toFixed(6); });
     }
-    function openMap() { document.getElementById('gpsModal').style.display='flex'; }
+    function openMap() { document.getElementById('gpsModal').style.display='flex'; setTimeout(()=>map.invalidateSize(), 200); }
     function closeMap() { document.getElementById('gpsModal').style.display='none'; }
     function confirmGps() { transmit('gps', document.getElementById('gpsCoords').value); closeMap(); }
 
     function transmit(tipo, val="") {
-        let text = tipo === 'allerta' ? `🚨 ALLERTA: ${document.getElementById('f_evento').value}` : `🛰️ GPS: ${val}`;
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(text)}`);
-        alert("Inviato!");
+        let text = "";
+        if(tipo === 'allerta') {
+            text = `🚨 *${document.getElementById('f_tipo').value} UNITÀ MERLINI*\n📌 *EVENTO:* ${document.getElementById('f_evento').value}\n📍 *LUOGO:* ${document.getElementById('f_luogo').value}\n🚒 *MEZZI:* ${document.getElementById('f_mezzi').value}`;
+            fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({chat_id:ID_GRUPPO, text:text, parse_mode:'Markdown', reply_markup:{inline_keyboard:[[{text:"✅ PRESENTE", callback_data:"si"},{text:"❌ ASSENTE", callback_data:"no"}]]}})
+            }).then(()=>alert("Inviato!"));
+        } else {
+            text = `🛰️ *GPS:* \`${val}\` \n📍 [APRI MAPPA](https://www.google.com/maps?q=$${val})`;
+            fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(text)}&parse_mode=Markdown`).then(()=>alert("GPS Inviato!"));
+        }
     }
 </script>
 </body>
