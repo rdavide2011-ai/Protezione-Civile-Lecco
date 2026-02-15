@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>S.A.R. UNITÀ MERLINI - OPERATIONAL PANEL</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
             --bg-dark: #0a0e14;
@@ -71,14 +72,16 @@
         .btn-alert { background: var(--danger); color: white; }
         .btn-gps { background: var(--pc-blue); color: white; }
 
-        /* Modal GPS */
+        /* Modal Mappa */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 14, 20, 0.98); z-index: 1000; padding: 50px 20px;
+            background: var(--bg-dark); z-index: 1000;
         }
-        .modal-content { max-width: 400px; margin: 0 auto; text-align: center; }
+        .modal-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--panel-bg); border-bottom: 1px solid var(--pc-blue); }
         
-        .forgot-link { display: block; margin-top: 20px; color: #8b949e; font-size: 11px; text-decoration: underline; cursor: pointer; }
+        #map { width: 100%; flex: 1; min-height: 300px; }
+
+        .forgot-link { display: block; margin-top: 20px; color: #8b949e; font-size: 11px; text-decoration: underline; cursor: pointer; text-align: center; }
 
         .status-bar { background: #010409; padding: 10px 20px; font-size: 9px; color: #484f58; display: flex; justify-content: space-between; }
     </style>
@@ -86,10 +89,7 @@
 <body>
 
 <div id="loginOverlay">
-    <div class="modal-content">
-        <div style="margin-bottom: 20px;">
-            <img src="logo.svg" style="width: 80px; height: auto;">
-        </div>
+    <div style="max-width: 300px; width: 90%; text-align: center;">
         <h2 style="color:var(--pc-yellow); font-size: 16px;">ACCESSO CONSOLE</h2>
         <input type="password" id="loginInput" style="font-size: 24px; text-align: center; margin-bottom: 20px;" placeholder="PIN">
         <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ENTRA</button>
@@ -106,127 +106,106 @@
 </div>
 
 <div class="main-ui">
-    <div class="input-group">
-        <label>Evento</label>
-        <input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
-    </div>
-    <div class="input-group">
-        <label>Luogo</label>
-        <input type="text" id="f_luogo" placeholder="Es: Comune di Lecco">
-    </div>
+    <div class="input-group"><label>Evento</label><input type="text" id="f_evento"></div>
+    <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo"></div>
     <div class="input-group">
         <label>Tipo Attivazione</label>
         <select id="f_tipoAttivazione" onchange="toggleProgrammata()">
-            <option value="IMMEDIATA">IMMEDIATA (Adesso)</option>
-            <option value="PROGRAMMATA">PROGRAMMATA (Scegli Data/Ora)</option>
+            <option value="IMMEDIATA">IMMEDIATA</option>
+            <option value="PROGRAMMATA">PROGRAMMATA</option>
         </select>
     </div>
-
     <div id="programmataGroup">
-        <div class="input-group">
-            <label>Data Intervento</label>
-            <input type="date" id="f_dataIntervento" value="2026-02-15">
-        </div>
-        <div class="input-group">
-            <label>Orario Intervento</label>
-            <input type="time" id="f_orarioIntervento">
-        </div>
+        <div class="input-group"><label>Data</label><input type="date" id="f_dataIntervento" value="2026-02-15"></div>
+        <div class="input-group"><label>Ora</label><input type="time" id="f_orarioIntervento"></div>
     </div>
-
-    <div class="input-group">
-        <label>Mezzi</label>
-        <input type="text" id="f_mezzi" placeholder="Es: Defender, Unità Cinofila">
-    </div>
-    <div class="input-group">
-        <label>Note aggiuntive</label>
-        <textarea id="f_note" placeholder="Dettagli extra..."></textarea>
-    </div>
+    <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi"></div>
+    <div class="input-group"><label>Note</label><textarea id="f_note"></textarea></div>
 
     <div class="btn-group">
         <button class="btn btn-alert" onclick="transmit('allerta')"><span>🚨</span> INVIA ALLERTA</button>
-        <button class="btn btn-gps" onclick="openGpsModal()"><span>🛰️</span> POSIZIONE GPS</button>
+        <button class="btn btn-gps" onclick="openMapModal()"><span>🛰️</span> MAPPA GPS</button>
+    </div>
+</div>
+
+<div id="gpsModal" class="modal" style="display:none; flex-direction: column;">
+    <div class="modal-header">
+        <span style="color: var(--pc-blue); font-weight: bold; font-size: 12px;">TOCCA UN PUNTO SULLA MAPPA</span>
+        <button onclick="closeMapModal()" style="background:none; border:none; color:white; font-size: 20px;">×</button>
+    </div>
+    <div id="map"></div>
+    <div style="padding: 15px; background: var(--panel-bg); display: flex; gap: 10px;">
+        <input type="text" id="gpsCoords" readonly placeholder="Coordinate selezionate..." style="background: #0d1117;">
+        <button onclick="confirmGps()" style="background: var(--pc-blue); color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold;">INVIA</button>
     </div>
 </div>
 
 <div class="status-bar"><span>SYSTEM ONLINE</span><span>15/02/2026 - LECCO</span></div>
 
-<div id="gpsModal" class="modal">
-    <div class="modal-content">
-        <h2 style="color:var(--pc-blue)">COORD. GEOGRAFICHE</h2>
-        <input type="text" id="gpsInput" style="font-size: 18px; text-align: center; margin-bottom: 20px;" placeholder="45.xx, 9.xx">
-        <div class="btn-group">
-            <button class="btn" style="background: #30363d; color: white;" onclick="closeGpsModal()">ANNULLA</button>
-            <button class="btn" style="background: var(--pc-blue); color: white;" onclick="confirmGps()">INVIA GPS</button>
-        </div>
-    </div>
-</div>
-
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
+    
+    let map, marker;
 
-    // Funzione Login Iniziale
     function checkLogin() {
-        const pin = document.getElementById('loginInput').value;
-        if (pin === PIN_CORRETTO) {
+        if (document.getElementById('loginInput').value === PIN_CORRETTO) {
             document.getElementById('loginOverlay').style.display = 'none';
-        } else {
-            alert("PIN ERRATO");
-        }
+            initMap(); // Inizializza la mappa al login
+        } else { alert("PIN ERRATO"); }
+    }
+
+    function initMap() {
+        // Centrato su Lecco
+        map = L.map('map').setView([45.856, 9.397], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+            document.getElementById('gpsCoords').value = lat + ", " + lng;
+            
+            if (marker) { marker.setLatLng(e.latlng); } 
+            else { marker = L.marker(e.latlng).addTo(map); }
+        });
+    }
+
+    function openMapModal() {
+        document.getElementById('gpsModal').style.display = 'flex';
+        setTimeout(() => { map.invalidateSize(); }, 200); // Fix per caricamento corretto
+    }
+
+    function closeMapModal() { document.getElementById('gpsModal').style.display = 'none'; }
+
+    function confirmGps() {
+        const coords = document.getElementById('gpsCoords').value;
+        if (!coords) { alert("Seleziona un punto sulla mappa"); return; }
+        transmit('gps', coords);
+        closeMapModal();
     }
 
     function toggleProgrammata() {
-        const tipo = document.getElementById('f_tipoAttivazione').value;
-        const group = document.getElementById('programmataGroup');
-        group.style.display = (tipo === 'PROGRAMMATA') ? 'flex' : 'none';
-    }
-
-    function openGpsModal() { document.getElementById('gpsModal').style.display = "block"; }
-    function closeGpsModal() { document.getElementById('gpsModal').style.display = "none"; }
-
-    function confirmGps() {
-        const val = document.getElementById('gpsInput').value;
-        if (!val.trim()) return;
-        transmit('gps', val);
-        closeGpsModal();
-        document.getElementById('gpsInput').value = "";
+        document.getElementById('programmataGroup').style.display = (document.getElementById('f_tipoAttivazione').value === 'PROGRAMMATA') ? 'flex' : 'none';
     }
 
     function sendReminder() {
-        const msg = "🔑 *RECUPERO PIN*\nIl codice è: `" + PIN_CORRETTO + "`";
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
-        alert("Inviato nel gruppo Telegram.");
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=🔑 *PROMEMORIA PIN:* \`${PIN_CORRETTO}\`&parse_mode=Markdown`);
+        alert("PIN inviato nel gruppo.");
     }
 
     function transmit(tipo, gpsVal = "") {
         let msg = "";
-        const oraInvio = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+        const ora = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
 
         if (tipo === 'allerta') {
             const ev = document.getElementById('f_evento').value || "N/D";
             const lu = document.getElementById('f_luogo').value || "N/D";
-            const me = document.getElementById('f_mezzi').value || "N/D";
-            const no = document.getElementById('f_note').value || "NESSUNA";
             const tAtt = document.getElementById('f_tipoAttivazione').value;
-            const dIntRaw = document.getElementById('f_dataIntervento').value;
-            const dInt = dIntRaw.split('-').reverse().join('/');
-            const hInt = document.getElementById('f_orarioIntervento').value;
-
-            msg = "📂 *SCHEDA OPERATIVA UNITÀ MERLINI*\n```\n";
-            msg += "╔════════════════════════════════╗\n";
-            msg += "║ DATA INVIO: 15/02/2026 " + oraInvio + " ║\n";
-            msg += "╠════════════════════════════════╣\n";
-            msg += "  EVENTO : " + ev.toUpperCase() + "\n";
-            msg += "  LUOGO  : " + lu.toUpperCase() + "\n";
-            msg += "  MEZZI  : " + me.toUpperCase() + "\n";
-            if (tAtt === "PROGRAMMATA") { msg += "  RITROVO: " + dInt + " ORE " + hInt + "\n"; }
-            else { msg += "  STATO  : IMMEDIATA\n"; }
-            msg += "  NOTE   : " + no.toUpperCase() + "\n";
-            msg += "╚════════════════════════════════╝\n```\n";
-            msg += (tAtt === "IMMEDIATA") ? "🔴 **ATTIVAZIONE IMMEDIATA** 🔴" : "🟠 **ATTIVAZIONE PROGRAMMATA** 🟠";
+            msg = "📂 *SCHEDA OPERATIVA*\n```\nEVENTO : " + ev.toUpperCase() + "\nLUOGO  : " + lu.toUpperCase() + "\nSTATO  : " + tAtt + "\n```";
         } else {
-            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n`" + gpsVal + "`\n📍 [MAPPA](http://googleusercontent.com/maps.google.com/q=" + gpsVal.replace(/\s/g, '') + ")";
+            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n`" + gpsVal + "`\n📍 [MAPPA](https://www.google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
         }
 
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
