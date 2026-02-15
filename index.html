@@ -141,7 +141,6 @@
         
         .modal-link { color: #58a6ff; display: block; margin-bottom: 20px; font-size: 13px; text-decoration: none; border: 1px solid #30363d; padding: 10px; border-radius: 5px; }
         
-        /* Stile per il link dimenticato password */
         .forgot-link {
             display: block;
             margin-top: 15px;
@@ -193,8 +192,8 @@
 
 <div class="main-ui">
     <div style="flex: 1; display: flex; flex-direction: column;">
-        <span class="section-label">Dettagli Operativi</span>
-        <textarea id="mainText" placeholder="Inserire testo allerta qui..."></textarea>
+        <span class="section-label">Dettagli Operativi (Seguire scaletta)</span>
+        <textarea id="mainText" placeholder="Evento:&#10;Luogo:&#10;Mezzi:&#10;Note:"></textarea>
     </div>
 
     <div class="btn-group">
@@ -215,16 +214,11 @@
 <div id="gate" class="modal">
     <div class="modal-content">
         <h2 id="gateTitle">Sicurezza</h2>
-        <p id="gateDesc" style="color: #8b949e; font-size: 13px;">Identificarsi per procedere</p>
-        <a id="gateLink" class="modal-link" href="https://www.gps-longitudine-latitudine.it/" target="_blank" style="display:none;">🌐 Trova Coordinate Geografiche</a>
-        
-        <input type="password" id="gateInput" class="input-control" autocomplete="off">
-        
+        <input type="password" id="gateInput" class="input-control" autocomplete="off" placeholder="PIN">
         <div class="modal-footer-btns">
             <button class="btn-cancel" onclick="closeGate()">Annulla</button>
             <button id="gateConfirm" class="btn-confirm">Conferma</button>
         </div>
-
         <span class="forgot-link" onclick="sendReminder()">Hai dimenticato la password?</span>
     </div>
 </div>
@@ -237,11 +231,9 @@
     function openGate(tipo) {
         const modal = document.getElementById('gate');
         const input = document.getElementById('gateInput');
-        const link = document.getElementById('gateLink');
         const btn = document.getElementById('gateConfirm');
 
-        input.value = ""; input.type = "password"; input.placeholder = "PIN";
-        link.style.display = "none";
+        input.value = ""; input.type = "password";
         modal.style.display = "block";
         input.focus();
 
@@ -254,10 +246,8 @@
 
     function setupGPS() {
         const input = document.getElementById('gateInput');
-        const link = document.getElementById('gateLink');
         const btn = document.getElementById('gateConfirm');
         input.value = ""; input.type = "text"; input.placeholder = "45.xx, 9.xx";
-        link.style.display = "block";
         btn.onclick = function() {
             if (!input.value.trim()) return;
             transmit(input.value, 'gps');
@@ -266,25 +256,44 @@
 
     function closeGate() { document.getElementById('gate').style.display = "none"; }
 
-    // Funzione per inviare il promemoria del PIN su Telegram
     function sendReminder() {
-        const msg = "🔑 *RECUPERO CREDENZIALI*\nIl PIN di accesso alla console è: `" + PIN_CORRETTO + "`";
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { if(res.ok) alert("PIN inviato nel gruppo Telegram"); });
+        const msg = "🔑 *RECUPERO CREDENZIALI*\nIl PIN di accesso è: `" + PIN_CORRETTO + "`";
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
+        alert("PIN inviato nel gruppo.");
     }
 
     function transmit(val, tipo) {
         if (!val.trim()) { alert("ERRORE: Campo vuoto"); return; }
+        
         let msg = "";
+        const ora = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+
         if (tipo === 'alert') {
-            msg = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + val;
+            // SCALETTA PROFESSIONALE
+            msg = "🔴 *ATTIVAZIONE UNITÀ MERLINI* 🔴\n";
+            msg += "───────────────────\n";
+            msg += "📅 *DATA:* 15/02/2026\n";
+            msg += "🕒 *ORA INVIO:* " + ora + "\n\n";
+            msg += "📝 *DETTAGLI INTERVENTO:*\n";
+            msg += "_" + val + "_\n";
+            msg += "───────────────────\n";
+            msg += "📢 *STATO:* OPERATIVO IMMEDIATO";
         } else {
             const p = val.replace(/\s/g, '');
-            msg = "🛰️ *POSIZIONE GPS RILEVATA*\n\n`" + val + "`\n\n📍 Navigatore:\nhttps://www.google.com/maps?q=" + p;
+            msg = "🛰️ *COORDINATE GPS RILEVATE*\n";
+            msg += "───────────────────\n";
+            msg += "📍 *POSIZIONE:* `" + val + "`\n\n";
+            msg += "🔗 *MAPPA:* [Apri in Google Maps](https://www.google.com/maps?q=" + p + ")";
         }
+
         closeGate();
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { if(res.ok) { alert("TRASMESSO"); document.getElementById('mainText').value = ""; }});
+        .then(res => { 
+            if(res.ok) { 
+                alert("MESSAGGIO INVIATO CON SCALETTA"); 
+                document.getElementById('mainText').value = ""; 
+            }
+        });
     }
 </script>
 </body>
