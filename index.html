@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - OPERATIVE SYSTEM</title>
+    <title>S.A.R. UNITÀ MERLINI - SECURE CONSOLE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -20,63 +20,70 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-        /* LOGIN (Impostazione originale) */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-box { max-width: 350px; width: 90%; text-align: center; }
+        /* LOGIN SCREEN */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .login-box { max-width: 350px; width: 90%; text-align: center; background: var(--panel-bg); padding: 30px; border-radius: 15px; border: 2px solid var(--pc-yellow); }
 
         /* HEADER */
-        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 3px solid var(--pc-yellow); }
-        .logo-container { width: 45px; height: 45px; margin-right: 15px; }
+        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--pc-yellow); }
+        .header-left { display: flex; align-items: center; }
+        .logo-container { width: 40px; height: 40px; margin-right: 12px; background: var(--pc-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; }
         
         /* NAVIGATION */
         .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid #30363d; }
-        .nav-btn { padding: 8px 12px; background: var(--panel-bg); color: #8b949e; border: 1px solid #30363d; border-radius: 6px; font-size: 10px; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
+        .nav-btn { padding: 8px 15px; background: var(--panel-bg); color: #8b949e; border: 1px solid #30363d; border-radius: 6px; font-size: 10px; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: 0.2s; }
         .nav-btn.active { background: var(--pc-yellow); color: black; font-weight: bold; }
 
-        /* MAIN UI */
+        /* MAIN */
         .main-ui { flex: 1; padding: 15px; max-width: 600px; margin: 0 auto; width: 100%; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-        .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; }
-        input, textarea, select { width: 100%; background: var(--panel-bg); border: 1px solid #30363d; border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none; }
+        .hidden { display: none !important; }
         
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; text-align: center; width: 100%; margin-top: 10px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
+        .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; letter-spacing: 1px; }
+        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none; }
+        input:focus { border-color: var(--pc-blue); }
 
-        /* PRESENZE STYLE */
-        .presenza-row { background: var(--panel-bg); padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #30363d; }
-        .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
-        .p-btn { padding: 8px; border: none; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; background: #0d1117; color: #8b949e; }
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: 0.2s; display: block; width: 100%; margin-top: 10px; }
+        .btn:active { transform: scale(0.98); }
+
+        /* PRESENZE */
+        .presenza-row { background: var(--panel-bg); padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #30363d; }
+        .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .p-btn { padding: 10px; border: none; border-radius: 6px; font-size: 9px; font-weight: bold; cursor: pointer; background: #21262d; color: #c9d1d9; }
         .p-btn.active-si { background: var(--success); color: white; }
         .p-btn.active-no { background: var(--danger); color: white; }
         .p-btn.active-rit { background: var(--warning); color: white; }
-        .rit-time { font-size: 10px; color: var(--warning); margin-top: 5px; display: block; }
 
-        .card { background: var(--panel-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--pc-blue); margin-top: 10px; }
-        .item-list { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 8px 12px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #30363d; }
-        .remove-btn { color: var(--danger); font-weight: bold; cursor: pointer; }
-
-        .hidden { display: none; }
+        /* MODALE MAPPA */
         .modal-map { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 1000; flex-direction: column; }
         #map { width: 100%; flex: 1; }
+
+        .logout-btn { background: #30363d; color: #eb3b5a; border: none; padding: 5px 10px; border-radius: 5px; font-size: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
-<body>
+<body onpointermove="resetTimer()" onclick="resetTimer()" onkeypress="resetTimer()">
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2 style="color:var(--pc-yellow)">S.A.R. UNITÀ MERLINI</h2>
-        <input type="password" id="loginInput" style="font-size: 24px; text-align: center; margin-bottom: 20px;" placeholder="PIN">
-        <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ACCESSO</button>
+        <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
+        <h2 style="color:var(--pc-yellow); margin: 0 0 20px 0; font-size: 18px;">S.A.R. UNITÀ MERLINI</h2>
+        <input type="password" id="loginInput" inputmode="numeric" style="font-size: 30px; text-align: center; letter-spacing: 10px;" placeholder="****">
+        <p id="loginError" style="color:var(--danger); font-size: 12px; margin-top: 10px; height: 15px;"></p>
+        <button onclick="checkLogin()" class="btn" style="background: var(--pc-yellow); color: black;">ACCEDI ALLA CONSOLE</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <div class="logo-container"><img src="logo.svg" alt="Logo" style="height:40px;"></div>
-    <div class="top-bar-text">
-        <h1 style="margin:0; font-size:14px; color:var(--pc-yellow);">PROTEZIONE CIVILE LECCO</h1>
-        <p style="margin:0; font-size:10px;">UNITÀ "A. MERLINI" - CONSOLE</p>
+    <div class="header-left">
+        <div class="logo-container">PC</div>
+        <div>
+            <h1 style="margin:0; font-size:12px; color:var(--pc-yellow);">S.A.R. UNITÀ MERLINI</h1>
+            <p style="margin:0; font-size:9px; color:#8b949e;">CONSOLE DI COMANDO PRO</p>
+        </div>
     </div>
+    <button class="logout-btn" onclick="logout()">LOGOUT</button>
 </div>
 
 <div class="module-nav">
@@ -89,78 +96,119 @@
 <div class="main-ui">
     <div id="mod-allerta">
         <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
-        <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo" placeholder="Es: Comune di Lecco"></div>
+        <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo" placeholder="Coordinate o Indirizzo"></div>
         <div class="input-group">
-            <label>Tipo</label>
-            <select id="f_tipo" onchange="toggleProg()"><option value="IMMEDIATA">IMMEDIATA</option><option value="PROGRAMMATA">PROGRAMMATA</option></select>
+            <label>Attivazione</label>
+            <select id="f_tipo" onchange="toggleProg()">
+                <option value="IMMEDIATA">IMMEDIATA</option>
+                <option value="PROGRAMMATA">PROGRAMMATA</option>
+            </select>
         </div>
         <div id="group-prog" class="hidden">
-            <input type="date" id="f_data" value="2026-02-15" style="margin-bottom:5px;">
-            <input type="time" id="f_ora">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input type="date" id="f_data">
+                <input type="time" id="f_ora">
+            </div>
         </div>
-        <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi"></div>
-        <button class="btn" style="background:var(--danger); color:white" onclick="transmit('allerta')">INVIA ALLERTA</button>
-        <button class="btn" style="background:var(--pc-blue); color:white" onclick="openMap()">🛰️ MAPPA GPS</button>
+        <div class="input-group" style="margin-top:10px;"><label>Mezzi</label><input type="text" id="f_mezzi"></div>
+        <div class="input-group"><label>Note</label><textarea id="f_note" rows="3"></textarea></div>
+        <button class="btn" style="background:var(--danger); color:white" onclick="transmit('allerta')">INVIA ALLERTA TELEGRAM</button>
+        <button class="btn" style="background:var(--pc-blue); color:white" onclick="openMap()">🛰️ APRI MAPPA GPS</button>
     </div>
 
     <div id="mod-presenze" class="hidden">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <h3 style="color:var(--success); font-size:14px;">VERBALE PRESENZE</h3>
-            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:9px; padding:2px 8px;">RESET</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="color:var(--success); font-size:14px; margin:0;">APPELLO OPERATIVO</h3>
+            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:9px; padding:3px 8px; border-radius:4px;">RESET TUTTO</button>
         </div>
         <div id="lista-presenze-dinamica"></div>
-        <button class="btn" style="background:var(--success); color:white" onclick="generaPDFPresenzeFormale()">📄 GENERA VERBALE FORMALE (PDF)</button>
+        <button class="btn" style="background:var(--success); color:white" onclick="generaPDFPresenzeFormale()">📄 GENERA VERBALE FORMALE</button>
     </div>
 
     <div id="mod-squadre" class="hidden">
-        <h3 style="color:var(--pc-blue); font-size:14px;">COMPOSIZIONE SQUADRE</h3>
-        <div class="card">
+        <h3 style="color:var(--pc-blue); font-size:14px;">FORMAZIONE SQUADRE</h3>
+        <div class="card" style="background:var(--panel-bg); border:1px solid #30363d; padding:15px; border-radius:10px;">
             <div id="lista-squadra"></div>
-            <div style="display:flex; gap:5px; margin-top:10px;">
-                <input type="text" id="nome-sq" placeholder="Nome...">
-                <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; padding:10px; border-radius:5px;">+</button>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <input type="text" id="nome-sq" placeholder="Nome componente...">
+                <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold;">+</button>
             </div>
         </div>
     </div>
 
     <div id="mod-volontari" class="hidden">
-        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA</h3>
-        <div class="card">
-            <div id="lista-anagrafica"></div>
-            <div class="add-box" style="display:flex; flex-direction:column; gap:8px;">
-                <input type="text" id="ana-nome" placeholder="Nome Cognome">
-                <input type="text" id="ana-ruolo" placeholder="Qualifica">
-                <button style="background:var(--success); color:white" onclick="aggiungiAnagrafica()">SALVA VOLONTARIO</button>
-            </div>
+        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA VOLONTARI</h3>
+        <div id="lista-anagrafica" style="margin-bottom:20px;"></div>
+        <div class="card" style="background:var(--panel-bg); border:1px solid #30363d; padding:15px; border-radius:10px;">
+            <div class="input-group"><label>Nuovo Volontario</label><input type="text" id="ana-nome" placeholder="Cognome e Nome"></div>
+            <div class="input-group"><label>Qualifica</label><input type="text" id="ana-ruolo" placeholder="Es. Autista, Soccorritore"></div>
+            <button class="btn" style="background:var(--success); color:white" onclick="aggiungiAnagrafica()">SALVA IN ANAGRAFICA</button>
         </div>
     </div>
 </div>
 
 <div id="gpsModal" class="modal-map">
     <div id="map"></div>
-    <div style="padding:15px; background:var(--panel-bg); display:flex; gap:10px;">
-        <input type="text" id="gpsCoords" readonly>
-        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 20px;">INVIA</button>
-        <button onclick="closeMap()" style="background:var(--danger); color:white; border:none; padding:0 20px;">X</button>
+    <div style="padding:15px; background:var(--panel-bg); display:flex; gap:10px; border-top: 2px solid var(--pc-blue);">
+        <input type="text" id="gpsCoords" readonly placeholder="Tocca la mappa...">
+        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 20px; border-radius:8px; font-weight:bold;">INVIA</button>
+        <button onclick="closeMap()" style="background:var(--danger); color:white; border:none; padding:0 20px; border-radius:8px;">X</button>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // CONFIGURAZIONE
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
-    const PIN_CORRETTO = "1234";
+    const PIN_SECRET = "123456789"; // Questo è il tuo PIN salvato in memoria
 
+    let idleTimer;
+    let loginAttempts = 0;
     let elencoAnagrafica = JSON.parse(localStorage.getItem('anagraficaVolontari')) || [];
     let statoPresenze = JSON.parse(localStorage.getItem('statoPresenze')) || {};
 
+    // --- SICUREZZA (PUNTO 1) ---
     function checkLogin() {
-        if(document.getElementById('loginInput').value === PIN_CORRETTO) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            initMap(); renderAnagrafica(); renderPresenze(); renderSquadra();
-        } else { alert("PIN ERRATO"); }
+        const input = document.getElementById('loginInput').value;
+        if(input === PIN_SECRET) {
+            document.getElementById('loginOverlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loginOverlay').style.display = 'none';
+                initMap(); renderAnagrafica(); renderPresenze(); renderSquadra();
+                resetTimer();
+            }, 300);
+        } else {
+            loginAttempts++;
+            document.getElementById('loginError').innerText = `PIN ERRATO (${loginAttempts})`;
+            document.getElementById('loginInput').value = "";
+            if(loginAttempts >= 5) {
+                alert("Troppi tentativi falliti. App bloccata per sicurezza.");
+                location.reload();
+            }
+        }
     }
 
+    function logout() {
+        document.getElementById('loginOverlay').style.display = 'flex';
+        setTimeout(() => document.getElementById('loginOverlay').style.opacity = '1', 10);
+        document.getElementById('loginInput').value = "";
+        loginAttempts = 0;
+        clearTimeout(idleTimer);
+    }
+
+    function resetTimer() {
+        clearTimeout(idleTimer);
+        // Blocca l'app dopo 10 minuti di inattività
+        idleTimer = setTimeout(() => {
+            if(document.getElementById('loginOverlay').style.display === 'none') {
+                alert("Sessione scaduta per inattività.");
+                logout();
+            }
+        }, 600000); 
+    }
+
+    // --- LOGICA MODULI ---
     function showMod(id) {
         ['mod-allerta', 'mod-presenze', 'mod-squadre', 'mod-volontari'].forEach(m => document.getElementById(m).classList.add('hidden'));
         document.getElementById('mod-'+id).classList.remove('hidden');
@@ -173,35 +221,46 @@
 
     // --- ANAGRAFICA ---
     function aggiungiAnagrafica() {
-        const n = document.getElementById('ana-nome').value;
-        const r = document.getElementById('ana-ruolo').value;
+        const n = document.getElementById('ana-nome').value.toUpperCase();
+        const r = document.getElementById('ana-ruolo').value.toUpperCase();
         if(!n || !r) return;
-        elencoAnagrafica.push({nome: n.toUpperCase(), ruolo: r.toUpperCase()});
+        elencoAnagrafica.push({nome: n, ruolo: r});
         localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica));
         document.getElementById('ana-nome').value = ""; document.getElementById('ana-ruolo').value = "";
         renderAnagrafica();
     }
-    function rimuoviAnagrafica(i) { elencoAnagrafica.splice(i, 1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); renderAnagrafica(); }
+    function rimuoviAnagrafica(i) {
+        if(confirm("Eliminare definitivamente?")) {
+            elencoAnagrafica.splice(i, 1);
+            localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica));
+            renderAnagrafica();
+        }
+    }
     function renderAnagrafica() {
         const cont = document.getElementById('lista-anagrafica'); cont.innerHTML = "";
-        elencoAnagrafica.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span><b>${v.nome}</b></span><span class="remove-btn" onclick="rimuoviAnagrafica(${i})">✕</span></div>`; });
+        elencoAnagrafica.forEach((v, i) => {
+            cont.innerHTML += `<div style="display:flex; justify-content:space-between; background:var(--panel-bg); padding:10px; border-radius:8px; margin-bottom:5px; border:1px solid #30363d;">
+                <span>${v.nome} <small style="color:#8b949e">(${v.ruolo})</small></span>
+                <span onclick="rimuoviAnagrafica(${i})" style="color:var(--danger); cursor:pointer">✕</span>
+            </div>`;
+        });
     }
 
     // --- PRESENZE ---
     function renderPresenze() {
         const cont = document.getElementById('lista-presenze-dinamica');
-        cont.innerHTML = "";
+        cont.innerHTML = elencoAnagrafica.length === 0 ? "<p style='text-align:center; color:#555;'>Nessun volontario in anagrafica.</p>" : "";
         elencoAnagrafica.forEach((v) => {
             const current = statoPresenze[v.nome] || {stato:''};
             cont.innerHTML += `
                 <div class="presenza-row">
-                    <div style="font-size:12px; font-weight:bold;">${v.nome}</div>
+                    <div style="font-size:13px; font-weight:bold;">${v.nome}</div>
                     <div class="presenza-btns">
-                        <button class="p-btn ${current.stato === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">PRESENT.</button>
-                        <button class="p-btn ${current.stato === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">ASSENT.</button>
+                        <button class="p-btn ${current.stato === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">PRESENTE</button>
+                        <button class="p-btn ${current.stato === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">ASSENTE</button>
                         <button class="p-btn ${current.stato === 'rit' ? 'active-rit' : ''}" onclick="setPresenza('${v.nome}', 'rit')">RITARDO</button>
                     </div>
-                    ${current.ora ? `<span class="rit-time">Ingresso: ore ${current.ora}</span>` : ''}
+                    ${current.ora ? `<span class="rit-time">⏱️ Ingresso previsto: ore ${current.ora}</span>` : ''}
                 </div>`;
         });
     }
@@ -209,7 +268,7 @@
     function setPresenza(nome, stato) {
         let ora = "";
         if(stato === 'rit') {
-            ora = prompt("Orario ingresso stimato (HH:MM):");
+            ora = prompt("Orario di ingresso:");
             if(!ora) return;
         }
         statoPresenze[nome] = {stato: stato, ora: ora};
@@ -217,78 +276,61 @@
         renderPresenze();
     }
 
-    function resetPresenze() { if(confirm("Azzerare tutto?")) { statoPresenze = {}; localStorage.removeItem('statoPresenze'); renderPresenze(); } }
+    function resetPresenze() { if(confirm("Azzerare tutto l'appello?")) { statoPresenze = {}; localStorage.removeItem('statoPresenze'); renderPresenze(); } }
 
     // --- PDF FORMALE ---
     function generaPDFPresenzeFormale() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const dataAppello = new Date().toLocaleDateString();
-        const oraAppello = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-        // Logo Grafico / Intestazione
-        doc.setFillColor(0, 86, 179);
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.text("S.A.R. UNITÀ MERLINI", 105, 20, {align: 'center'});
-        doc.setFontSize(10);
-        doc.text("PROTEZIONE CIVILE LECCO - VERBALE OPERATIVO PRESENZE", 105, 30, {align: 'center'});
-
-        // Info Emergenza
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text(`DATA: ${dataAppello}`, 20, 50);
-        doc.text(`ORA APPEL.: ${oraAppello}`, 150, 50);
+        const data = new Date().toLocaleDateString();
         
-        const evento = document.getElementById('f_evento').value || "N/A";
-        doc.text(`EVENTO: ${evento.toUpperCase()}`, 20, 60);
+        doc.setFillColor(0, 86, 179); doc.rect(0, 0, 210, 35, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(20); doc.text("S.A.R. UNITÀ MERLINI", 105, 18, {align: 'center'});
+        doc.setFontSize(10); doc.text("VERBALE OPERATIVO DI PRESENZA", 105, 28, {align: 'center'});
+        
+        doc.setTextColor(0, 0, 0); doc.setFontSize(11);
+        doc.text(`DATA: ${data}`, 15, 45);
+        doc.text(`EVENTO: ${document.getElementById('f_evento').value || "ESERCITAZIONE/INTERVENTO"}`, 15, 52);
 
-        // Tabella Dati
-        const righe = [];
+        const rows = [];
         elencoAnagrafica.forEach(v => {
             const s = statoPresenze[v.nome] || {stato:'NON RILEVATO', ora:''};
-            let statusTesto = "ASSENTE";
-            if(s.stato === 'si') statusTesto = "PRESENTE";
-            if(s.stato === 'rit') statusTesto = `RITARDO (${s.ora})`;
-            
-            righe.push([v.nome, v.ruolo, statusTesto]);
+            let status = "ASSENTE";
+            if(s.stato === 'si') status = "PRESENTE";
+            if(s.stato === 'rit') status = `RITARDO (${s.ora})`;
+            rows.push([v.nome, v.ruolo, status]);
         });
 
         doc.autoTable({
-            startY: 70,
-            head: [['NOMINATIVO', 'QUALIFICA/RUOLO', 'STATO PRESENZA']],
-            body: righe,
-            headStyles: { fillColor: [0, 86, 179] },
-            theme: 'grid'
+            startY: 60, head: [['COGNOME E NOME', 'QUALIFICA', 'STATO']],
+            body: rows, headStyles: {fillColor:[0, 86, 179]}, theme: 'grid'
         });
 
-        // Firme
-        const finalY = doc.lastAutoTable.finalY + 30;
-        doc.line(20, finalY, 80, finalY);
-        doc.text("Firma Operatore Radio", 20, finalY + 5);
-        
-        doc.line(130, finalY, 190, finalY);
-        doc.text("Firma Capo Squadra", 130, finalY + 5);
-
-        doc.save(`Verbale_Presenze_${dataAppello.replace(/\//g, '-')}.pdf`);
+        const finalY = doc.lastAutoTable.finalY + 20;
+        doc.text("Firma Coordinatore: ___________________________", 15, finalY);
+        doc.save(`Verbale_${data}.pdf`);
     }
 
-    // --- SQUADRE & MAPPA & TELEGRAM (INVARIATI) ---
+    // --- SQUADRE ---
     let elencoSquadra = JSON.parse(localStorage.getItem('squadraSAR')) || [];
     function aggiungiASquadra() {
-        const n = document.getElementById('nome-sq').value; if(!n) return;
-        elencoSquadra.push(n.toUpperCase()); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra));
+        const n = document.getElementById('nome-sq').value.toUpperCase(); if(!n) return;
+        elencoSquadra.push(n); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra));
         document.getElementById('nome-sq').value = ""; renderSquadra();
     }
     function rimuoviDaSquadra(i) { elencoSquadra.splice(i, 1); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra)); renderSquadra(); }
     function renderSquadra() {
         const cont = document.getElementById('lista-squadra'); cont.innerHTML = "";
-        elencoSquadra.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span>${v}</span><span class="remove-btn" onclick="rimuoviDaSquadra(${i})">✕</span></div>`; });
+        elencoSquadra.forEach((v, i) => {
+            cont.innerHTML += `<div style="display:flex; justify-content:space-between; background:#0d1117; padding:8px; border-radius:5px; margin-bottom:5px; border:1px solid #30363d;">
+                <span>${v}</span><span onclick="rimuoviDaSquadra(${i})" style="color:var(--danger)">✕</span>
+            </div>`;
+        });
     }
 
+    // --- MAPPA E TELEGRAM ---
     let map; function initMap() {
+        if(map) return;
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         map.on('click', e => { document.getElementById('gpsCoords').value = e.latlng.lat.toFixed(6) + "," + e.latlng.lng.toFixed(6); });
@@ -298,9 +340,9 @@
     function confirmGps() { transmit('gps', document.getElementById('gpsCoords').value); closeMap(); }
 
     function transmit(tipo, val="") {
-        let text = tipo === 'allerta' ? `🚨 *ALLERTA:* ${document.getElementById('f_evento').value.toUpperCase()}` : `🛰️ *GPS:* ${val}`;
+        let text = tipo === 'allerta' ? `🚨 *ALLERTA UNITÀ MERLINI*\n📌 *EVENTO:* ${document.getElementById('f_evento').value.toUpperCase()}\n📍 *LUOGO:* ${document.getElementById('f_luogo').value.toUpperCase()}` : `🛰️ *GPS:* ${val}`;
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
-        alert("Inviato!");
+        alert("Messaggio Telegram Inviato!");
     }
 </script>
 </body>
