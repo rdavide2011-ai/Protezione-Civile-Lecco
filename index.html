@@ -10,9 +10,10 @@
         .box { background: white; padding: 30px; border-radius: 20px; max-width: 400px; margin: auto; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .header { background: #ffcc00; color: #003366; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; font-size: 18px; }
         textarea { width: 100%; height: 100px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; resize: none; }
-        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; }
+        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; transition: 0.2s; }
         .btn-alert { background: #cc0000; }
-        .btn-map { background: #28a745; }
+        .btn-gps { background: #007bff; }
+        .btn-alert:active, .btn-gps:active { transform: scale(0.98); }
         #stato { margin-top: 10px; font-weight: bold; color: #555; font-size: 14px; }
     </style>
 </head>
@@ -23,20 +24,22 @@
     <h2 style="margin:0;">Unità "A. Merlini"</h2>
     <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Operativo Emergenze</p>
     
-    <textarea id="testo" placeholder="Scrivi qui i dettagli dell'allerta..."></textarea>
+    <textarea id="testo" placeholder="Inserisci dettagli missione (es. Target, Mezzi, Orario)..."></textarea>
     
     <button class="btn-alert" onclick="preparaMessaggio('allerta')">🚨 INVIA ATTIVAZIONE</button>
-    <button class="btn-map" onclick="preparaMessaggio('indirizzo')">📍 INVIA POSIZIONE (VIA)</button>
+    <button class="btn-gps" onclick="preparaMessaggio('gps')">🛰️ INVIA COORDINATE GPS</button>
     
     <div id="stato">Sistema pronto</div>
 </div>
 
 <script>
+    // DATI TELEGRAM
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
     function preparaMessaggio(tipo) {
+        // Richiesta PIN
         const pin = prompt("SICUREZZA: Inserisci il PIN:");
         if (pin === null) return;
         if (pin !== PIN_CORRETTO) {
@@ -49,23 +52,25 @@
         if (tipo === 'allerta') {
             const corpo = document.getElementById('testo').value;
             if (!corpo.trim()) {
-                alert("Scrivi un messaggio!");
+                alert("Scrivi prima il messaggio di allerta!");
                 return;
             }
             testoFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
         } else {
-            // Chiede la via invece del link
-            const viaInserita = prompt("Inserisci la VIA o il LUOGO dell'intervento:");
+            // Richiesta COORDINATE
+            const gps = prompt("Inserisci le coordinate (es: 45.85, 9.39):");
             
-            if (!viaInserita || viaInserita.trim() === "") {
-                alert("Devi inserire un indirizzo!");
+            if (!gps || gps.trim() === "") {
+                alert("Inserimento annullato.");
                 return;
             }
             
-            // Crea automaticamente il link di Google Maps
-            const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viaInserita)}`;
+            // Creazione link Google Maps automatico
+            // Rimuove eventuali spazi per evitare errori nel link
+            const coordsPulite = gps.replace(/\s/g, '');
+            const linkMaps = `https://www.google.com/maps?q=${coordsPulite}`;
             
-            testoFinale = "📍 *POSIZIONE INTERVENTO*\nIl punto di ritrovo è:\n" + viaInserita + "\n\nApri su Maps:\n" + linkMaps;
+            testoFinale = "🛰️ *POSIZIONE GPS RILEVATA*\nDestinazione intervento:\n\n`" + gps + "`\n\n📍 Apri navigatore:\n" + linkMaps;
         }
 
         inviaATelegram(testoFinale);
@@ -73,8 +78,9 @@
 
     function inviaATelegram(testo) {
         const displayStato = document.getElementById('stato');
-        displayStato.innerText = "⏳ Invio...";
-        
+        displayStato.innerText = "⏳ Invio in corso...";
+        displayStato.style.color = "blue";
+
         const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(testo)}&parse_mode=Markdown`;
 
         fetch(url)
@@ -82,9 +88,9 @@
             if(response.ok) {
                 displayStato.innerText = "✅ INVIATO CON SUCCESSO";
                 displayStato.style.color = "green";
-                document.getElementById('testo').value = "";
+                document.getElementById('testo').value = ""; // Svuota il box testo
             } else {
-                displayStato.innerText = "❌ ERRORE (Controlla Admin Bot)";
+                displayStato.innerText = "❌ ERRORE (Bot non Admin?)";
                 displayStato.style.color = "red";
             }
         })
