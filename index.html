@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - CONSOLE OPERATIVA</title>
+    <title>S.A.R. UNITÀ MERLINI - CONSOLE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --bg-dark: #0a0e14;
@@ -18,98 +19,54 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            margin: 0; padding: 0;
-            min-height: 100vh;
-            display: flex; flex-direction: column;
-        }
-
-        /* LOGIN SCREEN (Tua impostazione originale) */
-        #loginOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark); z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-        }
-
+        /* LOGIN */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .login-box { max-width: 350px; width: 90%; text-align: center; }
-        .login-box h2 { color: var(--pc-yellow); font-size: 18px; margin-bottom: 20px; }
-        
-        /* HEADER */
-        .top-bar {
-            background: var(--panel-bg);
-            padding: 10px 15px;
-            display: flex; align-items: center;
-            border-bottom: 3px solid var(--pc-yellow);
-        }
+
+        /* HEADER & NAV */
+        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 3px solid var(--pc-yellow); }
         .logo-container { width: 45px; height: 45px; margin-right: 15px; }
         .logo-container img { width: 100%; height: auto; }
-        .top-bar-text h1 { margin: 0; font-size: 14px; color: var(--pc-yellow); text-transform: uppercase; font-weight: 900; }
-        .top-bar-text p { margin: 0; font-size: 10px; color: #8b949e; }
+        .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid #30363d; }
+        .nav-btn { padding: 8px 12px; background: var(--panel-bg); color: #8b949e; border: 1px solid #30363d; border-radius: 6px; font-size: 10px; cursor: pointer; text-transform: uppercase; }
+        .nav-btn.active { background: var(--pc-yellow); color: black; font-weight: bold; }
 
-        /* NAVIGATION MODULI */
-        .module-nav {
-            display: flex; background: #000; padding: 10px; gap: 8px;
-            overflow-x: auto; border-bottom: 1px solid #30363d;
-        }
-        .nav-btn {
-            padding: 8px 12px; background: var(--panel-bg); color: #8b949e;
-            border: 1px solid #30363d; border-radius: 6px; font-size: 10px; 
-            white-space: nowrap; cursor: pointer; text-transform: uppercase;
-        }
-        .nav-btn.active { background: var(--pc-yellow); color: black; font-weight: bold; border-color: var(--pc-yellow); }
-
-        /* MAIN AREA */
+        /* CONTENUTO */
         .main-ui { flex: 1; padding: 15px; max-width: 600px; margin: 0 auto; width: 100%; }
         .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-        .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; margin-left: 5px; }
-
-        input, textarea, select {
-            width: 100%; background: var(--panel-bg); border: 1px solid #30363d;
-            border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none;
-        }
-
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .btn {
-            padding: 15px; border: none; border-radius: 10px;
-            font-weight: bold; font-size: 12px; text-transform: uppercase;
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
-        }
+        .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; }
+        input, textarea, select { width: 100%; background: var(--panel-bg); border: 1px solid #30363d; border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none; }
+        
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .btn-alert { background: var(--danger); color: white; }
-        .btn-gps { background: var(--pc-blue); color: white; }
+        .btn-gps { background: var(--pc-blue); color: white; width: 100%; margin-top: 10px;}
+
+        /* SEZIONE SQUADRE DINAMICA */
+        .squadra-card { background: var(--panel-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--pc-blue); margin-top: 10px; }
+        .volontario-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 8px 12px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #30363d; }
+        .remove-btn { color: var(--danger); font-weight: bold; cursor: pointer; padding: 5px; }
+        .add-box { display: flex; gap: 5px; margin-top: 10px; }
+        .add-box input { flex: 1; padding: 8px; }
+        .add-box button { background: var(--pc-blue); color: white; border: none; padding: 0 15px; border-radius: 5px; }
 
         /* MODALE MAPPA */
-        .modal-map {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark); z-index: 1000; flex-direction: column;
-        }
+        .modal-map { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 1000; flex-direction: column; }
         #map { width: 100%; flex: 1; }
-        
-        /* FIX VISIBILITÀ BARRA RICERCA */
         .leaflet-control-geocoder { background: #161b22 !important; color: white !important; }
         .leaflet-control-geocoder-form input { color: white !important; background: #161b22 !important; }
-        .leaflet-control-geocoder-icon { filter: invert(1); }
 
         .hidden { display: none; }
-        .status-bar { background: #010409; padding: 8px 20px; font-size: 9px; color: #484f58; display: flex; justify-content: space-between; }
-        
-        /* TABELLE/SQUADRE */
-        .squadra-card { background: var(--panel-bg); padding: 10px; border-radius: 8px; border-left: 4px solid var(--pc-blue); margin-bottom: 10px; }
-        .volontario-tag { display: inline-block; background: #21262d; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin: 2px; border: 1px solid #30363d; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
     <div class="login-box">
-        <img src="logo.svg" style="width: 80px; margin-bottom: 20px;">
-        <h2>ACCESSO CONSOLE</h2>
+        <h2 style="color:var(--pc-yellow)">ACCESSO CONSOLE</h2>
         <input type="password" id="loginInput" style="font-size: 24px; text-align: center; margin-bottom: 20px;" placeholder="PIN">
-        <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">ENTRA</button>
-        <p style="margin-top:20px; color:#8b949e; font-size:11px; text-decoration:underline; cursor:pointer;" onclick="sendReminder()">Hai dimenticato la password?</p>
+        <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ENTRA</button>
     </div>
 </div>
 
@@ -124,81 +81,46 @@
 <div class="module-nav">
     <button class="nav-btn active" id="btn-allerta" onclick="showMod('allerta')">🚨 Allerta</button>
     <button class="nav-btn" id="btn-squadre" onclick="showMod('squadre')">👥 Squadre SAR</button>
-    <button class="nav-btn" id="btn-anagrafica" onclick="showMod('anagrafica')">🗂️ Volontari</button>
 </div>
 
 <div class="main-ui">
-    
     <div id="mod-allerta">
+        <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
+        <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo" placeholder="Es: Comune di Lecco"></div>
         <div class="input-group">
-            <label>Evento</label>
-            <input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
+            <label>Attivazione</label>
+            <select id="f_tipo"><option value="IMMEDIATA">IMMEDIATA</option><option value="PROGRAMMATA">PROGRAMMATA</option></select>
         </div>
-        <div class="input-group">
-            <label>Luogo</label>
-            <input type="text" id="f_luogo" placeholder="Es: Comune di Lecco">
-        </div>
-        <div class="input-group">
-            <label>Tipo Attivazione</label>
-            <select id="f_tipo" onchange="toggleDate()">
-                <option value="IMMEDIATA">IMMEDIATA</option>
-                <option value="PROGRAMMATA">PROGRAMMATA</option>
-            </select>
-        </div>
-        <div id="dateGroup" class="hidden">
-            <div class="input-group"><label>Data</label><input type="date" id="f_data" value="2026-02-15"></div>
-            <div class="input-group"><label>Ora</label><input type="time" id="f_ora"></div>
-        </div>
-        <div class="input-group">
-            <label>Mezzi</label>
-            <input type="text" id="f_mezzi" placeholder="Es: Defender, Unità Cinofila">
-        </div>
-        <div class="input-group">
-            <label>Note</label>
-            <textarea id="f_note"></textarea>
-        </div>
-        <div class="btn-group">
-            <button class="btn btn-alert" onclick="transmit('allerta')"><span>🚨</span> INVIA ALLERTA</button>
-            <button class="btn btn-gps" onclick="openMap()"><span>🛰️</span> MAPPA GPS</button>
-        </div>
+        <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi" placeholder="Es: Defender"></div>
+        <button class="btn btn-alert" style="width:100%" onclick="transmit('allerta')">INVIA ALLERTA TELEGRAM</button>
+        <button class="btn btn-gps" onclick="openMap()"><span>🛰️</span> APRI MAPPA GPS</button>
     </div>
 
     <div id="mod-squadre" class="hidden">
-        <h3 style="color:var(--pc-blue); font-size:14px;">COMPOSIZIONE SQUADRE</h3>
+        <h3 style="color:var(--pc-blue); font-size:14px;">GESTIONE SQUADRA SAR 1</h3>
         <div class="squadra-card">
-            <strong>SAR 1</strong><br>
-            <div id="list-sar1">
-                <span class="volontario-tag">Rossi G. (Caposquadra)</span>
-                <span class="volontario-tag">Bianchi L. (Cinofilo)</span>
+            <div id="lista-volontari">
+                </div>
+            <div class="add-box">
+                <input type="text" id="nuovo-volontario" placeholder="Nome Volontario...">
+                <button onclick="aggiungiVolontario()">AGGIUNGI</button>
             </div>
         </div>
-        <button class="btn" style="background:var(--success); color:white; width:100%;" onclick="alert('Generazione PDF...')">📄 GENERA PDF SQUADRE</button>
-    </div>
-
-    <div id="mod-anagrafica" class="hidden">
-        <h3 style="color:var(--success); font-size:14px;">RICERCA SPECIALISTI</h3>
-        <input type="text" placeholder="Filtra per: Cinofilo, Autista, AIB...">
-        <div style="margin-top:10px;">
-            <div class="volontario-tag">G. Verdi - Autista</div>
-            <div class="volontario-tag">M. Neri - Cinofilo</div>
-            <div class="volontario-tag">A. Gialli - SAR</div>
-        </div>
+        <button class="btn" style="background:var(--success); color:white; width:100%; margin-top:20px;" onclick="generaPDF()">📄 SCARICA PDF SQUADRA</button>
     </div>
 </div>
 
 <div id="gpsModal" class="modal-map">
-    <div style="padding:15px; background:var(--panel-bg); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--pc-blue);">
-        <span style="font-size:12px; font-weight:bold;">CERCA O TOCCA IL PUNTO</span>
+    <div style="padding:15px; background:var(--panel-bg); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; font-weight:bold;">TOCCA LA MAPPA</span>
         <button onclick="closeMap()" style="background:none; border:none; color:white; font-size:24px;">×</button>
     </div>
     <div id="map"></div>
     <div style="padding:15px; background:var(--panel-bg); display:flex; gap:10px;">
         <input type="text" id="gpsCoords" readonly placeholder="Coordinate...">
-        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 20px; border-radius:8px; font-weight:bold;">INVIA</button>
+        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 15px; border-radius:8px;">INVIA</button>
     </div>
 </div>
-
-<div class="status-bar"><span>SYSTEM READY</span><span>15/02/2026 - LECCO</span></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
@@ -207,40 +129,90 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
     let map, marker;
+    let elencoSquadra = JSON.parse(localStorage.getItem('squadraSAR')) || [];
 
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_CORRETTO) {
             document.getElementById('loginOverlay').style.display = 'none';
             initMap();
+            renderSquadra();
         } else { alert("PIN ERRATO"); }
     }
 
     function showMod(id) {
-        ['mod-allerta', 'mod-squadre', 'mod-anagrafica'].forEach(m => document.getElementById(m).classList.add('hidden'));
+        document.getElementById('mod-allerta').classList.add('hidden');
+        document.getElementById('mod-squadre').classList.add('hidden');
         document.getElementById('mod-'+id).classList.remove('hidden');
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-'+id).classList.add('active');
     }
 
-    function toggleDate() {
-        document.getElementById('dateGroup').className = (document.getElementById('f_tipo').value === 'PROGRAMMATA') ? '' : 'hidden';
+    // --- LOGICA SQUADRE ---
+    function aggiungiVolontario() {
+        const nome = document.getElementById('nuovo-volontario').value;
+        if(nome.trim() === "") return;
+        elencoSquadra.push(nome);
+        document.getElementById('nuovo-volontario').value = "";
+        salvaERenderizza();
     }
 
+    function rimuoviVolontario(index) {
+        elencoSquadra.splice(index, 1);
+        salvaERenderizza();
+    }
+
+    function salvaERenderizza() {
+        localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra));
+        renderSquadra();
+    }
+
+    function renderSquadra() {
+        const cont = document.getElementById('lista-volontari');
+        cont.innerHTML = elencoSquadra.length === 0 ? "<p style='font-size:11px; color:#666'>Nessun volontario inserito.</p>" : "";
+        elencoSquadra.forEach((nom, i) => {
+            cont.innerHTML += `<div class="volontario-item"><span>${nom}</span><span class="remove-btn" onclick="rimuoviVolontario(${i})">✕</span></div>`;
+        });
+    }
+
+    // --- GENERAZIONE PDF ---
+    function generaPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const oggi = new Date().toLocaleDateString();
+
+        doc.setFontSize(18); doc.setTextColor(0, 86, 179);
+        doc.text("UNITÀ S.A.R. 'A. MERLINI'", 105, 20, {align: 'center'});
+        doc.setFontSize(12); doc.setTextColor(0, 0, 0);
+        doc.text("VERBALE COMPOSIZIONE SQUADRA", 105, 30, {align: 'center'});
+        doc.text(`Data: ${oggi}`, 20, 45);
+        doc.text("Squadra: SAR 1", 20, 52);
+        
+        doc.line(20, 58, 190, 58);
+        doc.text("ELENCO VOLONTARI:", 20, 68);
+        
+        let y = 78;
+        elencoSquadra.forEach((vol, i) => {
+            doc.text(`${i+1}. ${vol}`, 25, y);
+            y += 10;
+        });
+
+        doc.save(`Squadra_SAR1_${oggi}.pdf`);
+    }
+
+    // --- MAPPA E TELEGRAM (Resto invariato) ---
     function initMap() {
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        L.Control.geocoder({ defaultMarkGeocode: false, placeholder: "Cerca via..." }).on('markgeocode', function(e) {
+        L.Control.geocoder({ defaultMarkGeocode: false }).on('markgeocode', e => {
             map.setView(e.geocode.center, 16);
             updateMarker(e.geocode.center);
         }).addTo(map);
-        map.on('click', (e) => updateMarker(e.latlng));
+        map.on('click', e => updateMarker(e.latlng));
     }
-
     function updateMarker(ll) {
         document.getElementById('gpsCoords').value = ll.lat.toFixed(6) + ", " + ll.lng.toFixed(6);
         if(marker) marker.setLatLng(ll); else marker = L.marker(ll).addTo(map);
     }
-
     function openMap() { document.getElementById('gpsModal').style.display='flex'; setTimeout(()=>map.invalidateSize(), 200); }
     function closeMap() { document.getElementById('gpsModal').style.display='none'; }
     function confirmGps() { transmit('gps', document.getElementById('gpsCoords').value); closeMap(); }
@@ -248,26 +220,15 @@
     function transmit(tipo, val="") {
         let msg = "";
         if(tipo === 'allerta') {
-            const ev = document.getElementById('f_evento').value.toUpperCase();
-            const lu = document.getElementById('f_luogo').value.toUpperCase();
-            const me = document.getElementById('f_mezzi').value.toUpperCase();
-            const t = document.getElementById('f_tipo').value;
-            msg = `🚨 *${t} UNITÀ MERLINI*\n\n📌 *EVENTO:* ${ev}\n📍 *LUOGO:* ${lu}\n🚒 *MEZZI:* ${me}\n\nConferma presenza:`;
-            
-            const keyboard = { inline_keyboard: [[{text:"✅ PRESENTE", callback_data:"si"}, {text:"❌ ASSENTE", callback_data:"no"}]] };
+            msg = `🚨 *ALLERTA UNITÀ MERLINI*\n📌 *EVENTO:* ${document.getElementById('f_evento').value}\n📍 *LUOGO:* ${document.getElementById('f_luogo').value}`;
             fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({chat_id:ID_GRUPPO, text:msg, parse_mode:'Markdown', reply_markup:keyboard})
-            }).then(() => alert("Allerta Inviata!"));
+                body: JSON.stringify({chat_id:ID_GRUPPO, text:msg, parse_mode:'Markdown', reply_markup:{inline_keyboard:[[{text:"✅ PRESENTE", callback_data:"si"},{text:"❌ ASSENTE", callback_data:"no"}]]}})
+            }).then(()=>alert("Inviato!"));
         } else {
-            msg = `🛰️ *LOCALIZZAZIONE S.A.R.*\n\`${val}\`\n📍 [MAPPA](https://www.google.com/maps/search/?api=1&query=${val.replace(/\s/g,'')})`;
-            fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`).then(()=>alert("GPS Inviato!"));
+            msg = `🛰️ *GPS* \n\`${val}\`\n📍 [MAPPA](https://www.google.com/maps?q=${val.replace(/\s/g,'')})`;
+            fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`).then(()=>alert("Inviato!"));
         }
-    }
-
-    function sendReminder() {
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=🔑 *PIN:* \`1234\`&parse_mode=Markdown`);
-        alert("PIN inviato su Telegram.");
     }
 </script>
 </body>
