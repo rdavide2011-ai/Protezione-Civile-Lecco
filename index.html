@@ -65,7 +65,8 @@
             outline: none;
         }
 
-        #orarioInterventoGroup { display: none; } /* Nascosto di default */
+        /* Gruppo programmata inizialmente nascosto */
+        #programmataGroup { display: none; flex-direction: column; gap: 12px; }
 
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; padding-bottom: 20px;}
         .btn {
@@ -112,15 +113,23 @@
     </div>
     <div class="input-group">
         <label>Tipo Attivazione</label>
-        <select id="f_tipoAttivazione" onchange="toggleOrario()">
+        <select id="f_tipoAttivazione" onchange="toggleProgrammata()">
             <option value="IMMEDIATA">IMMEDIATA (Adesso)</option>
-            <option value="PROGRAMMATA">PROGRAMMATA (Orario specifico)</option>
+            <option value="PROGRAMMATA">PROGRAMMATA (Scegli Data/Ora)</option>
         </select>
     </div>
-    <div class="input-group" id="orarioInterventoGroup">
-        <label>Orario Intervento</label>
-        <input type="time" id="f_orarioIntervento">
+
+    <div id="programmataGroup">
+        <div class="input-group">
+            <label>Data Intervento</label>
+            <input type="date" id="f_dataIntervento" value="2026-02-15">
+        </div>
+        <div class="input-group">
+            <label>Orario Intervento</label>
+            <input type="time" id="f_orarioIntervento">
+        </div>
     </div>
+
     <div class="input-group">
         <label>Mezzi</label>
         <input type="text" id="f_mezzi" placeholder="Es: Defender, Unità Cinofila">
@@ -154,9 +163,9 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
-    function toggleOrario() {
+    function toggleProgrammata() {
         const tipo = document.getElementById('f_tipoAttivazione').value;
-        const group = document.getElementById('orarioInterventoGroup');
+        const group = document.getElementById('programmataGroup');
         group.style.display = (tipo === 'PROGRAMMATA') ? 'flex' : 'none';
     }
 
@@ -191,31 +200,33 @@
             const me = document.getElementById('f_mezzi').value || "N/D";
             const no = document.getElementById('f_note').value || "NESSUNA";
             const tAtt = document.getElementById('f_tipoAttivazione').value;
+            
+            // Gestione Data e Ora
+            const dIntRaw = document.getElementById('f_dataIntervento').value;
+            const dInt = dIntRaw.split('-').reverse().join('/'); // Trasforma da YYYY-MM-DD a DD/MM/YYYY
             const hInt = document.getElementById('f_orarioIntervento').value;
 
             msg = "📂 *SCHEDA OPERATIVA UNITÀ MERLINI*\n";
             msg += "```\n";
             msg += "╔════════════════════════════════╗\n";
-            msg += "║ DATA: 15/02/2026   ORA: " + oraInvio + "  ║\n";
+            msg += "║ DATA INVIO: 15/02/2026 " + oraInvio + " ║\n";
             msg += "╠════════════════════════════════╣\n";
-            msg += "  EVENTO: " + ev.toUpperCase() + "\n";
-            msg += "  LUOGO : " + lu.toUpperCase() + "\n";
-            msg += "  MEZZI : " + me.toUpperCase() + "\n";
+            msg += "  EVENTO : " + ev.toUpperCase() + "\n";
+            msg += "  LUOGO  : " + lu.toUpperCase() + "\n";
+            msg += "  MEZZI  : " + me.toUpperCase() + "\n";
             
             if (tAtt === "PROGRAMMATA") {
-                msg += "  RITROVO: ORE " + hInt + "\n";
+                msg += "  RITROVO: " + dInt + " ORE " + hInt + "\n";
             } else {
-                msg += "  STATO : IMMEDIATA\n";
+                msg += "  STATO  : IMMEDIATA\n";
             }
             
-            msg += "  NOTE  : " + no.toUpperCase() + "\n";
+            msg += "  NOTE   : " + no.toUpperCase() + "\n";
             msg += "╚════════════════════════════════╝\n";
             msg += "```\n";
             msg += (tAtt === "IMMEDIATA") ? "🔴 **ATTIVAZIONE IMMEDIATA** 🔴" : "🟠 **ATTIVAZIONE PROGRAMMATA** 🟠";
         } else {
-            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n";
-            msg += "```\n" + gpsVal + "\n```\n";
-            msg += "📍 [MAPPA LIVE](http://google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
+            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n`" + gpsVal + "`\n📍 [MAPPA](http://google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
         }
 
         closeGate();
