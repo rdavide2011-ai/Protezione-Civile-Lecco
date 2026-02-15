@@ -9,12 +9,10 @@
         body { font-family: sans-serif; background: #003366; color: white; text-align: center; padding: 20px; }
         .box { background: white; padding: 30px; border-radius: 20px; max-width: 400px; margin: auto; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .header { background: #ffcc00; color: #003366; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; font-size: 18px; }
-        textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; resize: none; }
-        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; transition: 0.3s; }
+        textarea { width: 100%; height: 100px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; resize: none; }
+        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; }
         .btn-alert { background: #cc0000; }
-        .btn-alert:hover { background: #e60000; }
         .btn-map { background: #28a745; }
-        .btn-map:hover { background: #218838; }
         #stato { margin-top: 10px; font-weight: bold; color: #555; font-size: 14px; }
     </style>
 </head>
@@ -25,26 +23,22 @@
     <h2 style="margin:0;">Unità "A. Merlini"</h2>
     <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Operativo Emergenze</p>
     
-    <textarea id="testo" placeholder="Scrivi qui i dettagli dell'allerta per i volontari..."></textarea>
+    <textarea id="testo" placeholder="Scrivi qui i dettagli dell'allerta..."></textarea>
     
     <button class="btn-alert" onclick="preparaMessaggio('allerta')">🚨 INVIA ATTIVAZIONE</button>
-    <button class="btn-map" onclick="preparaMessaggio('mappa')">📍 INVIA LINK MAPPE GPX</button>
+    <button class="btn-map" onclick="preparaMessaggio('indirizzo')">📍 INVIA POSIZIONE (VIA)</button>
     
     <div id="stato">Sistema pronto</div>
 </div>
 
 <script>
-    // DATI TELEGRAM CONFIGURATI
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
     function preparaMessaggio(tipo) {
-        // PRIMA FINESTRA: Chiede il PIN
         const pin = prompt("SICUREZZA: Inserisci il PIN:");
-        
-        if (pin === null) return; // Se preme annulla
-
+        if (pin === null) return;
         if (pin !== PIN_CORRETTO) {
             alert("PIN Errato!");
             return;
@@ -53,34 +47,34 @@
         let testoFinale = "";
         
         if (tipo === 'allerta') {
-            // Messaggio Testuale
             const corpo = document.getElementById('testo').value;
             if (!corpo.trim()) {
-                alert("Scrivi un messaggio prima di inviare!");
+                alert("Scrivi un messaggio!");
                 return;
             }
             testoFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
         } else {
-            // SECONDA FINESTRA: Chiede il Link (Solo se il PIN era giusto)
-            const linkInserito = prompt("PIN Corretto. Incolla qui il link della mappa (Drive/Maps):", "https://");
+            // Chiede la via invece del link
+            const viaInserita = prompt("Inserisci la VIA o il LUOGO dell'intervento:");
             
-            if (!linkInserito || linkInserito === "https://" || linkInserito === "") {
-                alert("Invio annullato: nessun link inserito.");
+            if (!viaInserita || viaInserita.trim() === "") {
+                alert("Devi inserire un indirizzo!");
                 return;
             }
             
-            testoFinale = "📍 *MAPPE E TRACCE GPX*\nAccedi ai file della missione qui:\n" + linkInserito;
+            // Crea automaticamente il link di Google Maps
+            const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viaInserita)}`;
+            
+            testoFinale = "📍 *POSIZIONE INTERVENTO*\nIl punto di ritrovo è:\n" + viaInserita + "\n\nApri su Maps:\n" + linkMaps;
         }
 
-        // Invia il risultato a Telegram
         inviaATelegram(testoFinale);
     }
 
     function inviaATelegram(testo) {
         const displayStato = document.getElementById('stato');
-        displayStato.innerText = "⏳ Invio in corso...";
-        displayStato.style.color = "blue";
-
+        displayStato.innerText = "⏳ Invio...";
+        
         const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(testo)}&parse_mode=Markdown`;
 
         fetch(url)
@@ -88,13 +82,13 @@
             if(response.ok) {
                 displayStato.innerText = "✅ INVIATO CON SUCCESSO";
                 displayStato.style.color = "green";
-                document.getElementById('testo').value = ""; // Pulisce il box
+                document.getElementById('testo').value = "";
             } else {
-                displayStato.innerText = "❌ ERRORE (Controlla il Bot)";
+                displayStato.innerText = "❌ ERRORE (Controlla Admin Bot)";
                 displayStato.style.color = "red";
             }
         })
-        .catch(err => {
+        .catch(() => {
             displayStato.innerText = "❌ ERRORE DI RETE";
             displayStato.style.color = "red";
         });
