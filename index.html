@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>S.A.R. UNITÀ MERLINI - OPERATIONAL PANEL</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <style>
         :root {
             --bg-dark: #0a0e14;
@@ -81,7 +82,10 @@
         
         #map { width: 100%; flex: 1; min-height: 300px; }
 
-        .forgot-link { display: block; margin-top: 20px; color: #8b949e; font-size: 11px; text-decoration: underline; cursor: pointer; text-align: center; }
+        /* Stile barra ricerca per adattarla al dark mode */
+        .leaflet-control-geocoder { background: #161b22 !important; color: white !important; border: 1px solid #30363d !important; }
+        .leaflet-control-geocoder-form input { color: white !important; }
+        .leaflet-control-geocoder-icon { filter: invert(1); }
 
         .status-bar { background: #010409; padding: 10px 20px; font-size: 9px; color: #484f58; display: flex; justify-content: space-between; }
     </style>
@@ -93,7 +97,6 @@
         <h2 style="color:var(--pc-yellow); font-size: 16px;">ACCESSO CONSOLE</h2>
         <input type="password" id="loginInput" style="font-size: 24px; text-align: center; margin-bottom: 20px;" placeholder="PIN">
         <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ENTRA</button>
-        <span class="forgot-link" onclick="sendReminder()">Hai dimenticato la password?</span>
     </div>
 </div>
 
@@ -106,8 +109,8 @@
 </div>
 
 <div class="main-ui">
-    <div class="input-group"><label>Evento</label><input type="text" id="f_evento"></div>
-    <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo"></div>
+    <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
+    <div class="input-group"><label>Luogo</label><input type="text" id="f_luogo" placeholder="Es: Comune di Lecco"></div>
     <div class="input-group">
         <label>Tipo Attivazione</label>
         <select id="f_tipoAttivazione" onchange="toggleProgrammata()">
@@ -130,58 +133,73 @@
 
 <div id="gpsModal" class="modal" style="display:none; flex-direction: column;">
     <div class="modal-header">
-        <span style="color: var(--pc-blue); font-weight: bold; font-size: 12px;">TOCCA UN PUNTO SULLA MAPPA</span>
-        <button onclick="closeMapModal()" style="background:none; border:none; color:white; font-size: 20px;">×</button>
+        <span style="color: var(--pc-blue); font-weight: bold; font-size: 11px;">RICERCA INDIRIZZO O TOCCA LA MAPPA</span>
+        <button onclick="closeMapModal()" style="background:none; border:none; color:white; font-size: 24px;">×</button>
     </div>
     <div id="map"></div>
     <div style="padding: 15px; background: var(--panel-bg); display: flex; gap: 10px;">
-        <input type="text" id="gpsCoords" readonly placeholder="Coordinate selezionate..." style="background: #0d1117;">
-        <button onclick="confirmGps()" style="background: var(--pc-blue); color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold;">INVIA</button>
+        <input type="text" id="gpsCoords" readonly placeholder="Coordinate..." style="background: #0d1117; font-size: 12px;">
+        <button onclick="confirmGps()" style="background: var(--pc-blue); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold;">INVIA</button>
     </div>
 </div>
 
-<div class="status-bar"><span>SYSTEM ONLINE</span><span>15/02/2026 - LECCO</span></div>
+<div class="status-bar"><span>SYSTEM ONLINE</span><span>15/02/2026</span></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <script>
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
-    const PIN_CORRETTO = "1234";
-    
-    let map, marker;
+    const PIN_CORRETTO = "123456789"; // Usato il tuo PIN salvato
+
+    let map, marker, geocoder;
 
     function checkLogin() {
         if (document.getElementById('loginInput').value === PIN_CORRETTO) {
             document.getElementById('loginOverlay').style.display = 'none';
-            initMap(); // Inizializza la mappa al login
+            initMap();
         } else { alert("PIN ERRATO"); }
     }
 
     function initMap() {
-        // Centrato su Lecco
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        map.on('click', function(e) {
-            const lat = e.latlng.lat.toFixed(6);
-            const lng = e.latlng.lng.toFixed(6);
-            document.getElementById('gpsCoords').value = lat + ", " + lng;
-            
-            if (marker) { marker.setLatLng(e.latlng); } 
-            else { marker = L.marker(e.latlng).addTo(map); }
-        });
+        // Aggiunta Barra di Ricerca
+        geocoder = L.Control.geocoder({
+            defaultMarkGeocode: false,
+            placeholder: "Cerca via o città...",
+            errorMessage: "Indirizzo non trovato"
+        })
+        .on('markgeocode', function(e) {
+            const latlng = e.geocode.center;
+            map.setView(latlng, 16);
+            updateMarker(latlng);
+        })
+        .addTo(map);
+
+        map.on('click', function(e) { updateMarker(e.latlng); });
+    }
+
+    function updateMarker(latlng) {
+        const lat = latlng.lat.toFixed(6);
+        const lng = latlng.lng.toFixed(6);
+        document.getElementById('gpsCoords').value = lat + ", " + lng;
+        
+        if (marker) { marker.setLatLng(latlng); } 
+        else { marker = L.marker(latlng).addTo(map); }
     }
 
     function openMapModal() {
         document.getElementById('gpsModal').style.display = 'flex';
-        setTimeout(() => { map.invalidateSize(); }, 200); // Fix per caricamento corretto
+        setTimeout(() => { map.invalidateSize(); }, 300);
     }
 
     function closeMapModal() { document.getElementById('gpsModal').style.display = 'none'; }
 
     function confirmGps() {
         const coords = document.getElementById('gpsCoords').value;
-        if (!coords) { alert("Seleziona un punto sulla mappa"); return; }
+        if (!coords) { alert("Seleziona un punto!"); return; }
         transmit('gps', coords);
         closeMapModal();
     }
@@ -190,26 +208,16 @@
         document.getElementById('programmataGroup').style.display = (document.getElementById('f_tipoAttivazione').value === 'PROGRAMMATA') ? 'flex' : 'none';
     }
 
-    function sendReminder() {
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=🔑 *PROMEMORIA PIN:* \`${PIN_CORRETTO}\`&parse_mode=Markdown`);
-        alert("PIN inviato nel gruppo.");
-    }
-
     function transmit(tipo, gpsVal = "") {
         let msg = "";
-        const ora = new Date().toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-
         if (tipo === 'allerta') {
             const ev = document.getElementById('f_evento').value || "N/D";
             const lu = document.getElementById('f_luogo').value || "N/D";
-            const tAtt = document.getElementById('f_tipoAttivazione').value;
-            msg = "📂 *SCHEDA OPERATIVA*\n```\nEVENTO : " + ev.toUpperCase() + "\nLUOGO  : " + lu.toUpperCase() + "\nSTATO  : " + tAtt + "\n```";
+            msg = "📂 *SCHEDA OPERATIVA*\n```\nEVENTO : " + ev.toUpperCase() + "\nLUOGO  : " + lu.toUpperCase() + "\n```";
         } else {
-            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n`" + gpsVal + "`\n📍 [MAPPA](https://www.google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
+            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n`" + gpsVal + "`\n📍 [MAPPA](https://www.google.com/maps/search/?api=1&query=" + gpsVal.replace(/\s/g, '') + ")";
         }
-
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { if(res.ok) alert("MESSAGGIO INVIATO"); });
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
     }
 </script>
 </body>
