@@ -38,8 +38,7 @@
         .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; }
         input, textarea, select { width: 100%; background: var(--panel-bg); border: 1px solid #30363d; border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none; }
         
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; width: 100%; margin-top: 10px; }
 
         /* PRESENZE */
         .presenza-row { background: var(--panel-bg); padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #30363d; }
@@ -48,6 +47,7 @@
         .p-btn.active-si { background: var(--success); color: white; border-color: var(--success); }
         .p-btn.active-no { background: var(--danger); color: white; border-color: var(--danger); }
         .p-btn.active-rit { background: var(--warning); color: white; border-color: var(--warning); }
+        .ritardo-info { font-size: 10px; color: var(--warning); margin-top: 5px; display: block; }
 
         /* CARDS GESTIONE */
         .card { background: var(--panel-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--pc-blue); margin-top: 10px; }
@@ -96,21 +96,19 @@
             <div class="input-group"><label>Data</label><input type="date" id="f_data" value="2026-02-15"></div>
             <div class="input-group"><label>Ora</label><input type="time" id="f_ora"></div>
         </div>
-        <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi" placeholder="Es: Defender 90"></div>
-        <div class="input-group"><label>Note</label><textarea id="f_note" placeholder="Dettagli aggiuntivi..."></textarea></div>
-        <div class="btn-group">
-            <button class="btn" style="background:var(--danger); color:white" onclick="transmit('allerta')">INVIA ALLERTA</button>
-            <button class="btn" style="background:var(--pc-blue); color:white" onclick="openMap()">🛰️ MAPPA GPS</button>
-        </div>
+        <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi" placeholder="Es: Defender"></div>
+        <div class="input-group"><label>Note</label><textarea id="f_note"></textarea></div>
+        <button class="btn" style="background:var(--danger); color:white" onclick="transmit('allerta')">INVIA ALLERTA</button>
+        <button class="btn" style="background:var(--pc-blue); color:white" onclick="openMap()">🛰️ MAPPA GPS</button>
     </div>
 
     <div id="mod-presenze" class="hidden">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h3 style="color:var(--success); font-size:14px;">APPELLO VOLONTARI</h3>
-            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:10px; border-radius:4px; padding:2px 5px;">RESET</button>
+            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:10px; padding:2px 5px;">RESET</button>
         </div>
-        <div id="lista-presenze-dinamica" style="margin-top:15px;">
-            </div>
+        <div id="lista-presenze-dinamica" style="margin-top:15px;"></div>
+        <button class="btn" style="background:var(--success); color:white" onclick="generaPDFPresenze()">📄 GENERA REPORT PRESENZE</button>
     </div>
 
     <div id="mod-squadre" class="hidden">
@@ -122,31 +120,28 @@
                 <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; padding:10px; border-radius:5px;">AGGIUNGI</button>
             </div>
         </div>
-        <button class="btn" style="background:var(--success); color:white; width:100%; margin-top:20px;" onclick="generaPDF()">📄 SCARICA PDF SQUADRA</button>
+        <button class="btn" style="background:var(--success); color:white" onclick="generaPDFSquadra()">📄 SCARICA PDF SQUADRA</button>
     </div>
 
     <div id="mod-volontari" class="hidden">
-        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA VOLONTARI</h3>
+        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA</h3>
         <div class="card">
             <div id="lista-anagrafica"></div>
-            <div class="add-box" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                <input type="text" id="ana-nome" placeholder="Nome e Cognome">
-                <input type="text" id="ana-ruolo" placeholder="Ruolo (es: Autista)">
-                <button style="background:var(--success); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;" onclick="aggiungiAnagrafica()">SALVA NEL DATABASE</button>
+            <div class="add-box" style="display:flex; flex-direction:column; gap:8px;">
+                <input type="text" id="ana-nome" placeholder="Nome Cognome">
+                <input type="text" id="ana-ruolo" placeholder="Mansione">
+                <button style="background:var(--success); color:white" onclick="aggiungiAnagrafica()">SALVA</button>
             </div>
         </div>
     </div>
 </div>
 
 <div id="gpsModal" class="modal-map">
-    <div style="padding:15px; background:var(--panel-bg); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--pc-blue);">
-        <span style="font-size:12px;">SELEZIONA PUNTO SULLA MAPPA</span>
-        <button onclick="closeMap()" style="background:none; border:none; color:white; font-size:24px;">×</button>
-    </div>
     <div id="map"></div>
     <div style="padding:15px; background:var(--panel-bg); display:flex; gap:10px;">
         <input type="text" id="gpsCoords" readonly>
-        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 15px; border-radius:8px;">INVIA</button>
+        <button onclick="confirmGps()" style="background:var(--pc-blue); color:white; border:none; padding:0 15px;">INVIA</button>
+        <button onclick="closeMap()" style="background:var(--danger); color:white; border:none; padding:0 15px;">X</button>
     </div>
 </div>
 
@@ -171,7 +166,7 @@
         document.getElementById('mod-'+id).classList.remove('hidden');
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-'+id).classList.add('active');
-        if(id === 'presenze') renderPresenze(); // Aggiorna se sono stati aggiunti volontari
+        if(id === 'presenze') renderPresenze();
     }
 
     function toggleProg() { document.getElementById('group-prog').className = (document.getElementById('f_tipo').value === 'PROGRAMMATA') ? '' : 'hidden'; }
@@ -184,48 +179,65 @@
         elencoAnagrafica.push({nome: n, ruolo: r});
         localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica));
         document.getElementById('ana-nome').value = ""; document.getElementById('ana-ruolo').value = "";
-        renderAnagrafica(); renderPresenze();
+        renderAnagrafica();
     }
-    function rimuoviAnagrafica(i) { elencoAnagrafica.splice(i, 1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); renderAnagrafica(); renderPresenze(); }
+    function rimuoviAnagrafica(i) { elencoAnagrafica.splice(i, 1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); renderAnagrafica(); }
     function renderAnagrafica() {
         const cont = document.getElementById('lista-anagrafica'); cont.innerHTML = "";
-        elencoAnagrafica.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span><b>${v.nome}</b> - ${v.ruolo}</span><span class="remove-btn" onclick="rimuoviAnagrafica(${i})">✕</span></div>`; });
+        elencoAnagrafica.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span><b>${v.nome}</b></span><span class="remove-btn" onclick="rimuoviAnagrafica(${i})">✕</span></div>`; });
     }
 
-    // --- LOGICA PRESENZE (RICHIESTA) ---
+    // --- PRESENZE ---
     function renderPresenze() {
         const cont = document.getElementById('lista-presenze-dinamica');
-        cont.innerHTML = elencoAnagrafica.length === 0 ? "<p style='font-size:11px; text-align:center; color:#666;'>Aggiungi volontari nell'anagrafica per vederli qui.</p>" : "";
-        
-        elencoAnagrafica.forEach((v, i) => {
-            const current = statoPresenze[v.nome] || '';
+        cont.innerHTML = "";
+        elencoAnagrafica.forEach((v) => {
+            const current = statoPresenze[v.nome] || {stato:''};
             cont.innerHTML += `
                 <div class="presenza-row">
-                    <div style="font-size:13px; font-weight:bold;">${v.nome} <span style="font-weight:normal; font-size:10px; color:#8b949e;">(${v.ruolo})</span></div>
+                    <div style="font-size:13px; font-weight:bold;">${v.nome}</div>
                     <div class="presenza-btns">
-                        <button class="p-btn ${current === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">PRESENTE</button>
-                        <button class="p-btn ${current === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">ASSENTE</button>
-                        <button class="p-btn ${current === 'rit' ? 'active-rit' : ''}" onclick="setPresenza('${v.nome}', 'rit')">RITARDO</button>
+                        <button class="p-btn ${current.stato === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">PRESENTE</button>
+                        <button class="p-btn ${current.stato === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">ASSENTE</button>
+                        <button class="p-btn ${current.stato === 'rit' ? 'active-rit' : ''}" onclick="setPresenza('${v.nome}', 'rit')">RITARDO</button>
                     </div>
+                    ${current.ora ? `<span class="ritardo-info">Arrivo previsto: ${current.ora}</span>` : ''}
                 </div>`;
         });
     }
 
     function setPresenza(nome, stato) {
-        statoPresenze[nome] = stato;
+        let ora = "";
+        if(stato === 'rit') {
+            ora = prompt("Inserisci l'orario di ingresso (es. 10:30):");
+            if(!ora) return;
+        }
+        statoPresenze[nome] = {stato: stato, ora: ora};
         localStorage.setItem('statoPresenze', JSON.stringify(statoPresenze));
         renderPresenze();
     }
 
-    function resetPresenze() {
-        if(confirm("Vuoi azzerare l'appello?")) {
-            statoPresenze = {};
-            localStorage.removeItem('statoPresenze');
-            renderPresenze();
-        }
+    function resetPresenze() { if(confirm("Azzerare?")) { statoPresenze = {}; localStorage.removeItem('statoPresenze'); renderPresenze(); } }
+
+    function generaPDFPresenze() {
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        const data = new Date().toLocaleDateString();
+        doc.text(`REPORT PRESENZE - PROTEZIONE CIVILE - ${data}`, 20, 20);
+        
+        let y = 40;
+        doc.text("PRESENTI:", 20, y); y+=10;
+        Object.keys(statoPresenze).filter(n => statoPresenze[n].stato === 'si').forEach(n => { doc.text(`- ${n}`, 25, y); y+=8; });
+        
+        y+=10; doc.text("IN RITARDO:", 20, y); y+=10;
+        Object.keys(statoPresenze).filter(n => statoPresenze[n].stato === 'rit').forEach(n => { doc.text(`- ${n} (Ore: ${statoPresenze[n].ora})`, 25, y); y+=8; });
+
+        y+=10; doc.text("ASSENTI:", 20, y); y+=10;
+        Object.keys(statoPresenze).filter(n => statoPresenze[n].stato === 'no').forEach(n => { doc.text(`- ${n}`, 25, y); y+=8; });
+
+        doc.save(`Report_Presenze_${data}.pdf`);
     }
 
-    // --- SQUADRE & PDF ---
+    // --- SQUADRE ---
     let elencoSquadra = JSON.parse(localStorage.getItem('squadraSAR')) || [];
     function aggiungiASquadra() {
         const n = document.getElementById('nome-sq').value; if(!n) return;
@@ -237,11 +249,11 @@
         const cont = document.getElementById('lista-squadra'); cont.innerHTML = "";
         elencoSquadra.forEach((v, i) => { cont.innerHTML += `<div class="item-list"><span>${v}</span><span class="remove-btn" onclick="rimuoviDaSquadra(${i})">✕</span></div>`; });
     }
-    function generaPDF() {
+    function generaPDFSquadra() {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text("UNITÀ S.A.R. 'A. MERLINI' - ELENCO SQUADRA", 20, 20);
+        doc.text("ELENCO SQUADRA S.A.R.", 20, 20);
         elencoSquadra.forEach((v, i) => doc.text(`${i+1}. ${v}`, 20, 40+(i*10)));
-        doc.save("Squadra_SAR.pdf");
+        doc.save("Squadra.pdf");
     }
 
     // --- MAPPA & TELEGRAM ---
@@ -255,17 +267,9 @@
     function confirmGps() { transmit('gps', document.getElementById('gpsCoords').value); closeMap(); }
 
     function transmit(tipo, val="") {
-        let text = "";
-        if(tipo === 'allerta') {
-            text = `🚨 *${document.getElementById('f_tipo').value} UNITÀ MERLINI*\n📌 *EVENTO:* ${document.getElementById('f_evento').value}\n📍 *LUOGO:* ${document.getElementById('f_luogo').value}\n🚒 *MEZZI:* ${document.getElementById('f_mezzi').value}`;
-            fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({chat_id:ID_GRUPPO, text:text, parse_mode:'Markdown', reply_markup:{inline_keyboard:[[{text:"✅ PRESENTE", callback_data:"si"},{text:"❌ ASSENTE", callback_data:"no"}]]}})
-            }).then(()=>alert("Inviato!"));
-        } else {
-            text = `🛰️ *GPS:* \`${val}\` \n📍 [APRI MAPPA](https://www.google.com/maps?q=$${val})`;
-            fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(text)}&parse_mode=Markdown`).then(()=>alert("GPS Inviato!"));
-        }
+        let text = tipo === 'allerta' ? `🚨 *ALLERTA UNITÀ MERLINI*\n📌 *EVENTO:* ${document.getElementById('f_evento').value}\n📍 *LUOGO:* ${document.getElementById('f_luogo').value}` : `🛰️ *GPS:* ${val}`;
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
+        alert("Inviato!");
     }
 </script>
 </body>
