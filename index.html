@@ -2,220 +2,213 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png">
-    <title>S.A.R. Unità Merlini - Protezione Civile Lecco</title>
+    <title>S.A.R. OPERATIONAL PANEL</title>
     <style>
         :root {
-            --pc-blue: #003366; /* Blu Istituzionale */
-            --pc-yellow: #FFD700; /* Giallo Soccorso */
-            --pc-gray: #f4f4f9;
-            --pc-dark: #1a1a1a;
+            --bg-dark: #0a0e14;
+            --panel-bg: #161b22;
+            --pc-yellow: #ffcc00;
+            --pc-blue: #0056b3;
+            --danger: #eb3b5a;
+            --text-main: #e6edf3;
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--pc-blue);
-            color: var(--pc-dark);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             margin: 0;
+            padding: 0;
+            height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* Pannello Centrale */
-        .container {
-            background: white;
-            width: 90%;
-            max-width: 450px;
-            border-radius: 8px;
+            flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        /* Intestazione Formale */
-        .header {
-            background: var(--pc-yellow);
+        /* Top Bar Istituzionale */
+        .top-bar {
+            background: var(--panel-bg);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--pc-yellow);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .top-bar img { height: 40px; margin-right: 15px; }
+        
+        .top-bar-text { text-align: left; }
+        .top-bar-text h1 { margin: 0; font-size: 14px; letter-spacing: 2px; color: var(--pc-yellow); text-transform: uppercase; }
+        .top-bar-text p { margin: 0; font-size: 11px; opacity: 0.7; }
+
+        /* Area Principale Full Screen */
+        .main-ui {
+            flex: 1;
             padding: 20px;
-            text-align: center;
-            border-bottom: 4px solid #e6c200;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .header img {
-            width: 60px;
-            margin-bottom: 10px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 16px;
-            color: var(--pc-blue);
-            letter-spacing: 1px;
+        .section-label {
+            font-size: 10px;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--pc-yellow);
+            margin-bottom: 8px;
+            display: block;
         }
 
-        .content {
-            padding: 30px 25px;
-            text-align: center;
-        }
-
-        .content h2 {
-            font-size: 20px;
-            margin-bottom: 5px;
-            color: var(--pc-blue);
-        }
-
-        .content p {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-        }
-
-        /* Input Allerta */
         textarea {
             width: 100%;
-            height: 110px;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 15px;
-            margin-bottom: 20px;
-            resize: none;
-            box-sizing: border-box;
-            background: var(--pc-gray);
+            flex: 0.6;
+            min-height: 200px;
+            background: var(--panel-bg);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: white;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            outline: none;
+            transition: border-color 0.3s;
         }
 
-        /* Bottoni Operativi */
+        textarea:focus { border-color: var(--pc-blue); }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
         .btn {
-            width: 100%;
-            padding: 15px;
+            padding: 20px;
             border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: background 0.2s;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 14px;
             text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
-        .btn-emergency {
-            background-color: #d32f2f;
-            color: white;
-        }
+        .btn-alert { background: var(--danger); color: white; }
+        .btn-gps { background: var(--pc-blue); color: white; }
+        .btn:active { transform: scale(0.96); filter: brightness(1.2); }
 
-        .btn-emergency:hover { background-color: #b71c1c; }
-
-        .btn-location {
-            background-color: var(--pc-blue);
-            color: white;
-        }
-
-        .btn-location:hover { background-color: #002244; }
-
-        /* Modale Professionale */
+        /* Modale Overlay Full */
         .modal {
             display: none;
             position: fixed;
-            z-index: 100;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(3px);
+            background: rgba(10, 14, 20, 0.98);
+            z-index: 999;
+            padding: 40px 20px;
         }
 
         .modal-content {
-            background: white;
-            margin: 15% auto;
-            padding: 30px;
-            width: 80%;
-            max-width: 350px;
-            border-radius: 4px;
+            max-width: 400px;
+            margin: 0 auto;
             text-align: center;
         }
 
-        .modal-content h3 {
-            color: var(--pc-blue);
-            margin-top: 0;
-            font-size: 18px;
-        }
-
-        .modal-info {
-            font-size: 13px;
-            color: #555;
-            margin: 10px 0;
-        }
+        .modal h2 { color: var(--pc-yellow); text-transform: uppercase; font-size: 18px; margin-bottom: 30px; }
 
         .modal-link {
-            color: #0056b3;
-            text-decoration: none;
-            font-size: 12px;
+            color: var(--pc-blue);
             display: block;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
         }
 
-        .input-modal {
+        .input-control {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-confirm { background: var(--pc-blue); color: white; flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-close { background: #eee; color: #333; flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
-
-        #status-bar {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #30363d;
+            color: white;
+            font-size: 24px;
             padding: 10px;
-            font-size: 12px;
-            color: #999;
-            background: #fafafa;
-            border-top: 1px solid #eee;
+            text-align: center;
+            outline: none;
+            margin-bottom: 40px;
+        }
+
+        .input-control:focus { border-color: var(--pc-yellow); }
+
+        .modal-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .btn-confirm { background: var(--pc-yellow); color: var(--bg-dark); padding: 15px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: #30363d; color: white; padding: 15px; border-radius: 4px; border: none; cursor: pointer; }
+
+        .status-bar {
+            background: var(--panel-bg);
+            padding: 10px 20px;
+            font-size: 11px;
+            color: #8b949e;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #30363d;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png" alt="Logo PC">
+<div class="top-bar">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png" alt="Logo PC">
+    <div class="top-bar-text">
         <h1>Protezione Civile Lecco</h1>
+        <p>Unità S.A.R. "A. Merlini" | Console di Trasmissione</p>
     </div>
-    
-    <div class="content">
-        <h2>Unità S.A.R. "A. Merlini"</h2>
-        <p>Console Operativa Emergenze</p>
-        
-        <textarea id="testoInput" placeholder="Inserire qui i dettagli del messaggio di attivazione (Luogo, Mezzi richiesti, Orario di ritrovo)..."></textarea>
-        
-        <button class="btn btn-emergency" onclick="openControlModal('allerta')">Invia Attivazione Unità</button>
-        <button class="btn btn-location" onclick="openControlModal('gps')">Invia Coordinate Geografiche</button>
-    </div>
-
-    <div id="status-bar">Sistema di allertamento pronto.</div>
 </div>
 
-<div id="uiModal" class="modal">
+<div class="main-ui">
+    <div>
+        <span class="section-label">Messaggio di Attivazione</span>
+        <textarea id="mainText" placeholder="Inserire coordinate, mezzi e dettagli missione..."></textarea>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-alert" onclick="openGate('allerta')">
+            <span>🚨</span>
+            Attivazione Unità
+        </button>
+        <button class="btn btn-gps" onclick="openGate('gps')">
+            <span>🛰️</span>
+            Invia Coordinate
+        </button>
+    </div>
+</div>
+
+<div class="status-bar">
+    <span>SYSTEM: READY</span>
+    <span>ENCRYPTION: AES-256</span>
+</div>
+
+<div id="gate" class="modal">
     <div class="modal-content">
-        <h3 id="uiTitle">Autenticazione</h3>
-        <p id="uiDesc" class="modal-info">Inserire il codice PIN per autorizzare l'invio.</p>
-        <a id="uiLink" class="modal-link" href="https://www.gps-longitudine-latitudine.it/" target="_blank" style="display:none;">Recupera coordinate (gps-longitudine-latitudine.it)</a>
+        <h2 id="gateTitle">Richiesta Accesso</h2>
+        <p id="gateDesc" style="font-size: 13px; opacity: 0.7; margin-bottom: 10px;">Identificarsi per procedere</p>
+        <a id="gateLink" class="modal-link" href="https://www.gps-longitudine-latitudine.it/" target="_blank" style="display:none;">Mappa Coordinate Esterna</a>
         
-        <input type="password" id="uiInput" class="input-modal">
+        <input type="password" id="gateInput" class="input-control" autocomplete="off">
         
-        <div class="modal-footer">
-            <button class="btn-close" onclick="closeControlModal()">Annulla</button>
-            <button id="uiConfirmBtn" class="btn-confirm">Conferma</button>
+        <div class="modal-footer-btns">
+            <button class="btn-cancel" onclick="closeGate()">Annulla</button>
+            <button id="gateConfirm" class="btn-confirm">Conferma</button>
         </div>
     </div>
 </div>
@@ -225,20 +218,19 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
-    function openControlModal(tipo) {
-        const modal = document.getElementById('uiModal');
-        const input = document.getElementById('uiInput');
-        const title = document.getElementById('uiTitle');
-        const desc = document.getElementById('uiDesc');
-        const link = document.getElementById('uiLink');
-        const btn = document.getElementById('uiConfirmBtn');
+    function openGate(tipo) {
+        const modal = document.getElementById('gate');
+        const input = document.getElementById('gateInput');
+        const title = document.getElementById('gateTitle');
+        const desc = document.getElementById('gateDesc');
+        const link = document.getElementById('gateLink');
+        const btn = document.getElementById('gateConfirm');
 
-        // Configurazione iniziale per PIN
         input.value = "";
         input.type = "password";
-        input.placeholder = "Codice di sicurezza";
+        input.placeholder = "CODE";
         title.innerText = "Autorizzazione";
-        desc.innerText = "Inserire il codice PIN ministeriale.";
+        desc.innerText = "Inserire codice PIN per trasmissione criptata";
         link.style.display = "none";
         
         modal.style.display = "block";
@@ -246,84 +238,61 @@
 
         btn.onclick = function() {
             if (input.value !== PIN_CORRETTO) {
-                alert("Codice di sicurezza non valido.");
+                alert("ACCESSO NEGATO: Codice errato.");
                 return;
             }
-            
-            if (tipo === 'allerta') {
-                sendAlert();
-            } else {
-                setupGpsPhase();
-            }
+            if (tipo === 'allerta') { transmitAlert(); } 
+            else { setupGPS(); }
         };
     }
 
-    function setupGpsPhase() {
-        const input = document.getElementById('uiInput');
-        const title = document.getElementById('uiTitle');
-        const desc = document.getElementById('uiDesc');
-        const link = document.getElementById('uiLink');
-        const btn = document.getElementById('uiConfirmBtn');
+    function setupGPS() {
+        const input = document.getElementById('gateInput');
+        const title = document.getElementById('gateTitle');
+        const desc = document.getElementById('gateDesc');
+        const link = document.getElementById('gateLink');
+        const btn = document.getElementById('gateConfirm');
 
         input.value = "";
         input.type = "text";
-        input.placeholder = "es. 45.85, 9.39";
-        title.innerText = "Coordinate GPS";
-        desc.innerText = "Qui puoi trovare le coordinate di tutti i luoghi:";
+        input.placeholder = "45.xxx, 9.xxx";
+        title.innerText = "Input Geografico";
+        desc.innerText = "Inserire coordinate decimali rilevate:";
         link.style.display = "block";
         
         btn.onclick = function() {
-            if (!input.value.trim()) {
-                alert("Inserire dati geografici validi.");
-                return;
-            }
-            sendGps(input.value);
+            if (!input.value.trim()) return;
+            transmitGPS(input.value);
         };
     }
 
-    function closeControlModal() {
-        document.getElementById('uiModal').style.display = "none";
+    function closeGate() { document.getElementById('gate').style.display = "none"; }
+
+    function transmitAlert() {
+        const t = document.getElementById('mainText').value;
+        if (!t.trim()) { alert("Messaggio vuoto"); return; }
+        const msg = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + t;
+        closeGate();
+        executeFetch(msg);
     }
 
-    function sendAlert() {
-        const testo = document.getElementById('testoInput').value;
-        if (!testo.trim()) { alert("Campo messaggio vuoto."); return; }
-        
-        const msg = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + testo;
-        closeControlModal();
-        transmit(msg);
+    function transmitGPS(c) {
+        const p = c.replace(/\s/g, '');
+        const url = `https://www.google.com/maps?q=${p}`;
+        const msg = "🛰️ *POSIZIONE GPS RILEVATA*\nDestinazione intervento:\n\n`" + c + "`\n\n📍 Apri navigatore:\n" + url;
+        closeGate();
+        executeFetch(msg);
     }
 
-    function sendGps(coords) {
-        const pulite = coords.replace(/\s/g, '');
-        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${pulite}`;
-        const msg = "🛰️ *POSIZIONE GPS RILEVATA*\nDestinazione intervento:\n\n`" + coords + "`\n\n📍 Apri navigatore:\n" + mapUrl;
-        closeControlModal();
-        transmit(msg);
-    }
-
-    function transmit(testo) {
-        const status = document.getElementById('status-bar');
-        status.innerText = "Trasmissione in corso...";
-        status.style.color = "#003366";
-
-        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(testo)}&parse_mode=Markdown`)
+    function executeFetch(m) {
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(m)}&parse_mode=Markdown`)
         .then(res => {
             if(res.ok) {
-                status.innerText = "Trasmissione completata con successo.";
-                status.style.color = "green";
-                document.getElementById('testoInput').value = "";
-            } else {
-                status.innerText = "Errore di trasmissione.";
-                status.style.color = "red";
+                alert("TRASMISSIONE COMPLETATA");
+                document.getElementById('mainText').value = "";
             }
         });
     }
-
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('uiModal')) closeControlModal();
-    }
 </script>
-
 </body>
 </html>
