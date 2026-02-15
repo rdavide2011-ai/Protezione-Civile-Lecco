@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - CONSOLE INTEGRATA</title>
+    <title>S.A.R. UNITÀ MERLINI - CONSOLE COMPLETA</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -93,14 +93,36 @@
     
     <div id="mod-allerta">
         <div class="card">
-            <div class="input-group"><label>Evento</label><input type="text" id="f_evento"></div>
+            <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
+            
             <div class="input-group">
-                <label>Luogo</label>
-                <div style="display:flex; gap:5px;"><input type="text" id="f_luogo"><button onclick="getAutoLocation()" style="background:var(--pc-blue); color:white; border:none; border-radius:8px; padding:0 10px;">📍</button></div>
+                <label>Luogo / Posizione</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="f_luogo" placeholder="Coordinate o Indirizzo">
+                    <button onclick="getAutoLocation()" style="background:var(--pc-blue); color:white; border:none; border-radius:8px; padding:0 12px; font-size:18px;">📍</button>
+                </div>
             </div>
-            <div class="input-group"><label>Foto</label><input type="file" id="f_foto" accept="image/*" onchange="previewPhoto(this)"><img id="photoPreview"></div>
-            <button class="btn btn-danger" id="sendBtn" onclick="transmitAllertaCompleta()">🚀 INVIA ALLERTA</button>
-            <button class="btn btn-blue" style="margin-top:5px;" onclick="openMap()">🛰️ MAPPA</button>
+
+            <div class="input-group">
+                <label>Urgenza</label>
+                <select id="f_tipo">
+                    <option value="🔴 IMMEDIATA">IMMEDIATA (Codice Rosso)</option>
+                    <option value="🟡 PROGRAMMATA">PROGRAMMATA (Pre-Allerta)</option>
+                </select>
+            </div>
+
+            <div class="input-group"><label>Mezzi Richiesti</label><input type="text" id="f_mezzi" placeholder="Es: Cinofili, Mezzo Radio"></div>
+
+            <div class="input-group">
+                <label>Foto Evento</label>
+                <input type="file" id="f_foto" accept="image/*" onchange="previewPhoto(this)">
+                <img id="photoPreview">
+            </div>
+
+            <div class="input-group"><label>Note Operative</label><textarea id="f_note" rows="2" placeholder="Altre info..."></textarea></div>
+
+            <button class="btn btn-danger" id="sendBtn" onclick="transmitAllertaCompleta()">🚀 INVIA ALLERTA TELEGRAM</button>
+            <button class="btn btn-blue" style="margin-top:5px; background:#21262d;" onclick="openMap()">🛰️ CERCA SU MAPPA</button>
         </div>
     </div>
 
@@ -133,7 +155,7 @@
         <div id="lista-anagrafica" style="margin-bottom:15px;"></div>
         <div class="card">
             <div class="input-group"><label>Nome e Cognome</label><input type="text" id="ana-nome"></div>
-            <div class="input-group"><label>Ruolo</label><input type="text" id="ana-ruolo"></div>
+            <div class="input-group"><label>Ruolo / Qualifica</label><input type="text" id="ana-ruolo"></div>
             <button class="btn btn-success" onclick="aggiungiAnagrafica()">AGGIUNGI VOLONTARIO</button>
         </div>
     </div>
@@ -186,7 +208,13 @@
         document.getElementById('ana-nome').value = ""; document.getElementById('ana-ruolo').value = "";
         updateAll();
     }
-    function rimuoviAnagrafica(i) { elencoAnagrafica.splice(i, 1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); updateAll(); }
+    function rimuoviAnagrafica(i) {
+        if(confirm("Eliminare?")) {
+            elencoAnagrafica.splice(i, 1);
+            localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica));
+            updateAll();
+        }
+    }
     
     // --- PRESENZE ---
     function renderPresenze() {
@@ -207,7 +235,7 @@
         });
     }
     function setPresenza(nome, stato) {
-        let ora = (stato === 'rit') ? prompt("Ora ingresso:") : "";
+        let ora = (stato === 'rit') ? prompt("Ora ingresso previsto:") : "";
         if(stato === 'rit' && !ora) return;
         statoPresenze[nome] = {stato, ora};
         localStorage.setItem('statoPresenze', JSON.stringify(statoPresenze));
@@ -218,7 +246,7 @@
     // --- SQUADRE ---
     function renderSquadre() {
         const select = document.getElementById('select-volontario-sq');
-        select.innerHTML = "<option value=''>Scegli Volontario...</option>";
+        select.innerHTML = "<option value=''>Seleziona Volontario...</option>";
         elencoAnagrafica.forEach(v => select.innerHTML += `<option value="${v.nome}">${v.nome}</option>`);
 
         const cont = document.getElementById('lista-squadra-attiva');
@@ -237,7 +265,6 @@
     function rimuoviDaSquadra(i) { elencoSquadra.splice(i, 1); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra)); renderSquadre(); }
 
     function updateAll() {
-        // Renderizza anagrafica
         const aCont = document.getElementById('lista-anagrafica');
         if(aCont) {
             aCont.innerHTML = "";
@@ -253,27 +280,27 @@
     function generaPDFPresenzeFormale() {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
         doc.setFillColor(0, 86, 179); doc.rect(0,0,210,30,'F');
-        doc.setTextColor(255); doc.text("VERBALE PRESENZE S.A.R.", 105, 20, {align:'center'});
+        doc.setTextColor(255); doc.text("VERBALE PRESENZE S.A.R. MERLINI", 105, 20, {align:'center'});
         const rows = elencoAnagrafica.map(v => {
             const s = statoPresenze[v.nome] || {stato:'ASSENTE'};
             return [v.nome, v.ruolo, s.stato === 'rit' ? `RITARDO (${s.ora})` : s.stato.toUpperCase()];
         });
         doc.autoTable({ startY: 40, head: [['NOMINATIVO', 'RUOLO', 'STATO']], body: rows });
-        doc.save("Presenze.pdf");
+        doc.save("Verbale_Presenze.pdf");
     }
 
     function generaPDFSquadra() {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
         doc.text("ELENCO SQUADRA OPERATIVA", 10, 20);
         elencoSquadra.forEach((v, i) => doc.text(`${i+1}. ${v}`, 15, 35 + (i*10)));
-        doc.save("Squadra.pdf");
+        doc.save("Squadra_Attiva.pdf");
     }
 
     // --- ALLERTA & GPS ---
     function getAutoLocation() {
         navigator.geolocation.getCurrentPosition(p => {
             document.getElementById('f_luogo').value = `${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`;
-        });
+        }, () => alert("Attiva il GPS"));
     }
     function previewPhoto(input) {
         if (input.files[0]) {
@@ -284,17 +311,23 @@
         }
     }
     async function transmitAllertaCompleta() {
-        const msg = `🚨 *ALLERTA MERLINI*\nEVENTO: ${document.getElementById('f_evento').value}\nLUOGO: ${document.getElementById('f_luogo').value}`;
+        const ev = document.getElementById('f_evento').value.toUpperCase();
+        const lu = document.getElementById('f_luogo').value;
+        const ti = document.getElementById('f_tipo').value;
+        const me = document.getElementById('f_mezzi').value;
+        const no = document.getElementById('f_note').value;
         const foto = document.getElementById('f_foto').files[0];
-        const url = foto ? `https://api.telegram.org/bot${TOKEN}/sendPhoto` : `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+
+        const msg = `🚨 *ALLERTA UNITÀ MERLINI*\n\n📌 *EVENTO:* ${ev}\n📍 *LUOGO:* ${lu}\n🚦 *STATO:* ${ti}\n🚒 *MEZZI:* ${me}\n📝 *NOTE:* ${no}`;
         
+        const url = foto ? `https://api.telegram.org/bot${TOKEN}/sendPhoto` : `https://api.telegram.org/bot${TOKEN}/sendMessage`;
         const fd = new FormData();
         fd.append('chat_id', ID_GRUPPO);
         if(foto) { fd.append('photo', foto); fd.append('caption', msg); fd.append('parse_mode', 'Markdown'); }
         else { fd.append('text', msg); fd.append('parse_mode', 'Markdown'); }
 
         await fetch(url, { method: 'POST', body: fd });
-        alert("Inviato!");
+        alert("Allerta Inviata!");
     }
 
     function initMap() {
