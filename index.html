@@ -10,9 +10,11 @@
         .box { background: white; padding: 30px; border-radius: 20px; max-width: 400px; margin: auto; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .header { background: #ffcc00; color: #003366; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; font-size: 18px; }
         textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; resize: none; }
-        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; transition: 0.3s; }
         .btn-alert { background: #cc0000; }
+        .btn-alert:hover { background: #e60000; }
         .btn-map { background: #28a745; }
+        .btn-map:hover { background: #218838; }
         #stato { margin-top: 10px; font-weight: bold; color: #555; font-size: 14px; }
     </style>
 </head>
@@ -21,9 +23,9 @@
 <div class="box">
     <div class="header">PROTEZIONE CIVILE - LECCO</div>
     <h2 style="margin:0;">Unità "A. Merlini"</h2>
-    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Emergenze S.A.R.</p>
+    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Operativo Emergenze</p>
     
-    <textarea id="testo" placeholder="Inserisci qui i dettagli (es. Luogo, Tipo Emergenza, Orario)..."></textarea>
+    <textarea id="testo" placeholder="Scrivi i dettagli dell'allerta (Luogo, Mezzi, Orario)..."></textarea>
     
     <button class="btn-alert" onclick="preparaMessaggio('allerta')">🚨 INVIA ATTIVAZIONE</button>
     <button class="btn-map" onclick="preparaMessaggio('mappa')">📍 INVIA LINK MAPPE GPX</button>
@@ -32,12 +34,13 @@
 </div>
 
 <script>
-    // Configurazione dati Telegram
+    // Configurazione dati Telegram (Verificati e Funzionanti)
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
     function preparaMessaggio(tipo) {
+        // 1. Chiede il PIN per sicurezza
         const pin = prompt("SICUREZZA: Inserisci il PIN:");
         if (pin !== PIN_CORRETTO) {
             alert("PIN Errato!");
@@ -47,16 +50,23 @@
         let testoFinale = "";
         
         if (tipo === 'allerta') {
+            // Caso Messaggio Testuale
             const corpo = document.getElementById('testo').value;
             if (!corpo.trim()) {
-                alert("Scrivi prima un messaggio!");
+                alert("Scrivi un messaggio prima di inviare!");
                 return;
             }
             testoFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
         } else {
-            // Qui inseriamo il link di prova delle mappe
-            const linkMappa = "https://www.google.it/maps"; 
-            testoFinale = "📍 *MAPPE E TRACCE GPX*\nAccedi ai file qui:\n" + linkMappa;
+            // Caso Mappa: Chiede il link all'utente
+            const linkInserito = prompt("Incolla qui il link (Drive, Maps, GPX):", "https://");
+            
+            if (!linkInserito || linkInserito === "https://" || linkInserito === "") {
+                alert("Invio annullato: link non inserito.");
+                return;
+            }
+            
+            testoFinale = "📍 *MAPPE E TRACCE GPX*\nAccedi ai file della missione qui:\n" + linkInserito;
         }
 
         inviaATelegram(testoFinale);
@@ -72,11 +82,11 @@
         fetch(url)
         .then(response => {
             if(response.ok) {
-                displayStato.innerText = "✅ INVIATO CORRETTAMENTE";
+                displayStato.innerText = "✅ INVIATO CON SUCCESSO";
                 displayStato.style.color = "green";
-                document.getElementById('testo').value = ""; // Pulisce il campo
+                document.getElementById('testo').value = ""; // Pulisce l'area di testo
             } else {
-                displayStato.innerText = "❌ ERRORE INVIO (Controlla Bot)";
+                displayStato.innerText = "❌ ERRORE (Bot non autorizzato)";
                 displayStato.style.color = "red";
             }
         })
