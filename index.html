@@ -26,6 +26,13 @@
             flex-direction: column;
         }
 
+        /* Schermata di Login */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+
         .top-bar {
             background: var(--panel-bg);
             padding: 10px 15px;
@@ -41,31 +48,18 @@
         .top-bar-text p { margin: 0; font-size: 10px; color: #8b949e; }
 
         .main-ui {
-            flex: 1;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
+            flex: 1; padding: 15px; display: flex; flex-direction: column;
+            gap: 12px; max-width: 600px; margin: 0 auto; width: 100%;
         }
 
         .input-group { display: flex; flex-direction: column; gap: 5px; }
         .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; margin-left: 5px; }
 
         input, textarea, select {
-            width: 100%;
-            background: var(--panel-bg);
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            color: white;
-            padding: 12px;
-            font-size: 14px;
-            outline: none;
+            width: 100%; background: var(--panel-bg); border: 1px solid #30363d;
+            border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none;
         }
 
-        /* Gruppo programmata inizialmente nascosto */
         #programmataGroup { display: none; flex-direction: column; gap: 12px; }
 
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; padding-bottom: 20px;}
@@ -77,22 +71,31 @@
         .btn-alert { background: var(--danger); color: white; }
         .btn-gps { background: var(--pc-blue); color: white; }
 
+        /* Modal GPS */
         .modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 14, 20, 0.98);
-            z-index: 999; padding: 50px 20px;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 14, 20, 0.98); z-index: 1000; padding: 50px 20px;
         }
         .modal-content { max-width: 400px; margin: 0 auto; text-align: center; }
-        .input-control { width: 100%; background: #161b22; border: 1px solid #30363d; border-radius: 5px; color: white; font-size: 24px; padding: 15px; text-align: center; margin-bottom: 20px; }
-        .modal-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn-confirm { background: var(--pc-yellow); color: black; padding: 15px; border-radius: 5px; border: none; font-weight: bold; }
-        .btn-cancel { background: #30363d; color: white; padding: 15px; border-radius: 5px; border: none; }
         
+        .forgot-link { display: block; margin-top: 20px; color: #8b949e; font-size: 11px; text-decoration: underline; cursor: pointer; }
+
         .status-bar { background: #010409; padding: 10px 20px; font-size: 9px; color: #484f58; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+    <div class="modal-content">
+        <div style="margin-bottom: 20px;">
+            <img src="logo.svg" style="width: 80px; height: auto;">
+        </div>
+        <h2 style="color:var(--pc-yellow); font-size: 16px;">ACCESSO CONSOLE</h2>
+        <input type="password" id="loginInput" style="font-size: 24px; text-align: center; margin-bottom: 20px;" placeholder="PIN">
+        <button onclick="checkLogin()" style="width: 100%; background: var(--pc-yellow); color: black; padding: 15px; border-radius: 8px; border: none; font-weight: bold;">ENTRA</button>
+        <span class="forgot-link" onclick="sendReminder()">Hai dimenticato la password?</span>
+    </div>
+</div>
 
 <div class="top-bar">
     <div class="logo-container"><img src="logo.svg" alt="Logo"></div>
@@ -140,20 +143,20 @@
     </div>
 
     <div class="btn-group">
-        <button class="btn btn-alert" onclick="openGate('allerta')"><span>🚨</span> INVIA ALLERTA</button>
-        <button class="btn btn-gps" onclick="openGate('gps')"><span>🛰️</span> POSIZIONE GPS</button>
+        <button class="btn btn-alert" onclick="transmit('allerta')"><span>🚨</span> INVIA ALLERTA</button>
+        <button class="btn btn-gps" onclick="openGpsModal()"><span>🛰️</span> POSIZIONE GPS</button>
     </div>
 </div>
 
-<div class="status-bar"><span>SYSTEM READY</span><span>15/02/2026 - LECCO</span></div>
+<div class="status-bar"><span>SYSTEM ONLINE</span><span>15/02/2026 - LECCO</span></div>
 
-<div id="gate" class="modal">
+<div id="gpsModal" class="modal">
     <div class="modal-content">
-        <h2 style="color:var(--pc-yellow)">AUTORIZZAZIONE</h2>
-        <input type="password" id="gateInput" class="input-control" placeholder="PIN">
-        <div class="modal-footer-btns">
-            <button class="btn-cancel" onclick="closeGate()">CHIUDI</button>
-            <button id="gateConfirm" class="btn-confirm">CONFERMA</button>
+        <h2 style="color:var(--pc-blue)">COORD. GEOGRAFICHE</h2>
+        <input type="text" id="gpsInput" style="font-size: 18px; text-align: center; margin-bottom: 20px;" placeholder="45.xx, 9.xx">
+        <div class="btn-group">
+            <button class="btn" style="background: #30363d; color: white;" onclick="closeGpsModal()">ANNULLA</button>
+            <button class="btn" style="background: var(--pc-blue); color: white;" onclick="confirmGps()">INVIA GPS</button>
         </div>
     </div>
 </div>
@@ -163,32 +166,38 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
+    // Funzione Login Iniziale
+    function checkLogin() {
+        const pin = document.getElementById('loginInput').value;
+        if (pin === PIN_CORRETTO) {
+            document.getElementById('loginOverlay').style.display = 'none';
+        } else {
+            alert("PIN ERRATO");
+        }
+    }
+
     function toggleProgrammata() {
         const tipo = document.getElementById('f_tipoAttivazione').value;
         const group = document.getElementById('programmataGroup');
         group.style.display = (tipo === 'PROGRAMMATA') ? 'flex' : 'none';
     }
 
-    function openGate(tipo) {
-        const modal = document.getElementById('gate');
-        const input = document.getElementById('gateInput');
-        const btn = document.getElementById('gateConfirm');
-        input.value = ""; input.type = (tipo === 'gps') ? 'text' : 'password';
-        input.placeholder = (tipo === 'gps') ? 'COORD. GPS' : 'PIN';
-        modal.style.display = "block";
-        input.focus();
+    function openGpsModal() { document.getElementById('gpsModal').style.display = "block"; }
+    function closeGpsModal() { document.getElementById('gpsModal').style.display = "none"; }
 
-        btn.onclick = function() {
-            if (tipo === 'allerta') {
-                if (input.value !== PIN_CORRETTO) { alert("PIN ERRATO"); return; }
-                transmit('allerta');
-            } else {
-                transmit('gps', input.value);
-            }
-        };
+    function confirmGps() {
+        const val = document.getElementById('gpsInput').value;
+        if (!val.trim()) return;
+        transmit('gps', val);
+        closeGpsModal();
+        document.getElementById('gpsInput').value = "";
     }
 
-    function closeGate() { document.getElementById('gate').style.display = "none"; }
+    function sendReminder() {
+        const msg = "🔑 *RECUPERO PIN*\nIl codice è: `" + PIN_CORRETTO + "`";
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);
+        alert("Inviato nel gruppo Telegram.");
+    }
 
     function transmit(tipo, gpsVal = "") {
         let msg = "";
@@ -200,38 +209,28 @@
             const me = document.getElementById('f_mezzi').value || "N/D";
             const no = document.getElementById('f_note').value || "NESSUNA";
             const tAtt = document.getElementById('f_tipoAttivazione').value;
-            
-            // Gestione Data e Ora
             const dIntRaw = document.getElementById('f_dataIntervento').value;
-            const dInt = dIntRaw.split('-').reverse().join('/'); // Trasforma da YYYY-MM-DD a DD/MM/YYYY
+            const dInt = dIntRaw.split('-').reverse().join('/');
             const hInt = document.getElementById('f_orarioIntervento').value;
 
-            msg = "📂 *SCHEDA OPERATIVA UNITÀ MERLINI*\n";
-            msg += "```\n";
+            msg = "📂 *SCHEDA OPERATIVA UNITÀ MERLINI*\n```\n";
             msg += "╔════════════════════════════════╗\n";
             msg += "║ DATA INVIO: 15/02/2026 " + oraInvio + " ║\n";
             msg += "╠════════════════════════════════╣\n";
             msg += "  EVENTO : " + ev.toUpperCase() + "\n";
             msg += "  LUOGO  : " + lu.toUpperCase() + "\n";
             msg += "  MEZZI  : " + me.toUpperCase() + "\n";
-            
-            if (tAtt === "PROGRAMMATA") {
-                msg += "  RITROVO: " + dInt + " ORE " + hInt + "\n";
-            } else {
-                msg += "  STATO  : IMMEDIATA\n";
-            }
-            
+            if (tAtt === "PROGRAMMATA") { msg += "  RITROVO: " + dInt + " ORE " + hInt + "\n"; }
+            else { msg += "  STATO  : IMMEDIATA\n"; }
             msg += "  NOTE   : " + no.toUpperCase() + "\n";
-            msg += "╚════════════════════════════════╝\n";
-            msg += "```\n";
+            msg += "╚════════════════════════════════╝\n```\n";
             msg += (tAtt === "IMMEDIATA") ? "🔴 **ATTIVAZIONE IMMEDIATA** 🔴" : "🟠 **ATTIVAZIONE PROGRAMMATA** 🟠";
         } else {
-            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n`" + gpsVal + "`\n📍 [MAPPA](http://google.com/maps?q=" + gpsVal.replace(/\s/g, '') + ")";
+            msg = "🛰️ *LOCALIZZAZIONE S.A.R.*\n`" + gpsVal + "`\n📍 [MAPPA](http://googleusercontent.com/maps.google.com/q=" + gpsVal.replace(/\s/g, '') + ")";
         }
 
-        closeGate();
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
-        .then(res => { if(res.ok) { alert("INVIATO"); }});
+        .then(res => { if(res.ok) alert("MESSAGGIO INVIATO"); });
     }
 </script>
 </body>
