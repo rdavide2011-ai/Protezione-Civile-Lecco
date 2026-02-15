@@ -3,64 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pannello PC Lecco</title>
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png">
+    <title>S.A.R. Unità Merlini</title>
     <style>
-        body { font-family: sans-serif; background: #003366; color: white; text-align: center; padding: 20px; }
-        .box { background: white; padding: 25px; border-radius: 15px; max-width: 380px; margin: auto; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        h2 { color: #003366; margin-bottom: 5px; }
-        p { font-size: 14px; color: #666; margin-bottom: 20px; }
-        textarea { width: 100%; height: 120px; padding: 10px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; resize: none; }
-        textarea:focus { border-color: #cc0000; outline: none; }
-        button { width: 100%; padding: 15px; background: #cc0000; color: white; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 18px; margin-top: 15px; }
-        button:active { transform: scale(0.98); background: #a00000; }
-        #stato { margin-top: 15px; font-weight: bold; font-size: 14px; }
+        body { font-family: 'Helvetica', sans-serif; background: #003366; color: white; text-align: center; padding: 20px; }
+        .box { background: white; padding: 30px; border-radius: 20px; max-width: 400px; margin: auto; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .header { background: #ffcc00; color: #003366; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; }
+        h2 { margin: 0; font-size: 22px; }
+        textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 10px; resize: none; }
+        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; transition: 0.3s; }
+        .btn-alert { background: #cc0000; }
+        .btn-alert:hover { background: #ff0000; }
+        .btn-map { background: #28a745; font-size: 15px; }
+        .btn-map:hover { background: #34ce57; }
+        #stato { margin-top: 10px; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <h2>P.C. LECCO</h2>
-    <p>Scrivi il messaggio e premi il tasto rosso</p>
+    <div class="header">PROTEZIONE CIVILE</div>
+    <h2>Unità "A. Merlini"</h2>
+    <p style="font-size: 13px; color: #666;">Pannello di Attivazione Rapida</p>
     
-    <textarea id="testo" placeholder="Inserisci dettagli emergenza..."></textarea>
+    <textarea id="testo" placeholder="Inserisci dettagli emergenza (luogo, orario, tipo intervento)..."></textarea>
     
-    <button onclick="inviaMessaggio()">🚨 INVIA ALLERTA</button>
+    <button class="btn-alert" onclick="inviaAllerta()">🚨 INVIA ATTIVAZIONE</button>
     
-    <div id="stato"></div>
+    <button class="btn-map" onclick="inviaMappa()">📍 INVIA LINK MAPPE GPX</button>
+    
+    <div id="stato">Sistema Pronto</div>
 </div>
 
 <script>
-    function inviaMessaggio() {
-        const TOKEN = "8237203800:AAHP2-BFVbsoApqFMOlgWjAUGmjUdqzVnzI";
-        const ID = "7181181566";
-        const contenuto = document.getElementById('testo').value;
-        const stato = document.getElementById('stato');
+    // DATI CONFIGURATI
+    const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
+    const ID_GRUPPO = "-1003709844017";
+    const PIN_CORRETTO = "1234";
 
-        if (contenuto.trim() === "") {
+    function inviaAllerta() {
+        const pin = prompt("SICUREZZA: Inserisci il PIN per confermare l'allerta:");
+        if (pin !== PIN_CORRETTO) {
+            alert("PIN Errato!");
+            return;
+        }
+
+        const msg = document.getElementById('testo').value;
+        if (!msg.trim()) {
             alert("Scrivi un messaggio prima di inviare!");
             return;
         }
 
+        spedisci(`⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n${msg}\n\n_Rispondere al presente messaggio per conferma._`);
+    }
+
+    function inviaMappa() {
+        const pin = prompt("Inserisci PIN per invio Mappe:");
+        if (pin !== PIN_CORRETTO) return;
+        
+        // Link a una cartella Google Drive o Dropbox dove caricate i GPX
+        const linkMappe = "INSERISCI_QUI_IL_LINK_CARTELLA_MAPPE"; 
+        
+        spedisci(`📍 *MAPPE E TRACCE GPX*\nAccedi qui per visualizzare i file della missione:\n${linkMappe}`);
+    }
+
+    function spedisci(testo) {
+        const stato = document.getElementById('stato');
         stato.innerText = "⏳ Invio in corso...";
         stato.style.color = "blue";
 
-        // Costruiamo l'indirizzo per Telegram
-        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID}&text=${encodeURIComponent("⚠️ ALLERTA P.C. LECCO ⚠️\n\n" + contenuto)}&parse_mode=Markdown`;
+        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(testo)}&parse_mode=Markdown`;
 
         fetch(url)
-        .then(response => {
-            if (response.ok) {
-                stato.innerText = "✅ MESSAGGIO INVIATO!";
+        .then(res => {
+            if(res.ok) {
+                stato.innerText = "✅ INVIATO CON SUCCESSO";
                 stato.style.color = "green";
-                document.getElementById('testo').value = ""; // Pulisce il campo
+                document.getElementById('testo').value = "";
             } else {
-                stato.innerText = "❌ ERRORE: Il Bot non ti ha trovato.";
+                stato.innerText = "❌ ERRORE INVIO";
                 stato.style.color = "red";
-                alert("Assicurati di aver premuto START sul Bot su Telegram!");
             }
         })
-        .catch(error => {
-            stato.innerText = "❌ ERRORE DI CONNESSIONE";
+        .catch(() => {
+            stato.innerText = "❌ ERRORE DI RETE";
             stato.style.color = "red";
         });
     }
