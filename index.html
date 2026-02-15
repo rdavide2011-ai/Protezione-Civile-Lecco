@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V3 PRO</title>
+    <title>S.A.R. UNITÀ MERLINI - CONSOLE V3.1</title>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
     <style>
         :root {
             --bg-dark: #0a0e14;
@@ -20,49 +22,49 @@
             --warning: #f39c12;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
         /* LOGIN */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-box { max-width: 350px; width: 90%; text-align: center; background: var(--panel-bg); padding: 30px; border-radius: 15px; border: 2px solid var(--pc-yellow); }
+        .login-box { max-width: 350px; width: 90%; text-align: center; background: var(--panel-bg); padding: 40px 20px; border-radius: 20px; border: 2px solid var(--pc-yellow); }
 
         /* HEADER */
-        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--pc-yellow); }
+        .top-bar { background: var(--panel-bg); padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--pc-yellow); }
         .logo-badge { background: var(--pc-yellow); color: black; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
         /* NAV */
         .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--border); }
-        .nav-btn { padding: 10px 15px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 11px; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
-        .nav-btn.active { background: var(--pc-yellow); color: black; font-weight: bold; }
+        .nav-btn { padding: 10px 18px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
+        .nav-btn.active { background: var(--pc-yellow); color: black; }
 
-        /* MAIN */
+        /* CONTENT */
         .main-content { flex: 1; padding: 15px; max-width: 600px; margin: 0 auto; width: 100%; }
         .card { background: var(--panel-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
         .hidden { display: none !important; }
         
-        .input-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
+        .input-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
         .input-group label { font-size: 10px; text-transform: uppercase; color: var(--pc-yellow); font-weight: bold; }
-        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; outline: none; }
+        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 15px; }
 
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn { padding: 16px; border: none; border-radius: 10px; font-weight: bold; font-size: 13px; text-transform: uppercase; cursor: pointer; width: 100%; transition: 0.2s; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-blue { background: var(--pc-blue); color: white; }
 
         /* LISTE */
-        .list-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 10px; border-radius: 8px; margin-bottom: 5px; border: 1px solid var(--border); }
-        .presenza-row { background: var(--panel-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); }
-        .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
-        .p-btn { padding: 8px; border: none; border-radius: 5px; font-size: 9px; font-weight: bold; cursor: pointer; background: #21262d; color: #8b949e; }
-        .active-si { background: var(--success) !important; color: white !important; }
-        .active-no { background: var(--danger) !important; color: white !important; }
-        .active-rit { background: var(--warning) !important; color: white !important; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--border); }
+        .presenza-row { background: var(--panel-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .p-btn { padding: 10px; border: none; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; background: #21262d; color: #8b949e; text-transform: uppercase; }
+        
+        /* COLORI STATI */
+        .active-presente { background: var(--success) !important; color: white !important; }
+        .active-assente { background: var(--danger) !important; color: white !important; }
+        .active-ritardo { background: var(--warning) !important; color: white !important; }
 
-        /* FIRMA */
-        #signature-pad { border: 1px dashed var(--pc-yellow); background: #fff; width: 100%; height: 100px; border-radius: 8px; margin-top: 10px; cursor: crosshair; }
-
-        #photoPreview { width: 100%; border-radius: 8px; margin-top: 10px; display: none; border: 1px solid var(--pc-blue); }
+        #signature-pad { border: 1px dashed var(--pc-yellow); background: #ffffff; width: 100%; height: 120px; border-radius: 8px; margin-top: 10px; }
+        #photoPreview { width: 100%; border-radius: 8px; margin-top: 10px; display: none; border: 2px solid var(--pc-blue); }
         .modal-full { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 10000; flex-direction: column; }
         #map { width: 100%; flex: 1; }
     </style>
@@ -71,18 +73,21 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2 style="color:var(--pc-yellow)">S.A.R. UNITÀ MERLINI</h2>
-        <input type="password" id="loginInput" inputmode="numeric" style="font-size: 24px; text-align: center;" placeholder="PIN">
-        <button onclick="checkLogin()" class="btn" style="background: var(--pc-yellow); color: black;">ACCEDI</button>
+        <h2 style="color:var(--pc-yellow); margin-bottom: 25px;">S.A.R. UNITÀ MERLINI</h2>
+        <input type="password" id="loginInput" inputmode="numeric" style="font-size: 30px; text-align: center; letter-spacing: 10px;" placeholder="PIN">
+        <button onclick="checkLogin()" class="btn btn-blue" style="margin-top: 20px;">ACCEDI</button>
     </div>
 </div>
 
 <div class="top-bar">
     <div style="display:flex; align-items:center;">
         <div class="logo-badge">PC</div>
-        <h1 style="margin:0; font-size:12px; color:var(--pc-yellow); margin-left:10px;">V3.0 OPERATIVA</h1>
+        <div>
+            <div style="font-size:12px; font-weight:bold; color:var(--pc-yellow);">S.A.R. OPERATIVA</div>
+            <div style="font-size:9px; color:#8b949e;">CONSOLE INTEGRATA V3.1</div>
+        </div>
     </div>
-    <button onclick="location.reload()" style="background:#30363d; color:var(--danger); border:none; padding:5px 10px; border-radius:5px; font-size:9px;">LOGOUT</button>
+    <button onclick="location.reload()" style="background:#30363d; color:var(--danger); border:none; padding:6px 12px; border-radius:6px; font-size:10px; font-weight:bold;">LOGOUT</button>
 </div>
 
 <div class="module-nav">
@@ -99,42 +104,42 @@
             <div class="input-group"><label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona"></div>
             <div class="input-group">
                 <label>Luogo</label>
-                <div style="display:flex; gap:5px;"><input type="text" id="f_luogo"><button onclick="getAutoLocation()" style="background:var(--pc-blue); color:white; border:none; border-radius:8px; padding:0 12px;">📍</button></div>
+                <div style="display:flex; gap:8px;"><input type="text" id="f_luogo" placeholder="GPS o Indirizzo"><button onclick="getAutoLocation()" style="background:var(--pc-blue); color:white; border:none; border-radius:8px; padding:0 15px; font-size:20px;">📍</button></div>
             </div>
             <div class="input-group">
                 <label>Urgenza</label>
-                <select id="f_tipo"><option value="🔴 IMMEDIATA">IMMEDIATA</option><option value="🟡 PROGRAMMATA">PROGRAMMATA</option></select>
+                <select id="f_tipo"><option value="🔴 IMMEDIATA">ROSSO: IMMEDIATA</option><option value="🟡 PROGRAMMATA">GIALLO: PROGRAMMATA</option></select>
             </div>
             <div class="input-group"><label>Mezzi</label><input type="text" id="f_mezzi"></div>
             <div class="input-group"><label>Foto</label><input type="file" id="f_foto" accept="image/*" onchange="previewPhoto(this)"><img id="photoPreview"></div>
             <div class="input-group"><label>Note</label><textarea id="f_note" rows="2"></textarea></div>
-            <button class="btn btn-danger" id="sendBtn" onclick="transmitAllertaCompleta()">🚀 INVIA ALLERTA TELEGRAM</button>
+            <button class="btn btn-danger" id="sendBtn" onclick="transmitAllertaCompleta()">🚀 PUBBLICA SU TELEGRAM</button>
         </div>
     </div>
 
     <div id="mod-presenze" class="hidden">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <h3 style="color:var(--success); font-size:14px;">APPELLO</h3>
-            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:9px;">RESET</button>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+            <h3 style="color:var(--success); font-size:14px; margin:0;">APPELLO VOLONTARI</h3>
+            <button onclick="resetPresenze()" style="background:none; border:1px solid var(--danger); color:var(--danger); font-size:10px; padding:4px 8px; border-radius:5px;">RESET</button>
         </div>
         <div id="lista-presenze-dinamica"></div>
         <div class="card">
             <label style="font-size:10px; color:var(--pc-yellow); font-weight:bold;">FIRMA COORDINATORE</label>
             <canvas id="signature-pad"></canvas>
-            <button onclick="clearSignature()" style="font-size:8px; margin-top:5px; background:none; border:none; color:#8b949e;">Cancella firma</button>
+            <button onclick="clearSignature()" style="background:none; border:none; color:#8b949e; font-size:10px; margin-top:5px; text-decoration:underline;">Cancella</button>
         </div>
-        <button class="btn btn-success" onclick="generaPDFPresenzeFormale()">📄 SCARICA VERBALE FIRMATO</button>
+        <button class="btn btn-success" onclick="generaPDFPresenzeFormale()">📄 SCARICA VERBALE PDF</button>
     </div>
 
     <div id="mod-squadre" class="hidden">
         <h3 style="color:var(--pc-blue); font-size:14px;">FORMAZIONE SQUADRE</h3>
         <div class="card">
-            <div id="lista-squadra-attiva"></div>
-            <div class="input-group" style="margin-top:15px;">
-                <label>Seleziona da Volontari</label>
-                <div style="display:flex; gap:5px;">
-                    <select id="select-volontario-sq"></select>
-                    <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; padding:10px 15px; border-radius:8px;">+</button>
+            <div id="lista-squadra-attiva" style="margin-bottom:15px;"></div>
+            <div class="input-group">
+                <label>Seleziona da Anagrafica</label>
+                <div style="display:flex; gap:8px;">
+                    <select id="select-volontario-sq" style="flex:1;"></select>
+                    <button onclick="aggiungiASquadra()" style="background:var(--pc-blue); color:white; border:none; width:50px; border-radius:8px; font-size:20px;">+</button>
                 </div>
             </div>
             <button class="btn btn-blue" onclick="generaPDFSquadra()">📄 PDF SQUADRA</button>
@@ -142,17 +147,17 @@
     </div>
 
     <div id="mod-volontari" class="hidden">
-        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA</h3>
+        <h3 style="color:var(--pc-yellow); font-size:14px;">GESTIONE ANAGRAFICA</h3>
         <div id="lista-anagrafica" style="margin-bottom:15px;"></div>
         <div class="card">
             <div class="input-group"><label>Cognome e Nome</label><input type="text" id="ana-nome"></div>
-            <div class="input-group"><label>Qualifica</label><input type="text" id="ana-ruolo"></div>
+            <div class="input-group"><label>Ruolo</label><input type="text" id="ana-ruolo"></div>
             <button class="btn btn-success" onclick="aggiungiAnagrafica()">SALVA VOLONTARIO</button>
         </div>
     </div>
 </div>
 
-<div id="gpsModal" class="modal-full"><div id="map"></div><div style="padding:15px; background:var(--panel-bg); display:flex; gap:10px;"><input type="text" id="gpsCoords" readonly style="flex:1;"><button onclick="confirmGps()" class="btn btn-blue" style="width:auto; padding:0 20px;">USA</button><button onclick="closeMap()" class="btn btn-danger" style="width:auto; padding:0 20px;">X</button></div></div>
+<div id="gpsModal" class="modal-full"><div id="map"></div><div style="padding:15px; background:var(--panel-bg); display:flex; gap:10px;"><input type="text" id="gpsCoords" readonly style="flex:1;"><button onclick="confirmGps()" class="btn btn-blue" style="width:auto; padding:0 25px;">USA</button><button onclick="closeMap()" class="btn btn-danger" style="width:auto; padding:0 25px;">X</button></div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -163,32 +168,20 @@
     let elencoAnagrafica = JSON.parse(localStorage.getItem('anagraficaVolontari')) || [];
     let statoPresenze = JSON.parse(localStorage.getItem('statoPresenze')) || {};
     let elencoSquadra = JSON.parse(localStorage.getItem('squadraSAR')) || [];
-    let map, idleTimer;
+    let map, idleTimer, drawing = false;
 
-    // FIRMA CANVAS LOGIC
     const canvas = document.getElementById('signature-pad');
     const ctx = canvas.getContext('2d');
-    let drawing = false;
-
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', stopDraw);
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
-    canvas.addEventListener('touchend', stopDraw);
 
-    function startDraw(e) { drawing = true; ctx.beginPath(); ctx.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); }
-    function draw(e) { if(!drawing) return; ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); ctx.stroke(); }
+    function startDraw(e) { drawing = true; ctx.beginPath(); const rect = canvas.getBoundingClientRect(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top); }
+    function draw(e) { if (!drawing) return; const rect = canvas.getBoundingClientRect(); ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); ctx.stroke(); }
     function stopDraw() { drawing = false; }
-    function clearSignature() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-    function checkLogin() {
-        if(document.getElementById('loginInput').value === PIN_VALIDO) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            initMap(); updateAll();
-        } else { alert("PIN ERRATO"); }
-    }
-
+    function checkLogin() { if(document.getElementById('loginInput').value === PIN_VALIDO) { document.getElementById('loginOverlay').style.display = 'none'; initMap(); updateAll(); } else { alert("PIN ERRATO"); } }
     function resetTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => location.reload(), 600000); }
 
     function showMod(id) {
@@ -200,82 +193,73 @@
         if(id === 'presenze') { canvas.width = canvas.offsetWidth; }
     }
 
+    function updateAll() {
+        const aCont = document.getElementById('lista-anagrafica'); aCont.innerHTML = "";
+        elencoAnagrafica.forEach((v, i) => { aCont.innerHTML += `<div class="list-item"><span><b>${v.nome}</b> (${v.ruolo})</span><span onclick="rimuoviAnagrafica(${i})" style="color:var(--danger)">✕</span></div>`; });
+        const select = document.getElementById('select-volontario-sq'); select.innerHTML = "<option value=''>Scegli...</option>";
+        elencoAnagrafica.forEach(v => select.innerHTML += `<option value="${v.nome}">${v.nome}</option>`);
+        renderPresenze(); renderSquadre();
+    }
+
     function aggiungiAnagrafica() {
         const n = document.getElementById('ana-nome').value.toUpperCase();
         const r = document.getElementById('ana-ruolo').value.toUpperCase();
-        if(!n || !r) return;
-        elencoAnagrafica.push({nome: n, ruolo: r});
-        localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica));
-        document.getElementById('ana-nome').value = ""; document.getElementById('ana-ruolo').value = "";
-        updateAll();
+        if(n && r) { elencoAnagrafica.push({nome: n, ruolo: r}); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); updateAll(); }
     }
-
-    function updateAll() {
-        const aCont = document.getElementById('lista-anagrafica');
-        if(aCont) {
-            aCont.innerHTML = "";
-            elencoAnagrafica.forEach((v, i) => { aCont.innerHTML += `<div class="list-item"><span><b>${v.nome}</b></span><span onclick="rimuoviAnagrafica(${i})" style="color:var(--danger)">✕</span></div>`; });
-        }
-        renderPresenze();
-        renderSquadre();
-    }
+    function rimuoviAnagrafica(i) { if(confirm("Eliminare?")) { elencoAnagrafica.splice(i, 1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); updateAll(); } }
 
     function renderPresenze() {
-        const cont = document.getElementById('lista-presenze-dinamica');
-        cont.innerHTML = "";
+        const cont = document.getElementById('lista-presenze-dinamica'); cont.innerHTML = "";
         elencoAnagrafica.forEach(v => {
-            const current = statoPresenze[v.nome] || {stato:''};
-            cont.innerHTML += `<div class="presenza-row"><div style="font-size:12px; font-weight:bold;">${v.nome}</div><div class="presenza-btns"><button class="p-btn ${current.stato === 'si' ? 'active-si' : ''}" onclick="setPresenza('${v.nome}', 'si')">SI</button><button class="p-btn ${current.stato === 'no' ? 'active-no' : ''}" onclick="setPresenza('${v.nome}', 'no')">NO</button><button class="p-btn ${current.stato === 'rit' ? 'active-rit' : ''}" onclick="setPresenza('${v.nome}', 'rit')">RIT</button></div></div>`;
+            const cur = statoPresenze[v.nome] || {stato:''};
+            cont.innerHTML += `
+                <div class="presenza-row">
+                    <div style="font-size:13px; font-weight:bold;">${v.nome}</div>
+                    <div class="presenza-btns">
+                        <button class="p-btn ${cur.stato === 'presente' ? 'active-presente' : ''}" onclick="setPresenza('${v.nome}', 'presente')">Presente</button>
+                        <button class="p-btn ${cur.stato === 'assente' ? 'active-assente' : ''}" onclick="setPresenza('${v.nome}', 'assente')">Assente</button>
+                        <button class="p-btn ${cur.stato === 'ritardo' ? 'active-ritardo' : ''}" onclick="setPresenza('${v.nome}', 'ritardo')">Ritardo</button>
+                    </div>
+                    ${cur.ora ? `<div style="font-size:10px; color:var(--warning); margin-top:5px;">Arrivo previsto: ${cur.ora}</div>` : ''}
+                </div>`;
         });
     }
 
     function setPresenza(nome, stato) {
-        let ora = (stato === 'rit') ? prompt("Ora:") : "";
+        let ora = (stato === 'ritardo') ? prompt("Ora prevista:") : "";
         statoPresenze[nome] = {stato, ora};
         localStorage.setItem('statoPresenze', JSON.stringify(statoPresenze));
         renderPresenze();
     }
+    function resetPresenze() { if(confirm("Reset?")) { statoPresenze = {}; localStorage.removeItem('statoPresenze'); renderPresenze(); } }
 
     function renderSquadre() {
-        const select = document.getElementById('select-volontario-sq');
-        select.innerHTML = "<option value=''>Scegli...</option>";
-        elencoAnagrafica.forEach(v => select.innerHTML += `<option value="${v.nome}">${v.nome}</option>`);
-        const cont = document.getElementById('lista-squadra-attiva');
-        cont.innerHTML = "";
+        const cont = document.getElementById('lista-squadra-attiva'); cont.innerHTML = "";
         elencoSquadra.forEach((v, i) => { cont.innerHTML += `<div class="list-item"><span>${v}</span><span onclick="rimuoviDaSquadra(${i})" style="color:var(--danger)">✕</span></div>`; });
     }
-
     function aggiungiASquadra() {
         const n = document.getElementById('select-volontario-sq').value;
         if(n && !elencoSquadra.includes(n)) { elencoSquadra.push(n); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra)); renderSquadre(); }
     }
-
-    function rimuoviDaSquadra(i) { elencoSquadra.splice(i,1); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra)); renderSquadre(); }
-    function rimuoviAnagrafica(i) { elencoAnagrafica.splice(i,1); localStorage.setItem('anagraficaVolontari', JSON.stringify(elencoAnagrafica)); updateAll(); }
-    function resetPresenze() { statoPresenze = {}; localStorage.removeItem('statoPresenze'); renderPresenze(); }
+    function rimuoviDaSquadra(i) { elencoSquadra.splice(i, 1); localStorage.setItem('squadraSAR', JSON.stringify(elencoSquadra)); renderSquadre(); }
 
     function generaPDFPresenzeFormale() {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.setFillColor(0, 86, 179); doc.rect(0,0,210,30,'F');
-        doc.setTextColor(255); doc.setFontSize(18); doc.text("UNITA' MERLINI S.A.R.", 105, 15, {align:'center'});
-        doc.setFontSize(10); doc.text("VERBALE PRESENZE OPERATIVE", 105, 23, {align:'center'});
-        
+        doc.setFillColor(0, 86, 179); doc.rect(0, 0, 210, 35, 'F');
+        doc.setTextColor(255); doc.setFontSize(22); doc.text("UNITA' MERLINI S.A.R.", 105, 18, {align:'center'});
         const rows = elencoAnagrafica.map(v => {
-            const s = statoPresenze[v.nome] || {stato:'-'};
+            const s = statoPresenze[v.nome] || {stato:'assente'};
             return [v.nome, v.ruolo, s.stato.toUpperCase() + (s.ora ? " ("+s.ora+")" : "")];
         });
-        doc.autoTable({ startY: 40, head: [['NOMINATIVO', 'QUALIFICA', 'STATO']], body: rows, theme: 'grid' });
-        
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.text("Firma del Coordinatore:", 15, finalY);
+        doc.autoTable({ startY: 45, head: [['NOMINATIVO', 'QUALIFICA', 'STATO']], body: rows, theme: 'grid' });
         const sigImg = canvas.toDataURL('image/png');
-        doc.addImage(sigImg, 'PNG', 15, finalY + 5, 50, 20);
-        doc.save("Verbale_Merlini.pdf");
+        doc.addImage(sigImg, 'PNG', 15, doc.lastAutoTable.finalY + 10, 50, 20);
+        doc.save("Verbale_Presenze.pdf");
     }
 
     function generaPDFSquadra() {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text("SQUADRA ATTIVA S.A.R.", 10, 20);
+        doc.text("ELENCO SQUADRA ATTIVA", 10, 20);
         elencoSquadra.forEach((v, i) => doc.text(`${i+1}. ${v}`, 15, 35 + (i*10)));
         doc.save("Squadra.pdf");
     }
@@ -283,12 +267,12 @@
     function getAutoLocation() { navigator.geolocation.getCurrentPosition(p => { document.getElementById('f_luogo').value = `${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`; }); }
     function previewPhoto(input) { if (input.files[0]) { const r = new FileReader(); r.onload = e => { const p = document.getElementById('photoPreview'); p.src = e.target.result; p.style.display = 'block'; }; r.readAsDataURL(input.files[0]); } }
     async function transmitAllertaCompleta() {
-        const msg = `🚨 ALLERTA MERLINI\nEVENTO: ${document.getElementById('f_evento').value}\nLUOGO: ${document.getElementById('f_luogo').value}\nMEZZI: ${document.getElementById('f_mezzi').value}\nNOTE: ${document.getElementById('f_note').value}`;
+        const msg = `🚨 *ALLERTA MERLINI*\nEVENTO: ${document.getElementById('f_evento').value}\nLUOGO: ${document.getElementById('f_luogo').value}`;
+        const fd = new FormData(); fd.append('chat_id', ID_GRUPPO); fd.append('parse_mode', 'Markdown');
         const foto = document.getElementById('f_foto').files[0];
-        const url = foto ? `https://api.telegram.org/bot${TOKEN}/sendPhoto` : `https://api.telegram.org/bot${TOKEN}/sendMessage`;
-        const fd = new FormData(); fd.append('chat_id', ID_GRUPPO);
-        if(foto) { fd.append('photo', foto); fd.append('caption', msg); } else { fd.append('text', msg); }
-        await fetch(url, { method: 'POST', body: fd }); alert("Allerta inviata!");
+        if(foto) { fd.append('photo', foto); fd.append('caption', msg); await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, { method: 'POST', body: fd }); }
+        else { fd.append('text', msg); await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, { method: 'POST', body: fd }); }
+        alert("Inviata!");
     }
 
     function initMap() { map = L.map('map').setView([45.856, 9.397], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); map.on('click', e => document.getElementById('gpsCoords').value = `${e.latlng.lat.toFixed(6)},${e.latlng.lng.toFixed(6)}`); }
