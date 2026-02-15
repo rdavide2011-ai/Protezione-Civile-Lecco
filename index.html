@@ -6,72 +6,65 @@
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png">
     <title>S.A.R. Unità Merlini</title>
     <style>
-        body { font-family: 'Helvetica', sans-serif; background: #003366; color: white; text-align: center; padding: 20px; }
+        body { font-family: sans-serif; background: #003366; color: white; text-align: center; padding: 20px; }
         .box { background: white; padding: 30px; border-radius: 20px; max-width: 400px; margin: auto; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .header { background: #ffcc00; color: #003366; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; }
-        h2 { margin: 0; font-size: 22px; }
+        .header { background: #ffcc00; color: #003366; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; font-size: 18px; }
         textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 10px; resize: none; }
-        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; transition: 0.3s; }
+        button { width: 100%; padding: 15px; color: white; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; margin-bottom: 12px; }
         .btn-alert { background: #cc0000; }
-        .btn-alert:hover { background: #ff0000; }
-        .btn-map { background: #28a745; font-size: 15px; }
-        .btn-map:hover { background: #34ce57; }
-        #stato { margin-top: 10px; font-weight: bold; font-size: 14px; }
+        .btn-map { background: #28a745; }
+        #stato { margin-top: 10px; font-weight: bold; color: #666; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <div class="header">PROTEZIONE CIVILE</div>
-    <h2>Unità "A. Merlini"</h2>
-    <p style="font-size: 13px; color: #666;">Pannello di Attivazione Rapida</p>
+    <div class="header">PROTEZIONE CIVILE - LECCO</div>
+    <h2 style="margin:0;">Unità "A. Merlini"</h2>
+    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Invio Emergenze</p>
     
-    <textarea id="testo" placeholder="Inserisci dettagli emergenza (luogo, orario, tipo intervento)..."></textarea>
+    <textarea id="testo" placeholder="Scrivi qui il messaggio per i volontari..."></textarea>
     
-    <button class="btn-alert" onclick="inviaAllerta()">🚨 INVIA ATTIVAZIONE</button>
+    <button class="btn-alert" onclick="preparaMessaggio('allerta')">🚨 INVIA ATTIVAZIONE</button>
+    <button class="btn-map" onclick="preparaMessaggio('mappa')">📍 INVIA LINK MAPPE GPX</button>
     
-    <button class="btn-map" onclick="inviaMappa()">📍 INVIA LINK MAPPE GPX</button>
-    
-    <div id="stato">Sistema Pronto</div>
+    <div id="stato">Pronto all'invio</div>
 </div>
 
 <script>
-    // DATI CONFIGURATI
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
-    function inviaAllerta() {
-        const pin = prompt("SICUREZZA: Inserisci il PIN per confermare l'allerta:");
+    function preparaMessaggio(tipo) {
+        const pin = prompt("Inserisci il PIN di sicurezza:");
         if (pin !== PIN_CORRETTO) {
             alert("PIN Errato!");
             return;
         }
 
-        const msg = document.getElementById('testo').value;
-        if (!msg.trim()) {
-            alert("Scrivi un messaggio prima di inviare!");
-            return;
+        let messaggioFinale = "";
+        
+        if (tipo === 'allerta') {
+            const corpo = document.getElementById('testo').value;
+            if (!corpo.trim()) {
+                alert("Scrivi un messaggio prima di inviare!");
+                return;
+            }
+            messaggioFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
+        } else {
+            // Link di prova che abbiamo deciso
+            const linkMappa = "https://bit.ly/mappe-test-merlini";
+            messaggioFinale = "📍 *MAPPE E TRACCE GPX*\nAccedi qui per i file:\n" + linkMappa;
         }
 
-        spedisci(`⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n${msg}\n\n_Rispondere al presente messaggio per conferma._`);
+        inviaATelegram(messaggioFinale);
     }
 
-    function inviaMappa() {
-        const pin = prompt("Inserisci PIN per invio Mappe:");
-        if (pin !== PIN_CORRETTO) return;
-        
-        // Link a una cartella Google Drive o Dropbox dove caricate i GPX
-        const linkMappe = "INSERISCI_QUI_IL_LINK_CARTELLA_MAPPE"; 
-        
-        spedisci(`📍 *MAPPE E TRACCE GPX*\nAccedi qui per visualizzare i file della missione:\n${linkMappe}`);
-    }
-
-    function spedisci(testo) {
+    function inviaATelegram(testo) {
         const stato = document.getElementById('stato');
         stato.innerText = "⏳ Invio in corso...";
-        stato.style.color = "blue";
-
+        
         const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(testo)}&parse_mode=Markdown`;
 
         fetch(url)
@@ -81,7 +74,7 @@
                 stato.style.color = "green";
                 document.getElementById('testo').value = "";
             } else {
-                stato.innerText = "❌ ERRORE INVIO";
+                stato.innerText = "❌ ERRORE (Controlla il Bot)";
                 stato.style.color = "red";
             }
         })
