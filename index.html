@@ -25,7 +25,7 @@
     <h2 style="margin:0;">Unità "A. Merlini"</h2>
     <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pannello Operativo Emergenze</p>
     
-    <textarea id="testo" placeholder="Scrivi i dettagli dell'allerta (Luogo, Mezzi, Orario)..."></textarea>
+    <textarea id="testo" placeholder="Scrivi qui i dettagli dell'allerta per i volontari..."></textarea>
     
     <button class="btn-alert" onclick="preparaMessaggio('allerta')">🚨 INVIA ATTIVAZIONE</button>
     <button class="btn-map" onclick="preparaMessaggio('mappa')">📍 INVIA LINK MAPPE GPX</button>
@@ -34,14 +34,17 @@
 </div>
 
 <script>
-    // Configurazione dati Telegram (Verificati e Funzionanti)
+    // DATI TELEGRAM CONFIGURATI
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
     const PIN_CORRETTO = "1234";
 
     function preparaMessaggio(tipo) {
-        // 1. Chiede il PIN per sicurezza
+        // PRIMA FINESTRA: Chiede il PIN
         const pin = prompt("SICUREZZA: Inserisci il PIN:");
+        
+        if (pin === null) return; // Se preme annulla
+
         if (pin !== PIN_CORRETTO) {
             alert("PIN Errato!");
             return;
@@ -50,7 +53,7 @@
         let testoFinale = "";
         
         if (tipo === 'allerta') {
-            // Caso Messaggio Testuale
+            // Messaggio Testuale
             const corpo = document.getElementById('testo').value;
             if (!corpo.trim()) {
                 alert("Scrivi un messaggio prima di inviare!");
@@ -58,17 +61,18 @@
             }
             testoFinale = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + corpo;
         } else {
-            // Caso Mappa: Chiede il link all'utente
-            const linkInserito = prompt("Incolla qui il link (Drive, Maps, GPX):", "https://");
+            // SECONDA FINESTRA: Chiede il Link (Solo se il PIN era giusto)
+            const linkInserito = prompt("PIN Corretto. Incolla qui il link della mappa (Drive/Maps):", "https://");
             
             if (!linkInserito || linkInserito === "https://" || linkInserito === "") {
-                alert("Invio annullato: link non inserito.");
+                alert("Invio annullato: nessun link inserito.");
                 return;
             }
             
             testoFinale = "📍 *MAPPE E TRACCE GPX*\nAccedi ai file della missione qui:\n" + linkInserito;
         }
 
+        // Invia il risultato a Telegram
         inviaATelegram(testoFinale);
     }
 
@@ -84,9 +88,9 @@
             if(response.ok) {
                 displayStato.innerText = "✅ INVIATO CON SUCCESSO";
                 displayStato.style.color = "green";
-                document.getElementById('testo').value = ""; // Pulisce l'area di testo
+                document.getElementById('testo').value = ""; // Pulisce il box
             } else {
-                displayStato.innerText = "❌ ERRORE (Bot non autorizzato)";
+                displayStato.innerText = "❌ ERRORE (Controlla il Bot)";
                 displayStato.style.color = "red";
             }
         })
