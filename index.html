@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V6 COMPLETE</title>
+    <title>S.A.R. UNITÀ MERLINI - V5 FINAL</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -30,40 +30,40 @@
         #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .login-box { text-align: center; background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 2px solid var(--pc-yellow); width: 90%; max-width: 350px; }
 
-        /* NAV & HEADER */
+        /* HEADER & NAVIGATION */
         .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--pc-yellow); }
         .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
         .nav-btn { padding: 10px 14px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
         .nav-btn.active { background: var(--pc-yellow); color: black; }
 
-        /* CONTAINER */
+        /* CONTENT AREAS */
         .main-content { flex: 1; position: relative; overflow-y: auto; }
         .module-page { display: none; padding: 15px; padding-bottom: 80px; }
         .module-page.active { display: block; }
-        .full-map { display: none; height: 100%; width: 100%; position: absolute; top: 0; left: 0; }
+        .full-map { display: none; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 10; }
         .full-map.active { display: block; }
 
         .card { background: var(--panel-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
         label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; margin: 5px 0 12px 0; }
 
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; width: 100%; display: block; }
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 5px; }
         .btn-blue { background: var(--pc-blue); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-success { background: var(--success); color: white; }
 
-        /* LISTE SPECIFICHE */
+        /* SPECIFIC LISTS */
         .presenza-row { background: var(--panel-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 8px; }
         .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
-        .p-btn { padding: 8px; border: none; border-radius: 5px; font-size: 9px; font-weight: bold; cursor: pointer; background: #21262d; color: #8b949e; text-transform: uppercase; }
+        .p-btn { padding: 10px; border: none; border-radius: 6px; font-size: 9px; font-weight: bold; cursor: pointer; background: #21262d; color: #8b949e; text-transform: uppercase; }
         .active-presente { background: var(--success) !important; color: white !important; }
         .active-assente { background: var(--danger) !important; color: white !important; }
         .active-ritardo { background: var(--warning) !important; color: white !important; }
 
-        .log-entry { border-left: 3px solid var(--pc-blue); background: #0d1117; padding: 8px 12px; margin-bottom: 6px; border-radius: 0 8px 8px 0; font-size: 13px; }
-        #signature-pad { border: 1px dashed var(--pc-yellow); background: white; width: 100%; height: 100px; border-radius: 8px; }
+        .settore-card { background: #0d1117; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; }
+        .log-entry { border-left: 3px solid var(--pc-blue); background: #0d1117; padding: 10px; margin-bottom: 6px; border-radius: 0 8px 8px 0; font-size: 13px; }
         
-        .settore-card { background: #0d1117; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; }
+        #signature-pad { border: 1px dashed var(--pc-yellow); background: white; width: 100%; height: 120px; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body onpointermove="resetTimer()">
@@ -72,13 +72,16 @@
     <div class="login-box">
         <h2 style="color:var(--pc-yellow)">S.A.R. UNITÀ MERLINI</h2>
         <input type="password" id="loginInput" inputmode="numeric" style="font-size:30px; text-align:center; letter-spacing:10px;" placeholder="PIN">
-        <button onclick="checkLogin()" class="btn btn-blue">ACCEDI</button>
+        <button onclick="checkLogin()" class="btn btn-blue" style="margin-top:20px;">ACCEDI</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <div style="display:flex; align-items:center;"><div style="background:var(--pc-yellow); color:black; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">PC</div><span style="font-size:12px; font-weight:bold;">OPERATIVA V6</span></div>
-    <button onclick="location.reload()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:bold;">LOGOUT</button>
+    <div style="display:flex; align-items:center;">
+        <div style="background:var(--pc-yellow); color:black; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">PC</div>
+        <span style="font-size:12px; font-weight:bold;">OPERATIVA V5</span>
+    </div>
+    <button onclick="location.reload()" style="background:#30363d; border:none; color:var(--danger); padding:5px 10px; border-radius:5px; font-size:10px;">LOGOUT</button>
 </div>
 
 <div class="module-nav">
@@ -94,27 +97,32 @@
     
     <div id="page-allerta" class="module-page active">
         <div class="card">
-            <label>Tipo Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
-            <label>LKP (Ultima Posizione)</label><input type="text" id="f_luogo" placeholder="Coordinate o Indirizzo">
-            <label>Urgenza</label><select id="f_tipo"><option value="🔴 IMMEDIATA">ROSSO (Immediata)</option><option value="🟡 PROGRAMMATA">GIALLO (Programmata)</option></select>
-            <button class="btn btn-danger" onclick="sendTelegram()">🚀 PUBBLICA SU TELEGRAM</button>
+            <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Scomparso">
+            <label>Coordinate / Luogo</label><input type="text" id="f_luogo" placeholder="Inserisci LKP">
+            <label>Urgenza</label>
+            <select id="f_tipo">
+                <option value="🔴 IMMEDIATA">ROSSO (Immediata)</option>
+                <option value="🟡 PROGRAMMATA">GIALLO (Programmata)</option>
+            </select>
+            <button class="btn btn-danger" onclick="sendTelegram()">🚀 INVIA ALLERTA TELEGRAM</button>
         </div>
     </div>
 
     <div id="page-mappa" class="full-map">
-        <div id="map" style="width:100%; height:100%;"></div>
-        <div style="position:absolute; bottom:20px; right:10px; z-index:1000; display:flex; flex-direction:column; gap:8px;">
-            <button onclick="addMarker('BASE')" style="background:var(--pc-blue); color:white; border:none; padding:12px; border-radius:50%; font-weight:bold; width:50px; height:50px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">B</button>
-            <button onclick="addMarker('POI')" style="background:var(--danger); color:white; border:none; padding:12px; border-radius:50%; font-weight:bold; width:50px; height:50px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">P</button>
+        <div id="map"></div>
+        <div style="position:absolute; bottom:20px; left:10px; z-index:1000; display:flex; flex-direction:column; gap:8px;">
+            <button onclick="addMarker('BASE')" style="background:var(--pc-blue); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">📍 BASE</button>
+            <button onclick="addMarker('POI')" style="background:var(--danger); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">🔎 POI</button>
         </div>
     </div>
 
     <div id="page-settori" class="module-page">
+        <h3 style="color:var(--pc-yellow); font-size:14px;">SETTORI DI RICERCA</h3>
         <div id="lista-settori"></div>
         <div class="card">
-            <label>Nuovo Settore</label><input type="text" id="sec-nome" placeholder="Es: Settore Alfa">
-            <label>Squadra</label><input type="text" id="sec-squadra" placeholder="Es: Squadra 1">
-            <button class="btn btn-blue" onclick="addSettore()">ASSEGNA SETTORE</button>
+            <label>Nome Settore</label><input type="text" id="sec-nome" placeholder="Es: Area Bosco Nord">
+            <label>Squadra Assegnata</label><input type="text" id="sec-squadra" placeholder="Es: Squadra 1">
+            <button class="btn btn-blue" onclick="addSettore()">AGGIUNGI SETTORE</button>
         </div>
     </div>
 
@@ -123,21 +131,23 @@
         <div class="card">
             <label>Firma Coordinatore</label>
             <canvas id="signature-pad"></canvas>
-            <button onclick="clearSig()" style="background:none; border:none; color:#8b949e; font-size:10px; margin-top:5px;">Cancella Firma</button>
+            <button onclick="clearSig()" style="background:none; border:none; color:#8b949e; font-size:10px; margin-top:5px; text-decoration:underline;">Cancella Firma</button>
         </div>
-        <button class="btn btn-success" onclick="exportPDF('verbale')">📄 SCARICA VERBALE PDF</button>
+        <button class="btn btn-success" onclick="exportPDF('presenze')">📄 GENERA PDF VERBALE</button>
     </div>
 
     <div id="page-diario" class="module-page">
-        <div id="log-container" style="margin-bottom:15px;"></div>
+        <div id="log-container" style="max-height:400px; overflow-y:auto; margin-bottom:15px;"></div>
         <div class="card">
-            <textarea id="log-input" rows="2" placeholder="Scrivi nota operativa..."></textarea>
-            <button class="btn btn-blue" onclick="addLog()">REGISTRA EVENTO</button>
+            <label>Nota Operativa</label>
+            <textarea id="log-input" rows="3" placeholder="Es: Squadra 1 inizia perlustrazione..."></textarea>
+            <button class="btn btn-blue" onclick="addLog()">REGISTRA NEL DIARIO</button>
         </div>
-        <button class="btn btn-success" onclick="exportPDF('diario')">📄 SCARICA DIARIO PDF</button>
+        <button class="btn btn-success" onclick="exportPDF('diario')">📄 GENERA PDF DIARIO</button>
     </div>
 
     <div id="page-volontari" class="module-page">
+        <h3 style="color:var(--pc-yellow); font-size:14px;">ANAGRAFICA UNITÀ</h3>
         <div id="lista-anagrafica"></div>
         <div class="card">
             <label>Nome e Cognome</label><input type="text" id="ana-nome">
@@ -159,7 +169,7 @@
     let settori = JSON.parse(localStorage.getItem('merlini_set')) || [];
     let map, idleTimer, drawing = false;
 
-    // FIRMA
+    // GESTIONE FIRMA
     const canvas = document.getElementById('signature-pad');
     const ctx = canvas.getContext('2d');
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const r=canvas.getBoundingClientRect(); ctx.moveTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); });
@@ -167,71 +177,98 @@
     canvas.addEventListener('touchend', () => drawing=false);
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-    function checkLogin() { if(document.getElementById('loginInput').value === PIN_VALIDO) { document.getElementById('loginOverlay').style.display='none'; initMap(); updateAll(); } else { alert("PIN ERRATO"); } }
-    
-    function initMap() { 
-        if(!map) { 
-            map = L.map('map').setView([45.856, 9.397], 13); 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
-        } 
+    // LOGIN
+    function checkLogin() {
+        if(document.getElementById('loginInput').value === PIN_VALIDO) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            initMap();
+            updateAll();
+        } else { alert("PIN ERRATO"); }
     }
 
+    // MAPPA
+    function initMap() {
+        if(!map) {
+            map = L.map('map').setView([45.856, 9.397], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        }
+    }
+
+    // NAVIGAZIONE
     function showPage(id, btn) {
         document.querySelectorAll('.module-page, .full-map').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('page-'+id).classList.add('active');
+        document.getElementById('page-' + id).classList.add('active');
         btn.classList.add('active');
-        if(id === 'mappa') { setTimeout(() => map.invalidateSize(), 200); }
-        if(id === 'presenze') { canvas.width = canvas.offsetWidth; }
+        if(id === 'mappa') setTimeout(() => map.invalidateSize(), 200);
+        if(id === 'presenze') canvas.width = canvas.offsetWidth;
     }
 
-    // LOGICA CORE
+    // LOGICA DATI
     function updateAll() {
-        // Anagrafica
-        const anaCont = document.getElementById('lista-anagrafica');
-        anaCont.innerHTML = anagrafica.map((v,i) => `<div class="settore-card"><span>${v.nome}</span><span onclick="delAna(${i})" style="color:var(--danger)">✕</span></div>`).join('');
-        
-        // Presenze
-        const preCont = document.getElementById('lista-presenze-dinamica');
-        preCont.innerHTML = anagrafica.map(v => {
+        // Render Anagrafica
+        document.getElementById('lista-anagrafica').innerHTML = anagrafica.map((v,i) => `
+            <div class="settore-card"><span><b>${v.nome}</b> (${v.ruolo})</span><span onclick="delAna(${i})" style="color:var(--danger)">✕</span></div>
+        `).join('');
+
+        // Render Presenze
+        document.getElementById('lista-presenze-dinamica').innerHTML = anagrafica.map(v => {
             const s = presenze[v.nome] || {stato:''};
-            return `<div class="presenza-row"><b>${v.nome}</b><div class="presenza-btns">
-                <button class="p-btn ${s.stato==='presente'?'active-presente':''}" onclick="setPre('${v.nome}','presente')">Presente</button>
-                <button class="p-btn ${s.stato==='assente'?'active-assente':''}" onclick="setPre('${v.nome}','assente')">Assente</button>
-                <button class="p-btn ${s.stato==='ritardo'?'active-ritardo':''}" onclick="setPre('${v.nome}','ritardo')">Ritardo</button>
-            </div></div>`;
+            return `
+                <div class="presenza-row">
+                    <b>${v.nome}</b>
+                    <div class="presenza-btns">
+                        <button class="p-btn ${s.stato==='presente'?'active-presente':''}" onclick="setPre('${v.nome}','presente')">Presente</button>
+                        <button class="p-btn ${s.stato==='assente'?'active-assente':''}" onclick="setPre('${v.nome}','assente')">Assente</button>
+                        <button class="p-btn ${s.stato==='ritardo'?'active-ritardo':''}" onclick="setPre('${v.nome}','ritardo')">Ritardo</button>
+                    </div>
+                </div>`;
         }).join('');
 
-        // Settori
-        const setCont = document.getElementById('lista-settori');
-        setCont.innerHTML = settori.map((s,i) => `<div class="settore-card"><div><b>${s.nome}</b><br><small>${s.sq}</small></div><span onclick="delSet(${i})" style="color:var(--danger)">✕</span></div>`).join('');
+        // Render Settori
+        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `
+            <div class="settore-card"><div><b>${s.nome}</b><br><small>${s.sq}</small></div><span onclick="delSet(${i})" style="color:var(--danger)">✕</span></div>
+        `).join('');
 
-        // Diario
-        document.getElementById('log-container').innerHTML = log.map(l => `<div class="log-entry"><small style="color:var(--pc-yellow)">${l.ora}</small><br>${l.txt}</div>`).reverse().join('');
+        // Render Diario
+        document.getElementById('log-container').innerHTML = log.map(l => `
+            <div class="log-entry"><small style="color:var(--pc-yellow)">${l.ora}</small><br>${l.txt}</div>
+        `).reverse().join('');
     }
 
-    function addAnagrafica() { const n=document.getElementById('ana-nome').value.toUpperCase(); const r=document.getElementById('ana-ruolo').value; if(n){ anagrafica.push({nome:n, ruolo:r}); localStorage.setItem('merlini_ana', JSON.stringify(anagrafica)); updateAll(); } }
+    function addAnagrafica() {
+        const n = document.getElementById('ana-nome').value.toUpperCase();
+        const r = document.getElementById('ana-ruolo').value.toUpperCase();
+        if(n) { anagrafica.push({nome:n, ruolo:r}); localStorage.setItem('merlini_ana', JSON.stringify(anagrafica)); updateAll(); }
+    }
     function delAna(i) { anagrafica.splice(i,1); localStorage.setItem('merlini_ana', JSON.stringify(anagrafica)); updateAll(); }
-    
-    function setPre(n,s) { let o=(s==='ritardo')?prompt("Ora prevista:"): ""; presenze[n]={stato:s, ora:o}; localStorage.setItem('merlini_pre', JSON.stringify(presenze)); updateAll(); }
 
-    function addLog(customTxt = null) {
-        const txt = customTxt || document.getElementById('log-input').value;
+    function setPre(n,s) {
+        let o = (s==='ritardo') ? prompt("Ora prevista:") : "";
+        presenze[n] = {stato:s, ora:o};
+        localStorage.setItem('merlini_pre', JSON.stringify(presenze));
+        updateAll();
+    }
+
+    function addLog(txtManual = null) {
+        const txt = txtManual || document.getElementById('log-input').value;
         if(!txt) return;
         const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        log.push({ora, txt}); localStorage.setItem('merlini_log', JSON.stringify(log));
-        if(!customTxt) document.getElementById('log-input').value = "";
+        log.push({ora, txt});
+        localStorage.setItem('merlini_log', JSON.stringify(log));
+        if(!txtManual) document.getElementById('log-input').value = "";
         updateAll();
     }
 
     function addSettore() {
         const n = document.getElementById('sec-nome').value;
         const s = document.getElementById('sec-squadra').value;
-        if(n) { 
-            settori.push({nome:n, sq:s}); localStorage.setItem('merlini_set', JSON.stringify(settori)); 
-            addLog(`Assegnato Settore ${n} a ${s}`);
+        if(n) {
+            settori.push({nome:n, sq:s});
+            localStorage.setItem('merlini_set', JSON.stringify(settori));
+            addLog(`Assegnato Settore: ${n} alla squadra ${s}`);
             document.getElementById('sec-nome').value = "";
-            updateAll(); 
+            updateAll();
         }
     }
     function delSet(i) { settori.splice(i,1); localStorage.setItem('merlini_set', JSON.stringify(settori)); updateAll(); }
@@ -239,29 +276,32 @@
     function addMarker(tipo) {
         const c = map.getCenter();
         L.marker(c).addTo(map).bindPopup(tipo).openPopup();
-        addLog(`Segnato punto ${tipo} sulla mappa: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`);
+        addLog(`Mappa: Segnato punto ${tipo} a coord: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`);
     }
 
     async function sendTelegram() {
-        const msg = `🚨 *ALLERTA MERLINI*\n*EVENTO:* ${document.getElementById('f_evento').value}\n*LKP:* ${document.getElementById('f_luogo').value}\n*STATO:* ${document.getElementById('f_tipo').value}`;
+        const msg = `🚨 *ALLERTA MERLINI*\n*EVENTO:* ${document.getElementById('f_evento').value}\n*LUOGO:* ${document.getElementById('f_luogo').value}\n*URGENZA:* ${document.getElementById('f_tipo').value}`;
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
         });
         alert("Inviato!");
-        addLog("Allerta Telegram pubblicata.");
+        addLog("Inviata allerta Telegram al gruppo.");
     }
 
     function exportPDF(tipo) {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.setFontSize(20); doc.text(tipo === 'verbale' ? "VERBALE PRESENZE S.A.R." : "DIARIO OPERATIVO S.A.R.", 10, 20);
-        if(tipo === 'verbale') {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text(tipo === 'presenze' ? "VERBALE APPELLO S.A.R." : "DIARIO OPERATIVO", 10, 20);
+        
+        if(tipo === 'presenze') {
             const rows = anagrafica.map(v => [v.nome, (presenze[v.nome]?.stato || 'assente').toUpperCase()]);
             doc.autoTable({ startY: 30, head: [['NOMINATIVO', 'STATO']], body: rows });
             doc.addImage(canvas.toDataURL('image/png'), 'PNG', 15, doc.lastAutoTable.finalY + 10, 50, 20);
         } else {
             const rows = log.map(l => [l.ora, l.txt]);
-            doc.autoTable({ startY: 30, head: [['ORA', 'EVENTO']], body: rows });
+            doc.autoTable({ startY: 30, head: [['ORA', 'AZIONE/EVENTO']], body: rows });
         }
         doc.save(tipo + ".pdf");
     }
