@@ -17,7 +17,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
             margin: 0;
@@ -28,7 +28,7 @@
             overflow: hidden;
         }
 
-        /* Top Bar Full Screen */
+        /* Top Bar */
         .top-bar {
             background: var(--panel-bg);
             padding: 15px 20px;
@@ -38,12 +38,16 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
 
-        .top-bar img {
+        /* Logo Incorporato (SVG) */
+        .logo-container {
+            width: 50px;
             height: 50px;
-            width: auto;
             margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
+
         .top-bar-text h1 { 
             margin: 0; 
             font-size: 14px; 
@@ -60,7 +64,6 @@
             color: #8b949e;
         }
 
-        /* Area Principale */
         .main-ui {
             flex: 1;
             padding: 20px;
@@ -94,7 +97,6 @@
             resize: none;
         }
 
-        /* Bottoni */
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -165,7 +167,13 @@
 <body>
 
 <div class="top-bar">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png" alt="Logo Protezione Civile">
+    <div class="logo-container">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="48" fill="#ffcc00"/>
+            <path d="M50 10 L90 80 L10 80 Z" fill="#003366"/>
+            <text x="50" y="70" font-family="Arial" font-size="10" fill="white" text-anchor="middle" font-weight="bold">S.A.R.</text>
+        </svg>
+    </div>
     <div class="top-bar-text">
         <h1>Protezione Civile Lecco</h1>
         <p>CONSOLE OPERATIVA UNITÀ "A. MERLINI"</p>
@@ -250,7 +258,7 @@
             msg = "⚠️ *ALLERTA UNITÀ MERLINI* ⚠️\n\n" + val;
         } else {
             const p = val.replace(/\s/g, '');
-            msg = "🛰️ *POSIZIONE GPS RILEVATA*\n\n`" + val + "`\n\n📍 Navigatore:\nhttps://www.google.com/maps?q=$" + p;
+            msg = "🛰️ *POSIZIONE GPS RILEVATA*\n\n`" + val + "`\n\n📍 Navigatore:\nhttp://www.google.com/maps/place/" + p;
         }
         closeGate();
         fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${ID_GRUPPO}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`)
