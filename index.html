@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V16.6 OPERATIVA</title>
+    <title>S.A.R. UNITÀ MERLINI - V17.0 FULL OPERATIVE</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     
@@ -16,50 +19,78 @@
         :root {
             --bg-dark: #0a0e14; --panel-bg: #161b22; --pc-yellow: #ffcc00;
             --pc-blue: #0056b3; --danger: #eb3b5a; --text-main: #e6edf3;
-            --success: #2ea043; --border: #30363d;
+            --success: #2ea043; --border: #30363d; --accent: #8b949e;
         }
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        .top-bar { background: var(--panel-bg); padding: 10px; border-bottom: 2px solid var(--pc-yellow); display: flex; align-items: center; justify-content: space-between; }
+
+        /* TOP BAR */
+        .top-bar { background: var(--panel-bg); padding: 12px; border-bottom: 2px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .live-status { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: bold; color: var(--success); }
+
+        /* NAVIGATION */
         .module-nav { display: flex; background: #000; padding: 6px; gap: 5px; overflow-x: auto; border-bottom: 1px solid var(--border); }
-        .nav-btn { padding: 10px 15px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; text-transform: uppercase; }
-        .nav-btn.active { background: var(--pc-yellow); color: black; }
+        .nav-btn { padding: 12px 18px; background: var(--panel-bg); color: var(--accent); border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; text-transform: uppercase; transition: 0.2s; }
+        .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); }
 
-        .main-content { flex: 1; overflow-y: auto; padding: 15px; }
-        .module-page { display: none; }
+        /* CONTENT AREA */
+        .main-content { flex: 1; overflow-y: auto; padding: 15px; position: relative; }
+        .module-page { display: none; animation: fadeIn 0.3s ease; }
         .module-page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 600px; margin-inline: auto; }
+        /* UI CARDS */
+        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.4); max-width: 600px; margin-inline: auto; }
+        h3 { margin: 0 0 15px 0; color: var(--pc-yellow); font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        
         label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 12px; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 14px; }
-        
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; text-transform: uppercase; font-size: 11px; }
-        
-        /* MAPPA E RICERCA */
-        .search-box { display: flex; gap: 5px; margin-top: 10px; }
-        #map { height: 300px; width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
-        
-        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 15px; border-left: 5px solid var(--pc-yellow); }
-        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 55px; height: 55px; }
-        
+        input:focus { border-color: var(--pc-yellow); }
+
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 12px; text-transform: uppercase; font-size: 12px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-blue { background: var(--pc-blue); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+
+        /* SPECIAL LOGIC: PROGRAMMATA */
+        #extra-programmata { display: none; background: #1c2128; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px dashed var(--pc-yellow); }
+
+        /* MAPPA */
+        .search-container { display: flex; gap: 5px; margin-bottom: 10px; }
+        #map { height: 300px; width: 100%; border-radius: 12px; border: 1px solid var(--border); }
+
+        /* SCALETTA MISSIONI */
+        .scaletta-item { background: #0d1117; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid var(--pc-blue); font-size: 13px; }
+
+        /* QR & VOLONTARI */
+        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border-left: 5px solid var(--pc-yellow); }
+        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; cursor: pointer; }
+
+        /* OVERLAYS */
         #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; align-items: center; justify-content: center; }
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index: 100000; flex-direction:column; align-items:center; justify-content:center; }
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.96); z-index:100000; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+        #qrFull { background:white; padding:15px; border-radius:15px; margin: 20px 0; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow);">
-        <h2 style="color:var(--pc-yellow);">S.A.R. UNITÀ MERLINI</h2>
-        <input type="password" id="loginInput" inputmode="numeric" placeholder="PIN" style="text-align:center; font-size:30px; letter-spacing:8px;">
-        <button onclick="checkLogin()" class="btn" style="background:var(--pc-blue); color:white;">ACCEDI</button>
+    <div class="card" style="text-align:center; width: 90%;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Protezione_Civile.svg/1200px-Protezione_Civile.svg.png" style="height:80px; margin-bottom:20px;">
+        <h2 style="color:var(--pc-yellow); margin:0;">S.A.R. MERLINI CLOUD</h2>
+        <input type="password" id="loginPin" pattern="[0-9]*" inputmode="numeric" placeholder="INSERIRE PIN" style="text-align:center; font-size:30px; letter-spacing:10px; margin-top:20px;">
+        <button onclick="checkLogin()" class="btn btn-blue">ACCEDI AL SISTEMA</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <span><b>UNITÀ MERLINI V16.6</b></span>
-    <div id="liveClock" style="font-size:12px;">00:00:00</div>
+    <span><b>UNITÀ MERLINI</b> <small style="color:var(--pc-yellow); margin-left:10px;">V17.0</small></span>
+    <div style="text-align:right">
+        <div class="live-status">● CLOUD CONNECTED</div>
+        <div id="liveClock" style="font-size:11px;">00:00:00</div>
+    </div>
 </div>
 
 <div class="module-nav">
@@ -67,75 +98,101 @@
     <button class="nav-btn" onclick="showPage('scanner', this)">📷 Scanner</button>
     <button class="nav-btn" onclick="showPage('volontari', this)">👥 Anagrafica</button>
     <button class="nav-btn" onclick="showPage('presenze', this)">📝 Appello</button>
+    <button class="nav-btn" onclick="showPage('archivio', this)">📖 Archivio</button>
 </div>
 
 <div class="main-content">
     
     <div id="page-missione" class="module-page active">
         <div class="card">
-            <h3 style="margin-top:0; color:var(--pc-yellow);">DETTAGLI ATTIVAZIONE</h3>
+            <h3>NUOVA ATTIVAZIONE</h3>
             
             <label>Tipo di Evento</label>
-            <input type="text" id="m_evento" placeholder="Es: Ricerca Persona Scomparsa">
-            
-            <label>Codice Evento / Protocollo</label>
-            <input type="text" id="m_protocollo" placeholder="Es: SAR-2026-001">
+            <input type="text" id="m_evento" placeholder="Es: Ricerca Disperso">
 
             <label>Tipo di Attivazione</label>
-            <select id="m_attivazione">
-                <option value="SUBITO">IMMEDIATA (SUBITO)</option>
-                <option value="PROGRAMMATA">PROGRAMMATA</option>
+            <select id="m_attivazione" onchange="toggleProgrammata(this.value)">
+                <option value="IMMEDIATA">IMMEDIATA (SUBITO)</option>
+                <option value="PROGRAMMATA">PROGRAMMATA (DATA/ORA)</option>
                 <option value="STANDBY">STAND-BY</option>
             </select>
 
-            <label>Autorità Richiedente</label>
-            <input type="text" id="m_autorita" placeholder="Es: Prefettura / CC / VVF">
+            <div id="extra-programmata">
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1">
+                        <label>Data Inizio</label>
+                        <input type="date" id="m_data">
+                    </div>
+                    <div style="flex:1">
+                        <label>Ora Inizio</label>
+                        <input type="time" id="m_ora">
+                    </div>
+                </div>
+            </div>
 
-            <label>Responsabile Operativo</label>
+            <label>Autorità Richiedente</label>
+            <input type="text" id="m_autorita" placeholder="Es: Prefettura di Lecco">
+
+            <label>Protocollo / Codice</label>
+            <input type="text" id="m_protocollo" placeholder="Es: Prot. 123/2026">
+
+            <label>Responsabile Coordinamento</label>
             <input type="text" id="m_responsabile" placeholder="Nome Coordinatore">
 
-            <button class="btn" style="background:var(--success); color:white;" onclick="saveMissionData()">➕ AGGIUNGI ALLA SCALETTA</button>
+            <button class="btn btn-success" onclick="salvaInScaletta()">➕ AGGIUNGI ALLA SCALETTA OPERATIVA</button>
         </div>
 
         <div class="card">
-            <h3 style="margin:0; color:var(--pc-yellow);">LOCALIZZAZIONE INTERVENTO</h3>
-            <div class="search-box">
-                <input type="text" id="searchAddr" placeholder="Scrivi Via e Città...">
-                <button onclick="searchLocation()" class="btn" style="width:80px; margin:0; background:var(--pc-blue); color:white;">CERCA</button>
+            <h3>LOCALIZZAZIONE / MAPPA</h3>
+            <div class="search-container">
+                <input type="text" id="mapSearch" placeholder="Cerca Via, Piazza o Paese...">
+                <button onclick="cercaIndirizzo()" class="btn btn-blue" style="width:80px; margin:0;">CERCA</button>
             </div>
             <div id="map"></div>
-            <button class="btn btn-danger" onclick="sendTelegram()">🚀 INVIA ALLERTA TELEGRAM</button>
+        </div>
+
+        <div class="card">
+            <h3>SCALETTA EVENTI ATTIVI</h3>
+            <div id="scaletta-container">
+                </div>
         </div>
     </div>
 
     <div id="page-scanner" class="module-page">
         <div class="card">
+            <h3>RILEVAMENTO QR</h3>
             <div id="reader"></div>
-            <button class="btn" style="background:var(--pc-blue); color:white;" onclick="startScanner()">ACCENDI CAMERA</button>
+            <button class="btn btn-blue" onclick="startScanner()">ATTIVA FOTOCAMERA</button>
         </div>
     </div>
 
     <div id="page-volontari" class="module-page">
         <div class="card">
-            <label>AGGIUNGI VOLONTARIO</label>
+            <h3>NUOVO VOLONTARIO</h3>
+            <label>Nominativo</label>
             <input type="text" id="v_nome" placeholder="COGNOME NOME">
-            <button class="btn" style="background:var(--success); color:white;" onclick="addVolontario()">SALVA CLOUD</button>
+            <button class="btn btn-success" onclick="aggiungiVolontario()">SALVA NEL CLOUD</button>
         </div>
         <div id="lista-volontari"></div>
     </div>
 
     <div id="page-presenze" class="module-page">
+        <h3>STATO PRESENZE IN TEMPO REALE</h3>
         <div id="lista-appello"></div>
+        <button class="btn btn-blue" onclick="generaPDF()">📄 SCARICA REPORT PDF</button>
+        <button class="btn btn-danger" style="opacity:0.6" onclick="resetAppello()">RESET TOTALE</button>
     </div>
 
 </div>
 
-<div id="qrZoomModal" class="modal-overlay" onclick="this.style.display='none'">
-    <h2 id="zoomName" style="color:var(--pc-yellow);"></h2>
-    <div id="qrFull" style="background:white; padding:15px; border-radius:10px;"></div>
+<div id="qrModal" class="modal" onclick="this.style.display='none'">
+    <h2 id="zoomName" style="color:var(--pc-yellow);">NOME</h2>
+    <div id="qrFull"></div>
+    <p style="color:white; font-size:12px;">Tocca ovunque per chiudere</p>
 </div>
 
 <script>
+    // CONFIGURAZIONE FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyB5AhJZSLu3om-VUsoQBX9KazvtzAkAoa0",
         authDomain: "merlini-sar.firebaseapp.com",
@@ -148,17 +205,30 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
     let map, marker, html5QrCode;
+    const PIN_VALIDO = "123456789";
 
     function checkLogin() {
-        if(document.getElementById('loginInput').value === "123456789") {
+        if(document.getElementById('loginPin').value === PIN_VALIDO) {
             document.getElementById('loginOverlay').style.display='none';
-            initMap();
-            loadMissionData();
-            syncCloud();
+            initApp();
         } else { alert("PIN ERRATO"); }
     }
 
+    function initApp() {
+        initMap();
+        syncCloud();
+        loadScaletta();
+    }
+
+    // GESTIONE PROGRAMMATA
+    function toggleProgrammata(val) {
+        const extra = document.getElementById('extra-programmata');
+        extra.style.display = (val === 'PROGRAMMATA') ? 'block' : 'none';
+    }
+
+    // MAPPA E RICERCA
     function initMap() {
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -168,95 +238,128 @@
         });
     }
 
-    async function searchLocation() {
-        const addr = document.getElementById('searchAddr').value;
-        if(!addr) return;
+    async function cercaIndirizzo() {
+        const query = document.getElementById('mapSearch').value;
+        if(!query) return;
         try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`);
-            const data = await res.json();
-            if(data.length > 0) {
-                const pos = [data[0].lat, data[0].lon];
+            const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
+            const d = await r.json();
+            if(d.length > 0) {
+                const pos = [d[0].lat, d[0].lon];
                 map.setView(pos, 16);
                 if(marker) map.removeLayer(marker);
                 marker = L.marker(pos).addTo(map);
             }
-        } catch(e) { alert("Errore ricerca"); }
+        } catch(e) { console.error(e); }
     }
 
-    function saveMissionData() {
-        const mission = {
-            evento: document.getElementById('m_evento').value,
+    // SCALETTA MISSIONI
+    function salvaInScaletta() {
+        const missione = {
+            evento: document.getElementById('m_evento').value.toUpperCase(),
+            tipo: document.getElementById('m_attivazione').value,
+            data: document.getElementById('m_data').value || '--',
+            ora: document.getElementById('m_ora').value || '--',
             protocollo: document.getElementById('m_protocollo').value,
-            attivazione: document.getElementById('m_attivazione').value,
             autorita: document.getElementById('m_autorita').value,
             responsabile: document.getElementById('m_responsabile').value,
-            timestamp: new Date().toLocaleString()
+            timestamp: Date.now()
         };
-        db.ref('merlini/missione_attuale').set(mission);
-        alert("DATI MISSIONE SALVATI E SINCRONIZZATI!");
+        if(!missione.evento) return alert("Inserisci almeno il tipo di evento!");
+        
+        db.ref('merlini/scaletta').push(missione);
+        alert("Evento aggiunto alla scaletta!");
+        
+        // Reset campi
+        document.getElementById('m_evento').value = "";
+        document.getElementById('extra-programmata').style.display = 'none';
     }
 
-    function loadMissionData() {
-        db.ref('merlini/missione_attuale').on('value', snap => {
-            const d = snap.val();
-            if(d) {
-                document.getElementById('m_evento').value = d.evento || '';
-                document.getElementById('m_protocollo').value = d.protocollo || '';
-                document.getElementById('m_attivazione').value = d.attivazione || 'SUBITO';
-                document.getElementById('m_autorita').value = d.autorita || '';
-                document.getElementById('m_responsabile').value = d.responsabile || '';
-            }
+    function loadScaletta() {
+        db.ref('merlini/scaletta').limitToLast(10).on('value', snap => {
+            const data = snap.val() || {};
+            const container = document.getElementById('scaletta-container');
+            container.innerHTML = Object.values(data).reverse().map(m => `
+                <div class="scaletta-item">
+                    <b style="color:var(--pc-yellow)">${m.evento}</b><br>
+                    <span>Attivazione: ${m.tipo} (${m.data} ore ${m.ora})</span><br>
+                    <small>Prot: ${m.protocollo} | Ref: ${m.responsabile}</small>
+                </div>
+            `).join('');
         });
     }
 
+    // ANAGRAFICA & CLOUD
     function syncCloud() {
         db.ref('merlini/volontari').on('value', snap => {
-            const data = snap.val() || {};
-            const list = Object.values(data).sort((a,b) => a.nome.localeCompare(b.nome));
-            renderUI(list);
+            const list = Object.values(snap.val() || {}).sort((a,b) => a.nome.localeCompare(b.nome));
+            renderVolontari(list);
+            renderAppello(list);
         });
     }
 
-    function renderUI(list) {
-        document.getElementById('lista-volontari').innerHTML = list.map((v, i) => `
+    function aggiungiVolontario() {
+        const nome = document.getElementById('v_nome').value.toUpperCase().trim();
+        if(!nome) return;
+        const id = "M-" + btoa(nome).substr(0,8);
+        db.ref('merlini/volontari/'+id).set({ id, nome, stato: "ASSENTE", ora: "--:--" });
+        document.getElementById('v_nome').value = "";
+    }
+
+    function renderVolontari(list) {
+        const container = document.getElementById('lista-volontari');
+        container.innerHTML = list.map((v, i) => `
             <div class="v-card">
                 <div id="qr-min-${i}" class="qr-small" onclick="showZoom('${v.nome}','${v.id}')"></div>
-                <b>${v.nome}</b>
+                <div style="flex:1"><b>${v.nome}</b></div>
+                <button onclick="eliminaVol('${v.id}')" style="background:none; border:none; color:var(--danger); font-weight:bold;">✕</button>
             </div>
         `).join('');
         list.forEach((v, i) => {
-            new QRCode(document.getElementById(`qr-min-${i}`), { text: v.id, width: 55, height: 55 });
+            document.getElementById(`qr-min-${i}`).innerHTML = "";
+            new QRCode(document.getElementById(`qr-min-${i}`), { text: v.id, width: 60, height: 60 });
         });
+    }
 
+    function renderAppello(list) {
         document.getElementById('lista-appello').innerHTML = list.map(v => `
-            <div class="card" style="border-left:8px solid ${v.stato==='PRESENTE'?'#2ea043':'#eb3b5a'}">
-                <b>${v.nome}</b>: ${v.stato} (${v.ora})
+            <div class="card" style="border-left:10px solid ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
+                <div style="display:flex; justify-content:space-between;">
+                    <b>${v.nome}</b>
+                    <span>${v.stato} (${v.ora})</span>
+                </div>
             </div>
         `).join('');
     }
 
+    // SCANNER
     function startScanner() {
         html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
             const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             db.ref('merlini/volontari/'+id).update({ stato: "PRESENTE", ora: ora });
+            alert("CHECK-IN EFFETTUATO!");
             html5QrCode.stop();
         });
-    }
-
-    function addVolontario() {
-        const nome = document.getElementById('v_nome').value.toUpperCase().trim();
-        if(!nome) return;
-        const id = btoa(nome).substr(0,8);
-        db.ref('merlini/volontari/'+id).set({ id, nome, stato: "ASSENTE", ora: "--:--" });
-        document.getElementById('v_nome').value = "";
     }
 
     function showZoom(nome, id) {
         document.getElementById('zoomName').innerText = nome;
         document.getElementById('qrFull').innerHTML = "";
         new QRCode(document.getElementById('qrFull'), { text: id, width: 250, height: 250 });
-        document.getElementById('qrZoomModal').style.display = 'flex';
+        document.getElementById('qrModal').style.display = 'flex';
+    }
+
+    function eliminaVol(id) { if(confirm("Eliminare?")) db.ref('merlini/volontari/'+id).remove(); }
+
+    function resetAppello() {
+        if(confirm("Vuoi resettare tutte le presenze?")) {
+            db.ref('merlini/volontari').once('value', snap => {
+                const updates = {};
+                snap.forEach(c => { updates[c.key+'/stato'] = "ASSENTE"; updates[c.key+'/ora'] = "--:--"; });
+                db.ref('merlini/volontari').update(updates);
+            });
+        }
     }
 
     function showPage(id, btn) {
