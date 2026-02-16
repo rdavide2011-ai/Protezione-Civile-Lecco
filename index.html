@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V9.5 INTEGRALE</title>
+    <title>S.A.R. UNITÀ MERLINI - V11.0 INTEGRALE</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -19,88 +19,84 @@
             --success: #2ea043; --border: #30363d; --warning: #f39c12;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* TOP BAR */
-        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--pc-yellow); z-index: 100; }
-        .logo-section { display: flex; align-items: center; gap: 12px; }
-        .pc-logo-img { height: 38px; width: auto; }
-
-        /* NAV MENU */
+        /* HEADER & NAV */
+        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 2px solid var(--pc-yellow); z-index: 100; }
+        .pc-logo-img { height: 35px; margin-right: 12px; }
         .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
-        .nav-btn { padding: 12px 16px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: 0.2s; }
-        .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); }
+        .nav-btn { padding: 10px 14px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
+        .nav-btn.active { background: var(--pc-yellow); color: black; }
 
-        /* CONTENT AREA */
-        .main-content { flex: 1; position: relative; overflow-y: auto; padding-bottom: 60px; }
-        .module-page { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
+        /* CONTENT */
+        .main-content { flex: 1; overflow-y: auto; padding-bottom: 60px; position: relative; }
+        .module-page { display: none; padding: 15px; }
         .module-page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* UI ELEMENTS */
-        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 550px; margin-left: auto; margin-right: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        label { font-size: 11px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 12px; margin-bottom: 4px; }
-        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 15px; transition: border 0.3s; }
-        input:focus { border-color: var(--pc-yellow); }
+        /* CARDS */
+        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 500px; margin-inline: auto; }
+        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 12px; }
+        input, select, textarea { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; margin-top: 5px; font-size: 14px; }
         
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 13px; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 12px; transition: filter 0.2s; }
-        .btn:active { filter: brightness(0.8); }
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; font-size: 12px; }
         .btn-blue { background: var(--pc-blue); color: white; }
         .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
         .btn-danger { background: var(--danger); color: white; }
 
+        /* MODALE SELEZIONE STATO (Post-Scansione) */
+        #statusModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:30px; }
+        .status-box { background: var(--panel-bg); padding: 25px; border-radius: 20px; border: 2px solid var(--pc-yellow); width: 100%; max-width: 400px; text-align: center; }
+
         /* SCANNER & QR */
-        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid var(--pc-yellow); background: #000; margin-top: 10px; }
-        #scan-result { margin-top: 15px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
-        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--pc-yellow); display: flex; align-items: center; gap: 15px; position: relative; }
-        .qr-small { background: white; padding: 5px; border-radius: 6px; width: 65px; height: 65px; cursor: pointer; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
-        .tag-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-        .tag { background: rgba(255, 204, 0, 0.1); color: var(--pc-yellow); font-size: 10px; padding: 2px 8px; border: 1px solid var(--pc-yellow); border-radius: 4px; }
+        #reader { width: 100%; border-radius: 12px; border: 2px solid var(--pc-yellow); overflow: hidden; background: #000; }
+        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; align-items: center; gap: 15px; position: relative; }
+        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; }
 
         /* MAP */
+        #map { height: 100%; width: 100%; }
         #page-mappa { padding: 0; position: absolute; width: 100%; height: 100%; }
-        #map { height: 100%; width: 100%; z-index: 1; }
-        .map-overlay { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 450px; pointer-events: none; }
+        .map-overlay { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; pointer-events: none; }
         .map-overlay > * { pointer-events: auto; }
 
-        /* LOGIN & MODALS */
-        #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        #qrModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; flex-direction:column; align-items:center; justify-content:center; }
-        canvas#signature-pad { border: 1px dashed var(--pc-yellow); background: white; width: 100%; height: 140px; border-radius: 8px; margin-top: 10px; }
+        #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 100000; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <div class="card" style="text-align:center; border:2px solid var(--pc-yellow); width:90%;">
-        <img src="logo.svg" style="width:90px; margin-bottom:25px;">
-        <h2 style="color:var(--pc-yellow); margin-bottom:30px;">ACCESSO UNITÀ S.A.R.</h2>
-        <input type="password" id="loginInput" inputmode="numeric" style="font-size:32px; text-align:center; letter-spacing: 5px;" placeholder="•••••••••">
-        <button onclick="checkLogin()" class="btn btn-blue">ACCEDI AL SISTEMA</button>
+    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow);">
+        <img src="logo.svg" style="width:80px; margin-bottom:15px;">
+        <h2 style="color:var(--pc-yellow); margin:0;">S.A.R. MERLINI</h2>
+        <p style="font-size:10px;">INSERIRE PIN OPERATIVO</p>
+        <input type="password" id="loginInput" inputmode="numeric" style="text-align:center; font-size:24px;">
+        <button onclick="checkLogin()" class="btn btn-blue">ACCEDI</button>
     </div>
 </div>
 
-<div id="qrModal" onclick="this.style.display='none'">
-    <h2 id="qrModalTitle" style="color:var(--pc-yellow); margin-bottom:20px;"></h2>
-    <div id="qrFull" style="background:white; padding:25px; border-radius:15px;"></div>
-    <p style="color:white; margin-top:30px;">Tocca ovunque per chiudere</p>
+<div id="statusModal">
+    <div class="status-box">
+        <h2 id="scannedName" style="color:var(--pc-yellow); margin-top:0;">NOME</h2>
+        <p style="margin-bottom:20px;">Registra lo stato di arrivo:</p>
+        <button class="btn btn-success" onclick="processStatus('PRESENTE')">✅ PRESENTE</button>
+        <button class="btn btn-warning" onclick="processStatus('RITARDO')">⏳ IN RITARDO</button>
+        <button class="btn btn-danger" onclick="processStatus('ASSENTE')">❌ ASSENTE</button>
+        <button class="btn" style="background:#333; color:white;" onclick="closeStatusModal()">ANNULLA</button>
+    </div>
 </div>
 
 <div class="top-bar">
-    <div class="logo-section">
-        <img src="logo.svg" class="pc-logo-img">
-        <div>
-            <div style="font-size:15px; font-weight:bold; color:var(--pc-yellow);">S.A.R. MERLINI</div>
-            <div style="font-size:9px; color:var(--success);">OP-CONSOLE V9.5 ACTIVE</div>
-        </div>
+    <img src="logo.svg" class="pc-logo-img">
+    <div style="line-height:1">
+        <span style="font-weight:bold; color:var(--pc-yellow); font-size:14px;">UNITÀ MERLINI</span><br>
+        <span style="font-size:9px; color:var(--success);">V11.0 INTEGRALE</span>
     </div>
 </div>
 
 <div class="module-nav">
-    <button class="nav-btn active" onclick="showPage('allerta', this)">🚨 Allerta</button>
-    <button class="nav-btn" id="nav-mappa" onclick="showPage('mappa', this)">🗺️ Mappa</button>
-    <button class="nav-btn" onclick="showPage('scanner', this)">📷 Scanner QR</button>
+    <button class="nav-btn" onclick="showPage('allerta', this)">🚨 Allerta</button>
+    <button class="nav-btn active" id="nav-scanner" onclick="showPage('scanner', this)">📷 Scanner</button>
     <button class="nav-btn" onclick="showPage('volontari', this)">👥 Anagrafica</button>
     <button class="nav-btn" onclick="showPage('presenze', this)">📝 Appello</button>
     <button class="nav-btn" onclick="showPage('diario', this)">📖 Diario</button>
@@ -108,276 +104,188 @@
 
 <div class="main-content">
     
-    <div id="page-allerta" class="module-page active">
+    <div id="page-scanner" class="module-page active">
         <div class="card">
-            <h3 style="color:var(--pc-yellow); margin-top:0;">1. DEFINISCI EMERGENZA</h3>
-            <label>Tipo di Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona Scomparsa">
-            <label>Unità Richieste</label><input type="text" id="f_squadre" placeholder="Es: SAR 1, Unità Cinofila">
-            <label>Livello Urgenza</label>
-            <select id="f_tipo" onchange="toggleUrgenza()">
-                <option value="ROSSO">🔴 IMMEDIATA (Rosso)</option>
-                <option value="GIALLO">🟡 PROGRAMMATA (Giallo)</option>
+            <h3 style="margin-top:0; color:var(--pc-yellow);">CHECK-IN RAPIDO</h3>
+            <div id="reader"></div>
+            <button class="btn btn-blue" onclick="startScanner()">ATTIVA FOTOCAMERA</button>
+            <button class="btn btn-danger" onclick="stopScanner()">SPEGNI</button>
+        </div>
+    </div>
+
+    <div id="page-allerta" class="module-page">
+        <div class="card">
+            <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
+            <label>Urgenza</label>
+            <select id="f_tipo" onchange="document.getElementById('date-fields').style.display=(this.value==='GIALLO'?'block':'none')">
+                <option value="ROSSO">🔴 IMMEDIATA</option>
+                <option value="GIALLO">🟡 PROGRAMMATA</option>
             </select>
-            <div id="data-ora-input" style="display:none; background:rgba(243,156,18,0.05); padding:10px; border-radius:8px; margin-top:10px;">
-                <label>Data</label><input type="date" id="f_data">
-                <label>Ora Ritrovo</label><input type="time" id="f_ora">
-            </div>
-            <label>Note aggiuntive</label><textarea id="f_note" rows="3"></textarea>
-            <button class="btn btn-blue" onclick="startLocationStep()">AVANTI: LOCALIZZA RITROVO 🗺️</button>
+            <div id="date-fields" style="display:none;"><label>Data/Ora</label><input type="datetime-local" id="f_data"></div>
+            <button class="btn btn-blue" onclick="showPage('mappa')">IMPOSTA PUNTO RITROVO 🗺️</button>
         </div>
     </div>
 
     <div id="page-mappa" class="module-page">
         <div class="map-overlay">
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="map-search-input" placeholder="Indirizzo o coordinate..." style="background:white; color:black;">
-                <button onclick="searchMap()" class="btn btn-blue" style="width:60px; margin:0;">🔍</button>
-            </div>
-            <div id="final-send-panel" style="display:none; margin-top:10px; background:var(--panel-bg); padding:15px; border-radius:12px; border:2px solid var(--success);">
-                <button class="btn btn-success" onclick="sendFullAlert()">🚀 CONFERMA E INVIA TELEGRAM</button>
+            <div id="send-panel" style="display:none; background:var(--panel-bg); padding:10px; border-radius:10px; border:2px solid var(--success);">
+                <button class="btn btn-success" onclick="sendAlert()">🚀 INVIA ALLERTA TELEGRAM</button>
             </div>
         </div>
         <div id="map"></div>
     </div>
 
-    <div id="page-scanner" class="module-page">
-        <div class="card">
-            <h3 style="color:var(--pc-yellow); margin-top:0;">CHECK-IN RAPIDO</h3>
-            <div id="reader"></div>
-            <div id="scan-result" style="display:none;"></div>
-            <button class="btn btn-blue" id="btn-start-scan" onclick="startScanner()">ATTIVA SCANNER</button>
-            <button class="btn btn-danger" onclick="stopScanner()">STOP</button>
-        </div>
-    </div>
-
     <div id="page-volontari" class="module-page">
         <div class="card">
-            <h4 style="color:var(--pc-yellow); margin:0;">REGISTRA NUOVO VOLONTARIO</h4>
-            <label>Cognome e Nome</label><input type="text" id="v_nome">
-            <label>Qualifiche</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
-                <label style="margin:0;"><input type="checkbox" class="v_spec" value="🐕 Cinofilo"> Cinofilo</label>
-                <label style="margin:0;"><input type="checkbox" class="v_spec" value="🚒 Autista"> Autista</label>
-                <label style="margin:0;"><input type="checkbox" class="v_spec" value="🔍 SAR"> SAR</label>
-                <label style="margin:0;"><input type="checkbox" class="v_spec" value="🩺 BLSD"> BLSD</label>
-                <label style="margin:0;"><input type="checkbox" class="v_spec" value="🪚 Motosega"> Motosega</label>
-                <label style="margin:0;"><input type="checkbox" class="v_spec" value="🛠️ Logista"> Logista</label>
-            </div>
-            <button class="btn btn-success" onclick="addVolontario()">GENERA IDENTITÀ DIGITALE</button>
+            <label>Nuovo Volontario</label><input type="text" id="v_nome" placeholder="Cognome e Nome">
+            <button class="btn btn-success" onclick="addVolontario()">GENERA IDENTITÀ QR</button>
         </div>
-        <div id="lista-volontari-completa"></div>
+        <div id="lista-anagrafica"></div>
     </div>
 
     <div id="page-presenze" class="module-page">
-        <div id="lista-presenze-dinamica"></div>
-        <div class="card">
-            <label>Firma Responsabile</label>
-            <canvas id="signature-pad"></canvas>
-            <button class="btn btn-success" onclick="exportPDF('appello')">GENERA PDF FIRMATO</button>
-        </div>
+        <div id="lista-appello"></div>
+        <button class="btn btn-blue" onclick="exportPDF('appello')">📄 ESPORTA PDF FIRMATO</button>
     </div>
 
     <div id="page-diario" class="module-page">
-        <div id="log-container" class="card" style="font-size:13px; max-height:450px; overflow-y:auto; line-height:1.6;"></div>
-        <div class="card">
-            <textarea id="log-input" placeholder="Annota aggiornamenti, ordini o eventi..."></textarea>
-            <button class="btn btn-blue" onclick="addLog()">INSERISCI NOTA</button>
-            <button class="btn btn-success" onclick="exportPDF('diario')">ESPORTA DIARIO OPERATIVO</button>
-        </div>
+        <div id="log-container" class="card" style="font-size:12px; max-height:450px; overflow-y:auto; line-height:1.5;"></div>
+        <button class="btn btn-danger" onclick="if(confirm('Resetta diario?')){log=[]; localStorage.setItem('merl_v11_log', '[]'); updateUI();}">PULISCI DIARIO</button>
     </div>
+
 </div>
 
 <script>
+    const PIN_VALIDO = "123456789";
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
-    const PIN_VALIDO = "123456789";
 
     let map, marker, html5QrCode;
-    let volontari = JSON.parse(localStorage.getItem('merlini_v95_vol')) || [];
-    let presenze = JSON.parse(localStorage.getItem('merlini_v95_pre')) || {};
-    let log = JSON.parse(localStorage.getItem('merlini_v95_log')) || [];
+    let volontari = JSON.parse(localStorage.getItem('merl_v11_vol')) || [];
+    let presenze = JSON.parse(localStorage.getItem('merl_v11_pre')) || {};
+    let log = JSON.parse(localStorage.getItem('merl_v11_log')) || [];
+    let currentVol = null;
 
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_VALIDO) {
             document.getElementById('loginOverlay').style.display = 'none';
-            initMap(); updateAll();
-        } else { alert("PIN NON VALIDO"); }
+            initMap(); updateUI();
+        } else { alert("PIN ERRATO"); }
     }
 
-    function toggleUrgenza() {
-        document.getElementById('data-ora-input').style.display = (document.getElementById('f_tipo').value === 'GIALLO' ? 'block' : 'none');
-    }
-
+    // --- MAPPA & ALLERTA ---
     function initMap() {
-        if(map) return;
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         map.on('click', (e) => {
             if(marker) map.removeLayer(marker);
             marker = L.marker(e.latlng).addTo(map);
-            document.getElementById('final-send-panel').style.display = 'block';
+            document.getElementById('send-panel').style.display = 'block';
         });
     }
 
-    function startLocationStep() {
-        if(!document.getElementById('f_evento').value) return alert("Specifica l'evento");
-        showPage('mappa', document.getElementById('nav-mappa'));
-    }
-
-    async function searchMap() {
-        const q = document.getElementById('map-search-input').value;
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
-        const d = await r.json();
-        if(d.length > 0) {
-            map.setView([d[0].lat, d[0].lon], 16);
-            if(marker) map.removeLayer(marker);
-            marker = L.marker([d[0].lat, d[0].lon]).addTo(map);
-            document.getElementById('final-send-panel').style.display = 'block';
-        }
-    }
-
-    async function sendFullAlert() {
+    async function sendAlert() {
         const ev = document.getElementById('f_evento').value;
-        const sq = document.getElementById('f_squadre').value;
-        const ti = document.getElementById('f_tipo').value;
-        const dt = document.getElementById('f_data').value;
-        const or = document.getElementById('f_ora').value;
         const pos = marker.getLatLng();
-        const link = `https://www.google.com/maps?q=${pos.lat},${pos.lng}`;
-
-        let m = `🚨 *ALLERTA UNITÀ MERLINI*\n━━━━━━━━━━━━━━\n📌 *MISSIONE:* ${ev.toUpperCase()}\n👥 *UNITÀ:* ${sq}\n⚠️ *URGENZA:* ${ti}\n`;
-        if(ti === 'GIALLO') m += `📅 *DATA:* ${dt}\n⏰ *ORA:* ${or}\n`;
-        m += `━━━━━━━━━━━━━━\n📍 *RITROVO:* [Apri Navigatore](${link})`;
-
+        const msg = `🚨 *ALLERTA MERLINI*\n📌 EVENTO: ${ev.toUpperCase()}\n📍 RITROVO: [Mappa](https://www.google.com/maps?q=${pos.lat},${pos.lng})`;
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({chat_id: ID_GRUPPO, text: m, parse_mode: 'Markdown'})
+            body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
         });
-        alert("Messaggio inviato al gruppo!");
+        alert("Inviato!");
     }
 
-    // --- SCANNER QR ---
+    // --- SCANNER CON SCELTA STATO ---
     function startScanner() {
         html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 15, qrbox: { width: 250, height: 250 } };
-        html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
-            handleScan(decodedText);
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
+            const v = volontari.find(x => x.id === id);
+            if(v) {
+                if(navigator.vibrate) navigator.vibrate(100);
+                currentVol = v;
+                document.getElementById('scannedName').innerText = v.nome;
+                document.getElementById('statusModal').style.display = 'flex';
+                stopScanner();
+            }
         });
     }
 
-    function stopScanner() {
-        if(html5QrCode) html5QrCode.stop();
+    function stopScanner() { if(html5QrCode) html5QrCode.stop(); }
+
+    function processStatus(stato) {
+        const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        presenze[currentVol.nome] = { stato, ora };
+        localStorage.setItem('merl_v11_pre', JSON.stringify(presenze));
+        
+        // Log automatico
+        log.push({ ora, txt: `CHECK-IN: ${currentVol.nome} registrato come ${stato}` });
+        localStorage.setItem('merl_v11_log', JSON.stringify(log));
+        
+        closeStatusModal();
+        updateUI();
     }
 
-    function handleScan(id) {
-        const v = volontari.find(vol => vol.id === id);
-        const res = document.getElementById('scan-result');
-        res.style.display = 'block';
-        if(v) {
-            presenze[v.nome] = { stato: 'presente', ora: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
-            localStorage.setItem('merlini_v95_pre', JSON.stringify(presenze));
-            addLog(`CHECK-IN QR: ${v.nome} presente.`);
-            res.style.background = "var(--success)";
-            res.innerHTML = `IDENTIFICATO: ${v.nome}`;
-            if(navigator.vibrate) navigator.vibrate(200);
-            updateAll();
-        } else {
-            res.style.background = "var(--danger)";
-            res.innerHTML = "QR NON VALIDO";
-        }
+    function closeStatusModal() {
+        document.getElementById('statusModal').style.display = 'none';
+        currentVol = null;
     }
 
     // --- ANAGRAFICA ---
     function addVolontario() {
         const nome = document.getElementById('v_nome').value.toUpperCase();
-        const specs = Array.from(document.querySelectorAll('.v_spec:checked')).map(c => c.value);
         if(nome) {
-            const id = "M-" + Math.random().toString(36).substr(2, 7).toUpperCase();
-            volontari.push({ nome, specs, id });
-            localStorage.setItem('merlini_v95_vol', JSON.stringify(volontari));
+            const id = "QR-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+            volontari.push({ nome, id });
+            localStorage.setItem('merl_v11_vol', JSON.stringify(volontari));
             document.getElementById('v_nome').value = "";
-            updateAll();
+            updateUI();
         }
     }
 
-    function updateAll() {
-        // Render Anagrafica
-        const vDiv = document.getElementById('lista-volontari-completa');
-        vDiv.innerHTML = "";
-        volontari.forEach((v, i) => {
-            const div = document.createElement('div');
-            div.className = 'v-card';
-            div.innerHTML = `<div id="qr-${i}" class="qr-small" onclick="showFullQR('${v.nome}','${v.id}')"></div><div><b>${v.nome}</b><div class="tag-container">${v.specs.map(s=>`<span class="tag">${s}</span>`).join('')}</div></div><button onclick="delVol(${i})" style="position:absolute;right:10px;border:none;background:none;color:red;font-weight:bold;">✕</button>`;
-            vDiv.appendChild(div);
-            new QRCode(document.getElementById(`qr-${i}`), { text: v.id, width: 65, height: 65 });
-        });
+    function updateUI() {
+        // Anagrafica
+        document.getElementById('lista-anagrafica').innerHTML = volontari.map((v, i) => `
+            <div class="v-card">
+                <div id="qr-${i}" class="qr-small"></div>
+                <b>${v.nome}</b>
+                <button onclick="delVol(${i})" style="margin-left:auto; border:none; background:none; color:red;">✕</button>
+            </div>
+        `).join('');
+        volontari.forEach((v, i) => new QRCode(document.getElementById(`qr-${i}`), {text:v.id, width:60, height:60}));
 
-        // Render Appello
-        document.getElementById('lista-presenze-dinamica').innerHTML = volontari.map(v => {
-            const s = presenze[v.nome]?.stato || 'assente';
-            return `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <span><b>${v.nome}</b></span>
-                <button onclick="togglePre('${v.nome}')" style="border:none; border-radius:6px; padding:8px 15px; color:white; background:${s==='presente'?'var(--success)':'#444'}">
-                    ${s==='presente' ? 'PRESENTE ('+presenze[v.nome].ora+')' : 'SEGNA PRESENZA'}
-                </button>
+        // Appello
+        document.getElementById('lista-appello').innerHTML = volontari.map(v => {
+            const p = presenze[v.nome] || { stato: 'ASSENTE', ora: '-' };
+            let bColor = p.stato === 'PRESENTE' ? 'var(--success)' : (p.stato === 'RITARDO' ? 'var(--warning)' : 'var(--danger)');
+            return `<div class="card" style="display:flex; justify-content:space-between; border-left: 8px solid ${bColor}">
+                <b>${v.nome}</b>
+                <span style="font-size:11px; font-weight:bold;">${p.stato} (${p.ora})</span>
             </div>`;
         }).join('');
 
-        // Render Diario
-        document.getElementById('log-container').innerHTML = log.map(l => `<div style="margin-bottom:8px;">[${l.ora}] <b>${l.txt}</b></div>`).reverse().join('');
-    }
-
-    function togglePre(n) {
-        if(presenze[n]?.stato === 'presente') delete presenze[n];
-        else presenze[n] = { stato: 'presente', ora: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) };
-        localStorage.setItem('merlini_v95_pre', JSON.stringify(presenze));
-        updateAll();
+        // Diario
+        document.getElementById('log-container').innerHTML = log.map(l => `<div><b>[${l.ora}]</b> ${l.txt}</div>`).reverse().join('');
     }
 
     function delVol(i) {
-        if(confirm("Eliminare volontario?")) { volontari.splice(i,1); localStorage.setItem('merlini_v95_vol', JSON.stringify(volontari)); updateAll(); }
-    }
-
-    function addLog(cTxt = null) {
-        const txt = cTxt || document.getElementById('log-input').value;
-        if(txt) {
-            log.push({ ora: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}), txt });
-            localStorage.setItem('merlini_v95_log', JSON.stringify(log));
-            if(!cTxt) document.getElementById('log-input').value = "";
-            updateAll();
-        }
-    }
-
-    function showFullQR(n, id) {
-        document.getElementById('qrModalTitle').innerText = n;
-        document.getElementById('qrFull').innerHTML = "";
-        new QRCode(document.getElementById('qrFull'), { text: id, width: 250, height: 250 });
-        document.getElementById('qrModal').style.display = 'flex';
+        if(confirm("Eliminare?")) { volontari.splice(i,1); localStorage.setItem('merl_v11_vol', JSON.stringify(volontari)); updateUI(); }
     }
 
     function showPage(id, btn) {
-        if(id !== 'scanner') stopScanner();
         document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('page-' + id).classList.add('active');
         if(btn) btn.classList.add('active');
         if(id === 'mappa') setTimeout(() => map.invalidateSize(), 300);
+        if(id !== 'scanner') stopScanner();
     }
-
-    // FIRMA
-    const canvas = document.getElementById('signature-pad');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); });
-    canvas.addEventListener('touchmove', (e) => { if(drawing) { const r=canvas.getBoundingClientRect(); ctx.lineTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); ctx.stroke(); }});
-    canvas.addEventListener('touchend', () => drawing=false);
 
     function exportPDF(t) {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.setFontSize(18); doc.text(`S.A.R. UNITÀ MERLINI - ${t.toUpperCase()}`, 10, 20);
-        const data = t === 'appello' ? volontari.map(v => [v.nome, presenze[v.nome]?.stato || 'ASSENTE', presenze[v.nome]?.ora || '-']) : log.map(l => [l.ora, l.txt]);
-        doc.autoTable({ head: [t==='appello' ? ['Volontario', 'Stato', 'Arrivo'] : ['Orario', 'Dettaglio Evento']], body: data, startY: 30 });
-        doc.save(`Report_Merlini_${t}.pdf`);
+        doc.text(`S.A.R. MERLINI - REPORT ${t.toUpperCase()}`, 10, 10);
+        const data = t === 'appello' ? volontari.map(v => [v.nome, presenze[v.nome]?.stato || 'ASSENTE']) : log.map(l => [l.ora, l.txt]);
+        doc.autoTable({ head: [['Dato', 'Stato/Nota']], body: data, startY: 20 });
+        doc.save(`Merlini_${t}.pdf`);
     }
 </script>
 </body>
