@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V33.1 DATA-LOCK</title>
+    <title>S.A.R. UNITÀ MERLINI - V35.0 GOLD</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -20,71 +20,133 @@
             --tg-color: #0088cc; --warning: #ff9800;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg-dark); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        /* RESET E STILI BASE */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; padding: 0; 
+            height: 100vh; display: flex; flex-direction: column; 
+            overflow: hidden; 
+        }
 
-        /* --- LOGIN --- */
-        #loginScreen { position: fixed; inset: 0; background: #0d1117; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 1px solid var(--border); text-align: center; width: 90%; max-width: 400px; }
+        /* SCHERMATA LOGIN */
+        #loginScreen { 
+            position: fixed; inset: 0; background: #0d1117; z-index: 10000; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .login-card { 
+            background: var(--panel-bg); padding: 40px; border-radius: 24px; 
+            border: 1px solid var(--border); text-align: center; width: 90%; max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
 
-        /* --- HEADER --- */
-        .top-bar { background: #000; padding: 15px 20px; border-bottom: 2px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 900; letter-spacing: 1px; font-size: 14px; }
+        /* HEADER & NAVBAR */
+        .top-bar { 
+            background: #000; padding: 15px 20px; border-bottom: 2px solid var(--pc-yellow); 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .logo { font-weight: 900; letter-spacing: 1.5px; font-size: 14px; text-transform: uppercase; }
         .logo span { color: var(--pc-yellow); }
 
-        /* --- NAVIGATION --- */
-        .main-nav { display: flex; background: #0d1117; padding: 10px; gap: 10px; overflow-x: auto; border-bottom: 1px solid var(--border); }
-        .nav-btn { padding: 12px 18px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
-        .nav-btn.active { background: var(--pc-yellow); color: #000; }
-
-        /* --- CONTENT --- */
-        .content { flex: 1; overflow-y: auto; padding: 20px; position: relative; }
-        .section { display: none; max-width: 800px; margin: 0 auto; }
-        .section.active { display: block; animation: fadeIn 0.3s ease; }
-
-        /* --- CARDS & FORMS --- */
-        .card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        h2 { font-size: 13px; text-transform: uppercase; color: var(--pc-yellow); margin-bottom: 15px; border-left: 3px solid var(--pc-yellow); padding-left: 10px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 9px; font-weight: 800; color: #8b949e; text-transform: uppercase; margin-bottom: 5px; }
-        input, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; font-size: 15px; }
-
-        /* --- SCHERMATA MAPPA (MODALE) --- */
-        #mapOverlay {
-            position: fixed; inset: 0; background: var(--bg-dark); z-index: 5000;
-            display: none; flex-direction: column; padding: 20px;
+        .main-nav { 
+            display: flex; background: #0d1117; padding: 10px; gap: 8px; 
+            overflow-x: auto; border-bottom: 1px solid var(--border); 
         }
-        #mapOverlay.active { display: flex; }
+        .nav-btn { 
+            padding: 12px 16px; background: var(--panel-bg); color: #8b949e; 
+            border: 1px solid var(--border); border-radius: 10px; font-size: 10px; 
+            font-weight: 800; text-transform: uppercase; cursor: pointer; white-space: nowrap;
+            transition: 0.2s;
+        }
+        .nav-btn.active { background: var(--pc-yellow); color: #000; border-color: var(--pc-yellow); }
 
-        /* --- BUTTONS --- */
-        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        /* CONTENUTI */
+        .content { flex: 1; overflow-y: auto; padding: 15px; position: relative; }
+        .section { display: none; max-width: 800px; margin: 0 auto; }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+
+        .card { 
+            background: var(--panel-bg); border: 1px solid var(--border); 
+            border-radius: 16px; padding: 20px; margin-bottom: 20px; 
+        }
+        h2 { 
+            font-size: 12px; text-transform: uppercase; color: var(--pc-yellow); 
+            margin-bottom: 18px; border-left: 4px solid var(--pc-yellow); padding-left: 12px; 
+            letter-spacing: 1px;
+        }
+
+        /* FORM */
+        .form-group { margin-bottom: 15px; }
+        label { 
+            display: block; font-size: 10px; font-weight: 800; color: #8b949e; 
+            text-transform: uppercase; margin-bottom: 6px; 
+        }
+        input, select, textarea { 
+            width: 100%; background: #0d1117; border: 1px solid var(--border); 
+            border-radius: 10px; padding: 14px; color: #fff; font-size: 15px; 
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--pc-blue); }
+
+        /* BOTTONI */
+        .btn { 
+            width: 100%; padding: 16px; border-radius: 12px; border: none; 
+            font-weight: 800; font-size: 11px; text-transform: uppercase; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            gap: 10px; margin-bottom: 12px; transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
         .btn-green { background: var(--success); color: #fff; }
         .btn-ai { background: var(--ai-purple); color: #fff; border-bottom: 4px solid #5d3bb1; }
         .btn-blue { background: var(--pc-blue); color: #fff; }
         .btn-tg { background: var(--tg-color); color: #fff; font-size: 13px; padding: 20px; }
-        .btn-back { background: #30363d; color: #fff; width: auto; padding: 10px 20px; }
 
-        /* --- ALERTS & LISTS --- */
-        .weather-alert { background: rgba(255, 152, 0, 0.1); border: 1px solid var(--warning); border-radius: 8px; padding: 12px; margin-bottom: 15px; }
-        .item-row { background: #0d1117; padding: 15px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); }
-        #map { flex: 1; border-radius: 15px; border: 2px solid var(--border); margin: 15px 0; }
-        
+        /* SCHERMATA MAPPA FULLSCREEN */
+        #mapOverlay { 
+            position: fixed; inset: 0; background: var(--bg-dark); z-index: 5000; 
+            display: none; flex-direction: column; padding: 20px; 
+        }
+        #mapOverlay.active { display: flex; animation: slideUp 0.3s ease-out; }
+
+        #map { 
+            flex: 1; border-radius: 20px; border: 2px solid var(--border); 
+            margin: 15px 0; z-index: 1;
+        }
+
+        /* METEO E LISTE */
+        .weather-alert { 
+            background: rgba(255, 204, 0, 0.1); border: 1px solid var(--pc-yellow); 
+            border-radius: 12px; padding: 15px; margin-bottom: 15px; 
+        }
+        .item-row { 
+            background: #0d1117; padding: 16px; border-radius: 12px; 
+            margin-bottom: 10px; border-left: 4px solid var(--pc-yellow); 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .qr-container { background: white; padding: 8px; border-radius: 10px; display: inline-block; }
+
+        /* ANIMAZIONI */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="loginScreen">
     <div class="login-card">
-        <h1 style="color:var(--pc-yellow);">S.A.R. MERLINI</h1>
-        <input type="password" id="pinInput" inputmode="numeric" placeholder="PIN" style="text-align:center; font-size:25px; letter-spacing:8px;">
-        <button class="btn btn-blue" style="margin-top:20px;" onclick="checkPin()">ENTRA NEL SISTEMA</button>
+        <h1 style="color:var(--pc-yellow); margin-bottom:5px;">SAR COMMAND</h1>
+        <p style="font-size:10px; color:#8b949e; margin-bottom:30px;">UNITÀ DI SOCCORSO MERLINI</p>
+        <input type="password" id="pinInput" inputmode="numeric" placeholder="INSERIRE PIN" style="text-align:center; font-size:25px; letter-spacing:10px;">
+        <button class="btn btn-blue" style="margin-top:25px;" onclick="checkPin()">ACCEDI AL SISTEMA</button>
     </div>
 </div>
 
 <header class="top-bar">
     <div class="logo">SAR <span>MERLINI</span></div>
-    <div id="liveClock" style="font-weight:bold; font-size:12px; color:var(--pc-yellow);">00:00:00</div>
+    <div id="liveClock" style="font-family: monospace; font-weight:bold; color:var(--pc-yellow);">00:00:00</div>
 </header>
 
 <nav class="main-nav">
@@ -98,36 +160,58 @@
     
     <div id="tab-missione" class="section active">
         <div class="card">
-            <h2>1. DATI MISSIONE</h2>
-            <div class="form-group"><label>Evento</label><input type="text" id="ev_tipo" placeholder="Es: Disperso"></div>
-            <div class="form-group"><label>Richiesto da</label><input type="text" id="ev_aut" placeholder="Es: 112 / CC"></div>
-            <div style="display:flex; gap:10px;">
-                <div class="form-group" style="flex:1"><label>Priorità</label><select id="ev_urg"><option>IMMEDIATA</option><option>PROGRAMMATA</option></select></div>
-                <div class="form-group" style="flex:1"><label>Orario</label><input type="time" id="ev_time"></div>
+            <h2>1. DEFINIZIONE OPERAZIONE</h2>
+            <div class="form-group">
+                <label>Natura dell'Evento</label>
+                <input type="text" id="ev_tipo" placeholder="Es: Ricerca Disperso, Incendio...">
             </div>
-            <div class="form-group"><label>Responsabile</label><input type="text" id="ev_resp" placeholder="Nome"></div>
+            <div class="form-group">
+                <label>Autorità Richiedente</label>
+                <input type="text" id="ev_aut" placeholder="Es: Prefettura, VVF, Carabinieri">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Urgenza</label>
+                    <select id="ev_urg">
+                        <option>IMMEDIATA</option>
+                        <option>PROGRAMMATA</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Orario Attivazione</label>
+                    <input type="time" id="ev_time">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Responsabile Operativo (R.O.)</label>
+                <input type="text" id="ev_resp" placeholder="Nome del coordinatore">
+            </div>
 
-            <button class="btn btn-ai" onclick="elaboraAI()">🧠 IA: FORMALIZZA TESTI</button>
-            <button class="btn btn-green" onclick="salvaInScaletta()">✚ SALVA IN SCALETTA</button>
-            <button class="btn btn-blue" style="margin-top:10px; font-size:13px;" onclick="mostraMappa()">CONTINUA E INSERISCI INDIRIZZO ➔</button>
+            <button class="btn btn-ai" onclick="elaboraAI()">🧠 IA: FORMALIZZA PROTOCOLLO</button>
+            <button class="btn btn-green" onclick="salvaInScaletta()">✚ AGGIUNGI A SCALETTA LOCALE</button>
+            <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+            <button class="btn btn-blue" style="font-size:12px; padding:20px;" onclick="mostraMappa()">CONTINUA E LOCALIZZA TARGET ➔</button>
         </div>
 
         <div class="card">
-            <h2>SCALETTA ATTIVA</h2>
+            <h2>STORICO MISSIONI RECENTI</h2>
             <div id="lista-eventi"></div>
         </div>
     </div>
 
     <div id="mapOverlay">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <button class="btn btn-back" onclick="chiudiMappa()">← TORNA INDIETRO</button>
-            <h3 style="color:var(--pc-yellow); margin:0; font-size:14px;">TARGET & METEO</h3>
+            <button class="btn btn-blue" style="width:auto; padding:10px 20px; margin:0;" onclick="chiudiMappa()">← ANNULLA</button>
+            <div style="text-align:right;">
+                <span style="color:var(--pc-yellow); font-size:10px; font-weight:bold;">SISTEMA CARTOGRAFICO</span><br>
+                <small id="coordDisp" style="font-size:9px; color:#8b949e;">Seleziona punto su mappa</small>
+            </div>
         </div>
 
-        <div class="card" style="margin-top:15px; padding:15px;">
-            <label>CERCA INDIRIZZO (Via, Città)</label>
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="ev_loc" placeholder="Es: Via Stelvio, Lecco">
+        <div class="card" style="margin-top:15px; padding:12px;">
+            <label>RICERCA INDIRIZZO / TOPONIMO</label>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="ev_loc" placeholder="Via, Città o Località...">
                 <button class="btn btn-blue" style="width:60px; margin:0;" onclick="cercaIndirizzo()">OK</button>
             </div>
         </div>
@@ -135,26 +219,48 @@
         <div id="map"></div>
         
         <div id="aiWeatherBox" class="weather-alert" style="display:none;">
-            <b style="font-size:10px;">REPORT METEO IA AGGIORNATO:</b>
-            <div id="aiWeatherContent" style="font-size:13px; margin-top:5px; color:#fff;"></div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                <span id="weatherIcon">🔄</span>
+                <b id="weatherStatus" style="font-size:10px; text-transform:uppercase;">Analisi Meteo...</b>
+            </div>
+            <div id="aiWeatherContent" style="font-size:13px; color:#fff; line-height:1.4;"></div>
         </div>
 
-        <button class="btn btn-tg" onclick="inviaTutto()">🚀 INVIA DISPACCIO COMPLETO AL GRUPPO</button>
+        <button class="btn btn-tg" onclick="inviaTutto()">🚀 TRASMETTI DISPACCIO AL GRUPPO</button>
     </div>
 
     <div id="tab-anagrafica" class="section">
-        <div class="card"><h2>NUOVO OPERATORE</h2><input type="text" id="vol_nome"><button class="btn btn-green" onclick="addVol()">SALVA</button></div>
+        <div class="card">
+            <h2>REGISTRAZIONE NUOVO OPERATORE</h2>
+            <input type="text" id="vol_nome" placeholder="NOME E COGNOME">
+            <button class="btn btn-green" style="margin-top:12px;" onclick="addVol()">GENERA CODICE SAR</button>
+        </div>
         <div id="lista-anagrafica"></div>
     </div>
-    <div id="tab-appello" class="section"><div class="card"><h2>PRESENTI</h2><div id="lista-appello"></div></div></div>
-    <div id="tab-scanner" class="section"><div class="card"><h2>SCANNER</h2><div id="reader"></div><button class="btn btn-blue" onclick="startScanner()">SCAN ON</button></div></div>
+
+    <div id="tab-appello" class="section">
+        <div class="card">
+            <h2>FORZA DISPONIBILE SUL CAMPO</h2>
+            <div id="lista-appello"></div>
+        </div>
+    </div>
+
+    <div id="tab-scanner" class="section">
+        <div class="card">
+            <h2>LETTURA CODICE OPERATORE</h2>
+            <div id="reader" style="border-radius:12px; overflow:hidden;"></div>
+            <button class="btn btn-blue" style="margin-top:15px;" onclick="startScanner()">ATTIVA VIDEOCAMERA</button>
+        </div>
+    </div>
+
 </div>
 
 <script>
+    /* CONFIGURAZIONE SISTEMA */
     const PIN_CORRETTO = "123456789";
     const TG_TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const TG_CHAT_ID = "-1003709844017";
-    const METEO_API = "b8630739958066f3938507764d85834e";
+    const METEO_API = "a6e2de460e31d27a29a44904339b18d9"; // La tua chiave API personale
 
     const firebaseConfig = {
         apiKey: "AIzaSyB5AhJZSLu3om-VUsoQBX9KazvtzAkAoa0",
@@ -163,155 +269,247 @@
         projectId: "merlini-sar", appId: "1:654419107383:web:d84686c7c305e87d6969b2"
     };
 
+    /* INIZIALIZZAZIONE */
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     let map, marker, scanner;
     let volontariGlobal = [];
-    let reportMeteoIA = "Dati meteo non caricati."; // Valore di default
+    let reportMeteoIA = "Dati non disponibili.";
 
+    /* GESTIONE ACCESSO */
     function checkPin() {
         if(document.getElementById('pinInput').value === PIN_CORRETTO) {
-            document.getElementById('loginScreen').style.display = 'none';
-            initMap();
-        } else { alert("PIN ERRATO"); }
+            document.getElementById('loginScreen').style.fadeOut = 300;
+            setTimeout(() => {
+                document.getElementById('loginScreen').style.display = 'none';
+                initMap();
+            }, 300);
+        } else { 
+            alert("ACCESSO NEGATO: PIN ERRATO"); 
+            document.getElementById('pinInput').value = "";
+        }
+    }
+
+    /* GESTIONE NAVIGAZIONE */
+    function openTab(id, btn) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-'+id).classList.add('active');
+        btn.classList.add('active');
+        if(id === 'anagrafica') renderQR();
     }
 
     function mostraMappa() {
         document.getElementById('mapOverlay').classList.add('active');
-        setTimeout(() => map.invalidateSize(), 300);
+        setTimeout(() => map.invalidateSize(), 400);
     }
-    function chiudiMappa() { document.getElementById('mapOverlay').classList.remove('active'); }
+    
+    function chiudiMappa() {
+        document.getElementById('mapOverlay').classList.remove('active');
+    }
 
+    /* GESTIONE MAPPA E METEO */
     function initMap() {
         map = L.map('map').setView([45.856, 9.397], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        map.on('click', e => posizionaMarker(e.latlng.lat, e.latlng.lng));
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        map.on('click', e => {
+            posizionaMarker(e.latlng.lat, e.latlng.lng);
+        });
         syncData();
     }
 
     async function cercaIndirizzo() {
         const query = document.getElementById('ev_loc').value;
         if(!query) return;
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-        const d = await r.json();
-        if(d.length > 0) {
-            const lat = d[0].lat; const lon = d[0].lon;
-            map.setView([lat, lon], 15);
-            posizionaMarker(lat, lon);
-        }
+        try {
+            const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+            const d = await r.json();
+            if(d.length > 0) {
+                const lat = d[0].lat;
+                const lon = d[0].lon;
+                map.setView([lat, lon], 15);
+                posizionaMarker(lat, lon);
+            } else {
+                alert("Indirizzo non trovato.");
+            }
+        } catch(e) { alert("Errore di connessione cartografica."); }
     }
 
     async function posizionaMarker(lat, lon) {
         if(marker) map.removeLayer(marker);
         marker = L.marker([lat, lon]).addTo(map);
+        document.getElementById('coordDisp').innerText = `Lat: ${lat.toFixed(4)} | Lon: ${lon.toFixed(4)}`;
         
-        // Caricamento Meteo
-        document.getElementById('aiWeatherBox').style.display = 'block';
-        document.getElementById('aiWeatherContent').innerText = "🔄 Caricamento dati meteo...";
+        const box = document.getElementById('aiWeatherBox');
+        const cont = document.getElementById('aiWeatherContent');
+        const stat = document.getElementById('weatherStatus');
         
+        box.style.display = 'block';
+        stat.innerText = "SINCRO METEO IN CORSO...";
+        cont.innerText = "Interrogazione server OpenWeather...";
+
         try {
-            const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${METEO_API}&units=metric&lang=it`);
-            const d = await r.json();
-            const t = d.main.temp;
-            const w = d.wind.speed * 3.6;
-            const sky = d.weather[0].description;
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${METEO_API}&units=metric&lang=it`);
+            const data = await resp = res.json().then(data => {
+                const t = Math.round(data.main.temp);
+                const w = Math.round(data.wind.speed * 3.6);
+                const sky = data.weather[0].description;
 
-            reportMeteoIA = `🌤 ${sky.toUpperCase()} | Temp: ${t}°C | Vento: ${w.toFixed(1)} km/h`;
-            if(w > 20) reportMeteoIA += `\n❌ ALLERTA: Vento forte per droni.`;
-            if(t < 5) reportMeteoIA += `\n🥶 ALLERTA: Freddo intenso.`;
-
-            document.getElementById('aiWeatherContent').innerText = reportMeteoIA;
+                stat.innerText = "ANALISI IA COMPLETATA";
+                reportMeteoIA = `🌤 METEO: ${sky.toUpperCase()}\n🌡 TEMP: ${t}°C | 💨 VENTO: ${w} km/h`;
+                
+                if(w > 20) reportMeteoIA += `\n⚠️ CRITICITÀ: Vento forte, cautela droni.`;
+                if(t < 5) reportMeteoIA += `\n⚠️ CRITICITÀ: Freddo, rischio ipotermia.`;
+                
+                cont.innerText = reportMeteoIA;
+                document.getElementById('weatherIcon').innerText = "✅";
+            });
         } catch(e) {
-            reportMeteoIA = "Meteo momentaneamente non disponibile.";
-            document.getElementById('aiWeatherContent').innerText = reportMeteoIA;
+            stat.innerText = "ERRORE CONNESSIONE";
+            cont.innerText = "Impossibile recuperare meteo. Controllare Chiave API.";
+            reportMeteoIA = "Dati meteo non disponibili.";
         }
     }
 
+    /* LOGICA IA TESTUALE */
     function elaboraAI() {
         const t = document.getElementById('ev_tipo');
         const a = document.getElementById('ev_aut');
         const r = document.getElementById('ev_resp');
+        
         if(t.value.toLowerCase().includes("disperso")) t.value = "RICERCA PERSONA SCOMPARSA (SAR)";
+        if(t.value.toLowerCase().includes("fuoco")) t.value = "AIB - INCENDIO BOSCHIVO";
+        
         a.value = a.value.toUpperCase();
-        r.value = "R.O. " + r.value.toUpperCase();
-        alert("IA: Testi formalizzati.");
+        if(!r.value.startsWith("R.O.")) r.value = "R.O. " + r.value.toUpperCase();
+        
+        alert("PROTOCOLLO FORMALIZZATO CON SUCCESSO");
     }
 
+    /* SINCRONIZZAZIONE FIREBASE */
     function salvaInScaletta() {
-        db.ref('merlini/scaletta').push({
-            t: document.getElementById('ev_tipo').value,
-            h: document.getElementById('ev_time').value,
-            ts: Date.now()
-        });
-        alert("Salvato.");
-    }
-
-    async function inviaTutto() {
-        if(!marker) { alert("Per favore, seleziona un punto sulla mappa prima di inviare!"); return; }
-        
         const t = document.getElementById('ev_tipo').value;
-        const loc = document.getElementById('ev_loc').value || "Coordinate GPS";
-        const resp = document.getElementById('ev_resp').value;
-        const ora = document.getElementById('ev_time').value;
-        const lat = marker.getLatLng().lat;
-        const lon = marker.getLatLng().lng;
+        const h = document.getElementById('ev_time').value;
+        if(!t) { alert("Inserire almeno la natura dell'evento."); return; }
         
-        const msg = `🚨 *NUOVO ORDINE DI MISSIONE*\n━━━━━━━━━━━━━━\n📌 *EVENTO:* ${t}\n📍 *LUOGO:* ${loc}\n🕒 *ORARIO:* ${ora}\n👤 *RESP:* ${resp}\n🌍 *MAPPA:* https://www.google.com/maps?q=${lat},${lon}\n\n${reportMeteoIA}\n━━━━━━━━━━━━━━`;
-
-        try {
-            await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
-            });
-            alert("✅ DISPACCIO INVIATO CON SUCCESSO!");
-            chiudiMappa();
-        } catch(e) { alert("Errore invio Telegram."); }
+        db.ref('merlini/scaletta').push({
+            t, h, ts: Date.now()
+        });
+        alert("MISSIONE REGISTRATA IN SCALETTA");
     }
 
-    // --- FUNZIONI EXTRA ---
     function syncData() {
         db.ref('merlini/scaletta').on('value', s => {
             const data = s.val() || {};
             document.getElementById('lista-eventi').innerHTML = Object.values(data).reverse().map(e => `
-                <div class="item-row"><b>${e.t}</b> - <small>${e.h}</small></div>
-            `).join('');
-        });
-        db.ref('merlini/anagrafica').on('value', s => {
-            volontariGlobal = Object.values(s.val() || {});
-            document.getElementById('lista-appello').innerHTML = volontariGlobal.map(v => `
-                <div class="item-row" style="border-left-color: ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
-                    <b>${v.nome}</b>: ${v.stato} (${v.ora})
+                <div class="item-row">
+                    <div><b>${e.t}</b><br><small>${e.h || '--:--'}</small></div>
+                    <span style="font-size:10px; color:var(--pc-yellow);">ATTIVO</span>
                 </div>
             `).join('');
         });
-    }
 
-    function addVol() {
-        const n = document.getElementById('vol_nome').value.toUpperCase();
-        const id = "M-" + Math.random().toString(36).substr(2, 5).toUpperCase();
-        db.ref('merlini/anagrafica/'+id).set({ id, nome: n, stato: "ASSENTE", ora: "--:--" });
-        document.getElementById('vol_nome').value = "";
-    }
-
-    function startScanner() {
-        scanner = new Html5Qrcode("reader");
-        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, id => {
-            const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            db.ref('merlini/anagrafica/'+id).update({ stato: "PRESENTE", ora: h });
-            alert("OK");
-            scanner.stop();
+        db.ref('merlini/anagrafica').on('value', s => {
+            volontariGlobal = Object.values(s.val() || {});
+            
+            // Render Appello
+            document.getElementById('lista-appello').innerHTML = volontariGlobal.map(v => `
+                <div class="item-row" style="border-left-color:${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
+                    <div><b>${v.nome}</b><br><small>ID: ${v.id}</small></div>
+                    <div style="text-align:right">
+                        <span style="font-size:10px; font-weight:bold; color:${v.stato==='PRESENTE'?'var(--success)':'#8b949e'}">${v.stato}</span><br>
+                        <small style="font-size:9px;">H: ${v.ora}</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            if(document.getElementById('tab-anagrafica').classList.contains('active')) renderQR();
         });
     }
 
-    function openTab(id, btn) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tab-'+id).classList.add('active');
-        btn.classList.add('active');
+    /* GESTIONE VOLONTARI */
+    function addVol() {
+        const n = document.getElementById('vol_nome').value.toUpperCase();
+        if(!n) return;
+        const id = "M-" + Math.random().toString(36).substr(2, 5).toUpperCase();
+        db.ref('merlini/anagrafica/'+id).set({
+            id, nome: n, stato: "ASSENTE", ora: "--:--"
+        });
+        document.getElementById('vol_nome').value = "";
     }
 
-    setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    function renderQR() {
+        const container = document.getElementById('lista-anagrafica');
+        container.innerHTML = volontariGlobal.map((v, i) => `
+            <div class="item-row">
+                <div id="qr-code-${i}" class="qr-container"></div>
+                <div style="flex:1; margin-left:15px;">
+                    <b>${v.nome}</b><br><small>CODICE: ${v.id}</small>
+                </div>
+                <button onclick="delVol('${v.id}')" style="background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer;">ELIMINA</button>
+            </div>
+        `).join('');
+        
+        volontariGlobal.forEach((v, i) => {
+            new QRCode(document.getElementById(`qr-code-${i}`), {
+                text: v.id, width: 70, height: 70, colorDark: "#000000", colorLight: "#ffffff"
+            });
+        });
+    }
+
+    function delVol(id) { if(confirm("Eliminare operatore dal database?")) db.ref('merlini/anagrafica/'+id).remove(); }
+
+    /* SCANNER QR */
+    function startScanner() {
+        scanner = new Html5Qrcode("reader");
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, id => {
+            const ora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            db.ref('merlini/anagrafica/'+id).update({ stato: "PRESENTE", ora: ora });
+            alert("OPERATORE REGISTRATO: " + id);
+            scanner.stop();
+        }).catch(err => alert("Errore fotocamera."));
+    }
+
+    /* INVIO FINALE TELEGRAM */
+    async function inviaTutto() {
+        if(!marker) { alert("ERRORE: Devi prima localizzare il punto sulla mappa."); return; }
+        
+        const lat = marker.getLatLng().lat;
+        const lon = marker.getLatLng().lng;
+        const evento = document.getElementById('ev_tipo').value || "MISIONE GENERICA";
+        const luogo = document.getElementById('ev_loc').value || "Coordinate GPS";
+        const ora = document.getElementById('ev_time').value || "--:--";
+        const resp = document.getElementById('ev_resp').value || "NON ASSEGNATO";
+
+        const messaggio = `🚨 *SAR MERLINI - ORDINE OPERATIVO*\n━━━━━━━━━━━━━━\n📌 *EVENTO:* ${evento}\n📍 *LUOGO:* ${luogo}\n🕒 *ORARIO:* ${ora}\n👤 *RESP:* ${resp}\n🌍 *MAPPA:* http://maps.google.com/maps?q=${lat},${lon}\n\n${reportMeteoIA}\n━━━━━━━━━━━━━━`;
+
+        try {
+            const r = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: TG_CHAT_ID, 
+                    text: messaggio, 
+                    parse_mode: 'Markdown' 
+                })
+            });
+            if(r.ok) {
+                alert("✅ DISPACCIO TRASMESSO AL GRUPPO TELEGRAM");
+                chiudiMappa();
+            } else { throw new Error(); }
+        } catch(e) {
+            alert("❌ ERRORE INVIO TELEGRAM. Controllare connessione.");
+        }
+    }
+
+    /* OROLOGIO LIVE */
+    setInterval(() => {
+        document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
+    }, 1000);
 </script>
+
 </body>
 </html>
