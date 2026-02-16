@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V16.5 FULL CLOUD</title>
+    <title>S.A.R. UNITÀ MERLINI - V16.6 OPERATIVA</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     
@@ -19,87 +16,50 @@
         :root {
             --bg-dark: #0a0e14; --panel-bg: #161b22; --pc-yellow: #ffcc00;
             --pc-blue: #0056b3; --danger: #eb3b5a; --text-main: #e6edf3;
-            --success: #2ea043; --border: #30363d; --warning: #f39c12;
+            --success: #2ea043; --border: #30363d;
         }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        .top-bar { background: var(--panel-bg); padding: 10px; border-bottom: 2px solid var(--pc-yellow); display: flex; align-items: center; justify-content: space-between; }
+        .module-nav { display: flex; background: #000; padding: 6px; gap: 5px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+        .nav-btn { padding: 10px 15px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; text-transform: uppercase; }
+        .nav-btn.active { background: var(--pc-yellow); color: black; }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        /* TOP BAR */
-        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 2px solid var(--pc-yellow); z-index: 1000; }
-        .pc-logo-img { height: 35px; margin-right: 12px; }
-
-        /* NAVIGATION */
-        .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
-        .nav-btn { padding: 10px 14px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: 0.2s; }
-        .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); }
-
-        /* CONTENT */
-        .main-content { flex: 1; overflow-y: auto; position: relative; padding-bottom: 30px; }
-        .module-page { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
+        .main-content { flex: 1; overflow-y: auto; padding: 15px; }
+        .module-page { display: none; }
         .module-page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* UI ELEMENTS */
-        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 550px; margin-inline: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 12px; margin-bottom: 4px; }
-        input, select, textarea { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; }
+        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 600px; margin-inline: auto; }
+        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 12px; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 14px; }
         
-        .btn { padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 12px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-        .btn-blue { background: var(--pc-blue); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-
-        /* SPECIAL ELEMENTS */
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; text-transform: uppercase; font-size: 11px; }
+        
+        /* MAPPA E RICERCA */
+        .search-box { display: flex; gap: 5px; margin-top: 10px; }
         #map { height: 300px; width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
-        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid var(--pc-yellow); background: black; margin-bottom: 10px; }
-        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--pc-yellow); display: flex; align-items: center; gap: 15px; }
-        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; cursor: pointer; }
-
-        /* MODALS */
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
-        .modal-content { background: var(--panel-bg); border: 2px solid var(--pc-yellow); border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; text-align: center; }
-        #qrFullContainer { background: white; padding: 15px; border-radius: 10px; display: inline-block; margin: 15px 0; }
         
-        #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 1000000; display: flex; align-items: center; justify-content: center; }
+        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 15px; border-left: 5px solid var(--pc-yellow); }
+        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 55px; height: 55px; }
+        
+        #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; align-items: center; justify-content: center; }
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index: 100000; flex-direction:column; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow); width: 90%;">
+    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow);">
         <h2 style="color:var(--pc-yellow);">S.A.R. UNITÀ MERLINI</h2>
-        <input type="password" id="loginInput" pattern="[0-9]*" inputmode="numeric" placeholder="PIN" style="text-align:center; font-size:30px; letter-spacing:8px; margin-top:20px;">
-        <button onclick="checkLogin()" class="btn btn-blue">ACCEDI AL SISTEMA</button>
-    </div>
-</div>
-
-<div id="qrZoomModal" class="modal-overlay" onclick="this.style.display='none'">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 id="zoomName" style="color:var(--pc-yellow); margin:0;">NOME</h2>
-        <div id="qrFullContainer"></div>
-        <button class="btn btn-danger" onclick="document.getElementById('qrZoomModal').style.display='none'">CHIUDI</button>
-    </div>
-</div>
-
-<div id="statusModal" class="modal-overlay">
-    <div class="modal-content">
-        <h2 id="scannedName" style="color:var(--pc-yellow); margin:0;">NOME</h2>
-        <p>Registra stato arrivo:</p>
-        <button class="btn btn-success" onclick="processStatus('PRESENTE')">✅ PRESENTE</button>
-        <button class="btn btn-warning" onclick="processStatus('RITARDO')">⏳ IN RITARDO</button>
-        <button class="btn btn-danger" onclick="processStatus('ASSENTE')">❌ ASSENTE</button>
-        <button class="btn" style="background:#444; color:white;" onclick="closeStatusModal()">ANNULLA</button>
+        <input type="password" id="loginInput" inputmode="numeric" placeholder="PIN" style="text-align:center; font-size:30px; letter-spacing:8px;">
+        <button onclick="checkLogin()" class="btn" style="background:var(--pc-blue); color:white;">ACCEDI</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <span style="font-weight:bold; color:var(--pc-yellow); font-size:15px;">MERLINI V16.5</span>
-    <div style="text-align: right;">
-        <div id="syncStatus" style="font-size:9px; color:var(--success); font-weight:bold;">● CLOUD SYNC</div>
-        <div id="liveClock" style="font-size:11px;">00:00:00</div>
-    </div>
+    <span><b>UNITÀ MERLINI V16.6</b></span>
+    <div id="liveClock" style="font-size:12px;">00:00:00</div>
 </div>
 
 <div class="module-nav">
@@ -107,26 +67,51 @@
     <button class="nav-btn" onclick="showPage('scanner', this)">📷 Scanner</button>
     <button class="nav-btn" onclick="showPage('volontari', this)">👥 Anagrafica</button>
     <button class="nav-btn" onclick="showPage('presenze', this)">📝 Appello</button>
-    <button class="nav-btn" onclick="showPage('diario', this)">📖 Diario</button>
 </div>
 
 <div class="main-content">
     
     <div id="page-missione" class="module-page active">
         <div class="card">
-            <h3 style="margin-top:0; color:var(--pc-yellow);">GESTIONE INTERVENTO</h3>
+            <h3 style="margin-top:0; color:var(--pc-yellow);">DETTAGLI ATTIVAZIONE</h3>
+            
             <label>Tipo di Evento</label>
-            <input type="text" id="m_evento" placeholder="Es: Ricerca Disperso">
-            <label>Punto di Ritrovo (Mappa)</label>
+            <input type="text" id="m_evento" placeholder="Es: Ricerca Persona Scomparsa">
+            
+            <label>Codice Evento / Protocollo</label>
+            <input type="text" id="m_protocollo" placeholder="Es: SAR-2026-001">
+
+            <label>Tipo di Attivazione</label>
+            <select id="m_attivazione">
+                <option value="SUBITO">IMMEDIATA (SUBITO)</option>
+                <option value="PROGRAMMATA">PROGRAMMATA</option>
+                <option value="STANDBY">STAND-BY</option>
+            </select>
+
+            <label>Autorità Richiedente</label>
+            <input type="text" id="m_autorita" placeholder="Es: Prefettura / CC / VVF">
+
+            <label>Responsabile Operativo</label>
+            <input type="text" id="m_responsabile" placeholder="Nome Coordinatore">
+
+            <button class="btn" style="background:var(--success); color:white;" onclick="saveMissionData()">➕ AGGIUNGI ALLA SCALETTA</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin:0; color:var(--pc-yellow);">LOCALIZZAZIONE INTERVENTO</h3>
+            <div class="search-box">
+                <input type="text" id="searchAddr" placeholder="Scrivi Via e Città...">
+                <button onclick="searchLocation()" class="btn" style="width:80px; margin:0; background:var(--pc-blue); color:white;">CERCA</button>
+            </div>
             <div id="map"></div>
-            <button class="btn btn-danger" onclick="sendTelegramAlert()">🚀 INVIA ALLERTA TELEGRAM</button>
+            <button class="btn btn-danger" onclick="sendTelegram()">🚀 INVIA ALLERTA TELEGRAM</button>
         </div>
     </div>
 
     <div id="page-scanner" class="module-page">
         <div class="card">
             <div id="reader"></div>
-            <button class="btn btn-blue" onclick="startScanner()">ACCENDI CAMERA</button>
+            <button class="btn" style="background:var(--pc-blue); color:white;" onclick="startScanner()">ACCENDI CAMERA</button>
         </div>
     </div>
 
@@ -134,37 +119,23 @@
         <div class="card">
             <label>AGGIUNGI VOLONTARIO</label>
             <input type="text" id="v_nome" placeholder="COGNOME NOME">
-            <label>Qualifica</label>
-            <select id="v_ruolo">
-                <option>Volontario</option>
-                <option>Capo Squadra</option>
-                <option>Coordinatore</option>
-            </select>
-            <button class="btn btn-success" onclick="addVolontario()">SALVA NEL CLOUD</button>
+            <button class="btn" style="background:var(--success); color:white;" onclick="addVolontario()">SALVA CLOUD</button>
         </div>
         <div id="lista-volontari"></div>
     </div>
 
     <div id="page-presenze" class="module-page">
-        <h3 style="text-align:center;">STATO REPARTO</h3>
         <div id="lista-appello"></div>
-        <button class="btn btn-blue" onclick="exportPDF()">📄 GENERA REPORT PDF</button>
-        <button class="btn btn-danger" style="opacity:0.6;" onclick="resetAppello()">RESET GIORNALIERO</button>
-    </div>
-
-    <div id="page-diario" class="module-page">
-        <div id="log-container" class="card" style="font-size:12px; max-height:400px; overflow-y:auto; line-height:1.6;"></div>
-        <div class="card">
-            <label>Nota Manuale Diario</label>
-            <textarea id="manualNote" rows="2" placeholder="Scrivi aggiornamento operativo..."></textarea>
-            <button class="btn btn-blue" onclick="saveManualNote()">REGISTRA NOTA</button>
-        </div>
     </div>
 
 </div>
 
+<div id="qrZoomModal" class="modal-overlay" onclick="this.style.display='none'">
+    <h2 id="zoomName" style="color:var(--pc-yellow);"></h2>
+    <div id="qrFull" style="background:white; padding:15px; border-radius:10px;"></div>
+</div>
+
 <script>
-    // CONFIGURAZIONE FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyB5AhJZSLu3om-VUsoQBX9KazvtzAkAoa0",
         authDomain: "merlini-sar.firebaseapp.com",
@@ -177,40 +148,17 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    let map, marker, html5QrCode;
 
-    let map, marker, html5QrCode, currentVolId;
-    let volontariGlobal = [];
-
-    // LOGIN
     function checkLogin() {
         if(document.getElementById('loginInput').value === "123456789") {
             document.getElementById('loginOverlay').style.display='none';
             initMap();
-            initSync();
+            loadMissionData();
+            syncCloud();
         } else { alert("PIN ERRATO"); }
     }
 
-    // SYNC CLOUD
-    function initSync() {
-        // Ascolta Volontari
-        db.ref('merlini/volontari').on('value', snap => {
-            const data = snap.val() || {};
-            volontariGlobal = Object.values(data).sort((a,b) => a.nome.localeCompare(b.nome));
-            renderVolontari();
-            renderAppello();
-        });
-
-        // Ascolta Log Diario
-        db.ref('merlini/log').limitToLast(50).on('value', snap => {
-            const logs = snap.val() || {};
-            const container = document.getElementById('log-container');
-            container.innerHTML = Object.values(logs).reverse().map(l => 
-                `<div><b>[${l.ora}]</b> ${l.txt}</div>`
-            ).join('');
-        });
-    }
-
-    // MAPPA
     function initMap() {
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -220,99 +168,95 @@
         });
     }
 
-    // AZIONI
-    function addVolontario() {
-        const nome = document.getElementById('v_nome').value.toUpperCase().trim();
-        const ruolo = document.getElementById('v_ruolo').value;
-        if(!nome) return;
-        const id = "M-" + btoa(nome).substr(0,8);
-        db.ref('merlini/volontari/'+id).set({ id, nome, ruolo, stato: "ASSENTE", ora: "--:--" });
-        addLog(`Aggiunto nuovo volontario: ${nome}`);
-        document.getElementById('v_nome').value = "";
+    async function searchLocation() {
+        const addr = document.getElementById('searchAddr').value;
+        if(!addr) return;
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`);
+            const data = await res.json();
+            if(data.length > 0) {
+                const pos = [data[0].lat, data[0].lon];
+                map.setView(pos, 16);
+                if(marker) map.removeLayer(marker);
+                marker = L.marker(pos).addTo(map);
+            }
+        } catch(e) { alert("Errore ricerca"); }
     }
 
-    function renderVolontari() {
-        const list = document.getElementById('lista-volontari');
-        list.innerHTML = volontariGlobal.map((v, i) => `
-            <div class="v-card">
-                <div id="qr-min-${i}" class="qr-small" onclick="showZoom('${v.nome}','${v.id}')"></div>
-                <div style="flex:1"><b>${v.nome}</b><br><small>${v.ruolo || 'Volontario'}</small></div>
-                <button onclick="delVol('${v.id}')" style="background:none; border:none; color:var(--danger);">✕</button>
-            </div>
-        `).join('');
-        volontariGlobal.forEach((v, i) => {
-            document.getElementById(`qr-min-${i}`).innerHTML = "";
-            new QRCode(document.getElementById(`qr-min-${i}`), { text: v.id, width: 60, height: 60 });
+    function saveMissionData() {
+        const mission = {
+            evento: document.getElementById('m_evento').value,
+            protocollo: document.getElementById('m_protocollo').value,
+            attivazione: document.getElementById('m_attivazione').value,
+            autorita: document.getElementById('m_autorita').value,
+            responsabile: document.getElementById('m_responsabile').value,
+            timestamp: new Date().toLocaleString()
+        };
+        db.ref('merlini/missione_attuale').set(mission);
+        alert("DATI MISSIONE SALVATI E SINCRONIZZATI!");
+    }
+
+    function loadMissionData() {
+        db.ref('merlini/missione_attuale').on('value', snap => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('m_evento').value = d.evento || '';
+                document.getElementById('m_protocollo').value = d.protocollo || '';
+                document.getElementById('m_attivazione').value = d.attivazione || 'SUBITO';
+                document.getElementById('m_autorita').value = d.autorita || '';
+                document.getElementById('m_responsabile').value = d.responsabile || '';
+            }
         });
     }
 
-    function renderAppello() {
-        const list = document.getElementById('lista-appello');
-        list.innerHTML = volontariGlobal.map(v => {
-            const color = v.stato === 'PRESENTE' ? 'var(--success)' : (v.stato === 'RITARDO' ? 'var(--warning)' : 'var(--danger)');
-            return `<div class="card" style="border-left:10px solid ${color}; display:flex; justify-content:space-between; align-items:center;">
+    function syncCloud() {
+        db.ref('merlini/volontari').on('value', snap => {
+            const data = snap.val() || {};
+            const list = Object.values(data).sort((a,b) => a.nome.localeCompare(b.nome));
+            renderUI(list);
+        });
+    }
+
+    function renderUI(list) {
+        document.getElementById('lista-volontari').innerHTML = list.map((v, i) => `
+            <div class="v-card">
+                <div id="qr-min-${i}" class="qr-small" onclick="showZoom('${v.nome}','${v.id}')"></div>
                 <b>${v.nome}</b>
-                <span style="font-weight:bold;">${v.stato} (${v.ora})</span>
-            </div>`;
-        }).join('');
+            </div>
+        `).join('');
+        list.forEach((v, i) => {
+            new QRCode(document.getElementById(`qr-min-${i}`), { text: v.id, width: 55, height: 55 });
+        });
+
+        document.getElementById('lista-appello').innerHTML = list.map(v => `
+            <div class="card" style="border-left:8px solid ${v.stato==='PRESENTE'?'#2ea043':'#eb3b5a'}">
+                <b>${v.nome}</b>: ${v.stato} (${v.ora})
+            </div>
+        `).join('');
     }
 
     function startScanner() {
         html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
-            const v = volontariGlobal.find(x => x.id === id);
-            if(v) {
-                currentVolId = id;
-                document.getElementById('scannedName').innerText = v.nome;
-                document.getElementById('statusModal').style.display = 'flex';
-                html5QrCode.stop();
-            }
+            const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            db.ref('merlini/volontari/'+id).update({ stato: "PRESENTE", ora: ora });
+            html5QrCode.stop();
         });
     }
 
-    function processStatus(stato) {
-        const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        db.ref('merlini/volontari/' + currentVolId).update({ stato, ora });
-        const v = volontariGlobal.find(x => x.id === currentVolId);
-        addLog(`Check-in: ${v.nome} registrato come ${stato}`);
-        document.getElementById('statusModal').style.display = 'none';
-    }
-
-    function addLog(txt) {
-        const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        db.ref('merlini/log').push({ ora, txt });
-    }
-
-    function saveManualNote() {
-        const note = document.getElementById('manualNote').value;
-        if(note) { addLog("NOTA: " + note); document.getElementById('manualNote').value = ""; }
-    }
-
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("S.A.R. UNITÀ MERLINI - REPORT", 14, 20);
-        const rows = volontariGlobal.map(v => [v.nome, v.ruolo, v.stato, v.ora]);
-        doc.autoTable({ startY: 30, head: [['Nome', 'Ruolo', 'Stato', 'Ora']], body: rows });
-        doc.save("Report_Merlini.pdf");
+    function addVolontario() {
+        const nome = document.getElementById('v_nome').value.toUpperCase().trim();
+        if(!nome) return;
+        const id = btoa(nome).substr(0,8);
+        db.ref('merlini/volontari/'+id).set({ id, nome, stato: "ASSENTE", ora: "--:--" });
+        document.getElementById('v_nome').value = "";
     }
 
     function showZoom(nome, id) {
         document.getElementById('zoomName').innerText = nome;
-        document.getElementById('qrFullContainer').innerHTML = "";
-        new QRCode(document.getElementById('qrFullContainer'), { text: id, width: 250, height: 250 });
+        document.getElementById('qrFull').innerHTML = "";
+        new QRCode(document.getElementById('qrFull'), { text: id, width: 250, height: 250 });
         document.getElementById('qrZoomModal').style.display = 'flex';
-    }
-
-    function delVol(id) { if(confirm("Eliminare?")) db.ref('merlini/volontari/'+id).remove(); }
-
-    function resetAppello() {
-        if(confirm("Resettare tutti a ASSENTE?")) {
-            const updates = {};
-            volontariGlobal.forEach(v => { updates[v.id + '/stato'] = "ASSENTE"; updates[v.id + '/ora'] = "--:--"; });
-            db.ref('merlini/volontari').update(updates);
-            addLog("Appello resettato dal coordinatore");
-        }
     }
 
     function showPage(id, btn) {
@@ -321,7 +265,6 @@
         document.getElementById('page-'+id).classList.add('active');
         btn.classList.add('active');
         if(id === 'missione') setTimeout(() => map.invalidateSize(), 400);
-        if(id !== 'scanner' && html5QrCode) html5QrCode.stop().catch(()=>{});
     }
 
     setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString(); }, 1000);
