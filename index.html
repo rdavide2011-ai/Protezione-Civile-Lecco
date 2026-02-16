@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V23.0 AI-TECH</title>
+    <title>S.A.R. UNITÀ MERLINI - V24.0 AI-FORMAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -17,144 +17,112 @@
             --bg-dark: #0a0e14; --panel-bg: #161b22; --pc-yellow: #ffcc00;
             --pc-blue: #0088cc; --danger: #eb3b5a; --text-main: #e6edf3;
             --success: #2ea043; --border: #30363d; --tg-color: #0088cc;
-            --ai-purple: #a855f7;
+            --ai-purple: #8b5cf6;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* HEADER */
-        .top-bar { background: var(--panel-bg); padding: 15px 20px; border-bottom: 3px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
-        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .top-bar { background: var(--panel-bg); padding: 15px 20px; border-bottom: 3px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+        .nav-btn { padding: 12px 20px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
+        .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); }
 
-        /* NAV */
-        .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
-        .nav-btn { padding: 12px 20px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: 0.3s; }
-        .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255, 204, 0, 0.2); }
-
-        /* CONTENT */
         .main-content { flex: 1; overflow-y: auto; padding: 15px; background: radial-gradient(circle at top, #1c2128 0%, #0a0e14 100%); }
         .module-page { display: none; max-width: 750px; margin: 0 auto; }
-        .module-page.active { display: block; animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .module-page.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* CARDS */
-        .card { background: var(--panel-bg); border-radius: 18px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
-        h3 { margin: 0 0 20px 0; color: var(--pc-yellow); font-size: 18px; text-transform: uppercase; letter-spacing: 1px; border-left: 4px solid var(--pc-yellow); padding-left: 15px; }
+        .card { background: var(--panel-bg); border-radius: 18px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h3 { margin: 0 0 20px 0; color: var(--pc-yellow); font-size: 16px; text-transform: uppercase; letter-spacing: 1px; border-left: 4px solid var(--pc-yellow); padding-left: 15px; }
         
-        label { font-size: 10px; color: var(--pc-yellow); font-weight: 900; text-transform: uppercase; display: block; margin-top: 18px; letter-spacing: 0.5px; }
-        input, select, textarea { width: 100%; padding: 14px; margin-top: 6px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 12px; font-size: 15px; }
+        label { font-size: 10px; color: var(--pc-yellow); font-weight: 900; text-transform: uppercase; display: block; margin-top: 15px; }
+        input, select { width: 100%; padding: 14px; margin-top: 6px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 12px; }
 
-        /* BUTTONS */
-        .btn { padding: 18px; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn { padding: 18px; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-blue { background: var(--pc-blue); color: white; }
         .btn-success { background: var(--success); color: white; }
-        .btn-tg { background: var(--tg-color); color: white; border-bottom: 4px solid #005a87; }
-        .btn-ai { background: var(--ai-purple); color: white; border-bottom: 4px solid #6b21a8; }
+        .btn-tg { background: var(--tg-color); color: white; }
+        .btn-ai { background: var(--ai-purple); color: white; border-bottom: 4px solid #5b21b6; }
 
-        /* AI ADVISOR BOX */
-        #ai-response { display: none; background: #2d1b4d; border: 1px solid var(--ai-purple); padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 14px; line-height: 1.5; color: #e9d5ff; }
-
-        #map { height: 350px; width: 100%; border-radius: 18px; border: 2px solid var(--border); margin-top: 10px; }
-        .map-search { display: flex; gap: 10px; margin-bottom: 10px; }
-
-        /* LISTS */
-        .v-card { background: #0d1117; padding: 15px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border); }
-        .qr-box { background: white; padding: 5px; border-radius: 10px; width: 70px; height: 70px; }
-
+        #ai-advisor { display: none; background: #1e1b4b; border: 1px solid var(--ai-purple); padding: 18px; border-radius: 12px; margin-top: 20px; font-size: 13px; color: #ddd6fe; border-left: 5px solid var(--ai-purple); }
+        #map { height: 350px; width: 100%; border-radius: 18px; border: 1px solid var(--border); margin-top: 10px; }
+        
+        .sc-item { background: #0d1117; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid var(--pc-blue); }
+        .qr-box { background: white; padding: 5px; border-radius: 10px; width: 65px; height: 65px; }
         #loginScreen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen">
-    <div class="card" style="text-align:center; width: 90%; max-width: 420px; border: 2px solid var(--pc-yellow);">
-        <h2 style="color:var(--pc-yellow);">UNITÀ MERLINI - SAR</h2>
-        <input type="password" id="pinInput" inputmode="numeric" placeholder="PIN" style="text-align:center; font-size:35px; letter-spacing:15px;">
-        <button onclick="checkAccess()" class="btn btn-blue">ACCEDI</button>
+    <div class="card" style="text-align:center; width: 90%; max-width: 400px; border: 1px solid var(--pc-yellow);">
+        <h2 style="color:var(--pc-yellow);">S.A.R. COMMAND</h2>
+        <input type="password" id="pinInput" inputmode="numeric" placeholder="SISTEMA PROTETTO" style="text-align:center; font-size:25px; letter-spacing:10px;">
+        <button onclick="checkAccess()" class="btn btn-blue">AUTENTICAZIONE</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <span><b>MERLINI COMMAND</b> <small style="color:var(--pc-yellow)">V23.0 <b style="color:var(--ai-purple)">AI</b></small></span>
+    <span><b>UNITÀ MERLINI</b> <small style="color:var(--ai-purple)">PROTOCOLLO IA</small></span>
     <div id="clockDisplay" style="font-size:12px; font-weight: bold;">00:00:00</div>
 </div>
 
 <div class="module-nav">
-    <button class="nav-btn active" onclick="showSection('missione', this)">🚨 Missione</button>
-    <button class="nav-btn" onclick="showSection('scanner', this)">📷 Scanner</button>
-    <button class="nav-btn" onclick="showSection('volontari', this)">👥 Anagrafica</button>
-    <button class="nav-btn" onclick="showSection('presenze', this)">📝 Appello</button>
+    <button class="nav-btn active" onclick="showSection('missione', this)">🚨 MISSIONE</button>
+    <button class="nav-btn" onclick="showSection('scanner', this)">📷 SCANNER</button>
+    <button class="nav-btn" onclick="showSection('volontari', this)">👥 ANAGRAFICA</button>
+    <button class="nav-btn" onclick="showSection('presenze', this)">📝 APPELLO</button>
 </div>
 
 <div class="main-content">
-    
     <div id="sec-missione" class="module-page active">
         <div class="card">
-            <h3>LOGISTICA MISSIONE</h3>
-            <label>Cosa sta succedendo? (Descrizione libera)</label>
-            <input type="text" id="ev_name" placeholder="Esempio: Ricerca disperso anziano in zona boschiva">
+            <h3>LOGISTICA ED EVENTO</h3>
+            <label>Natura dell'Intervento / Descrizione Situazione</label>
+            <input type="text" id="ev_name" placeholder="Es: Ricerca Persona Scomparsa">
 
-            <button class="btn btn-ai" onclick="aiAnalyze()">🧠 CHIEDI ANALISI TATTICA IA</button>
-            <div id="ai-response"></div>
+            <button class="btn btn-ai" onclick="aiFormalAnalyze()">🧠 ELABORA ANALISI TATTICA FORMALE</button>
+            <div id="ai-advisor"></div>
 
-            <label>Tipo Attivazione</label>
-            <select id="ev_type">
-                <option value="IMMEDIATA">IMMEDIATA</option>
-                <option value="PROGRAMMATA">PROGRAMMATA</option>
-            </select>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1"><label>Tipo Attivazione</label>
+                    <select id="ev_type"><option value="IMMEDIATA">IMMEDIATA</option><option value="PROGRAMMATA">PROGRAMMATA</option></select>
+                </div>
+                <div style="flex:1"><label>Orario Previsto</label><input type="time" id="ev_time"></div>
+            </div>
 
-            <label>Dettagli Coordinamento</label>
-            <input type="text" id="ev_ente" placeholder="Ente Richiedente">
-            <input type="text" id="ev_resp" placeholder="Responsabile" style="margin-top:10px;">
+            <label>Ente Richiedente</label><input type="text" id="ev_ente" placeholder="Es: Comando Stazione CC">
+            <label>Responsabile Operativo (R.O.)</label><input type="text" id="ev_resp" placeholder="Nome Coordinatore">
 
-            <button class="btn btn-success" onclick="pubblicaMissione()">➕ AGGIUNGI IN SCALETTA</button>
+            <button class="btn btn-success" onclick="pubblicaMissione()">ARCHIVIA IN SCALETTA</button>
         </div>
 
         <div class="card">
-            <h3>MAPPA E POSIZIONE</h3>
-            <div class="map-search"><input type="text" id="mapInput" placeholder="Cerca indirizzo..."><button onclick="mapSearch()" class="btn btn-blue" style="width:80px; margin:0;">GO</button></div>
+            <h3>LOCALIZZAZIONE INTERVENTO</h3>
+            <input type="text" id="mapInput" placeholder="Ricerca Geografica..." style="margin-bottom:10px;">
             <div id="map"></div>
-            
-            <button class="btn btn-tg" onclick="invioTelegramBot()">✈️ INVIA ALLERTA SMART A TELEGRAM</button>
+            <button class="btn btn-tg" onclick="invioTelegramBot()">✈️ TRASMETTI ORDINE DI MISSIONE (TELEGRAM)</button>
         </div>
 
-        <div class="card">
-            <h3>SCALETTA EVENTI</h3>
-            <div id="lista-scaletta"></div>
-        </div>
+        <div class="card"><h3>SCALETTA OPERATIVA</h3><div id="lista-scaletta"></div></div>
     </div>
 
     <div id="sec-scanner" class="module-page">
-        <div class="card" style="text-align:center;">
-            <h3>SCANNER QR</h3>
-            <div id="reader-box" style="width:100%; border-radius:15px; overflow:hidden; background:black;"></div>
-            <button class="btn btn-blue" onclick="startCamera()">AVVIA SCANNER</button>
-        </div>
+        <div class="card" style="text-align:center;"><h3>MODULO SCANNER QR</h3><div id="reader-box"></div><button class="btn btn-blue" onclick="startCamera()">ATTIVA FOTOCAMERA</button></div>
     </div>
 
     <div id="sec-volontari" class="module-page">
-        <div class="card">
-            <h3>REGISTRA VOLONTARIO</h3>
-            <input type="text" id="vol_name" placeholder="NOME E COGNOME">
-            <button class="btn btn-success" onclick="salvaVolontario()">AGGIUNGI AL CLOUD</button>
-        </div>
+        <div class="card"><label>NUOVO OPERATORE</label><input type="text" id="vol_name" placeholder="COGNOME NOME"><button class="btn btn-success" onclick="salvaVolontario()">SALVA NEL DATABASE</button></div>
         <div id="lista-volontari"></div>
     </div>
 
-    <div id="sec-presenze" class="module-page">
-        <h3>LISTA PRESENTI</h3>
-        <div id="lista-appello"></div>
-    </div>
-
+    <div id="sec-presenze" class="module-page"><h3>SITUAZIONE REPARTO LIVE</h3><div id="lista-appello"></div></div>
 </div>
 
 <script>
-    // CREDENZIALI GIOVANNI MEMORIZZATE
     const TG_TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const TG_CHAT_ID = "-1003709844017";
-
     const fbConf = {
         apiKey: "AIzaSyB5AhJZSLu3om-VUsoQBX9KazvtzAkAoa0",
         authDomain: "merlini-sar.firebaseapp.com",
@@ -173,61 +141,55 @@
         if(document.getElementById('pinInput').value === "123456789") {
             document.getElementById('loginScreen').style.display='none';
             initApp();
-        } else { alert("PIN ERRATO"); }
+        } else { alert("ACCESSO NEGATO: PIN ERRATO"); }
     }
 
-    function initApp() {
-        initMappa();
-        syncCloud();
-    }
+    function initApp() { initMappa(); syncCloud(); }
 
-    // --- FUNZIONE LOGICA IA ---
-    function aiAnalyze() {
+    // --- ANALISI IA FORMALE ---
+    function aiFormalAnalyze() {
         const text = document.getElementById('ev_name').value.toLowerCase();
-        const resBox = document.getElementById('ai-response');
-        resBox.style.display = 'block';
-        resBox.innerHTML = "<b>Analisi IA in corso...</b>";
+        const box = document.getElementById('ai-advisor');
+        if(!text) return alert("Inserire descrizione per analisi.");
+        
+        box.style.display = 'block';
+        box.innerHTML = "<i>Generazione Rapporto Tattico in corso...</i>";
 
         setTimeout(() => {
-            let advice = "<b>SISTEMA IA: Suggerimenti Operativi</b><br><ul>";
+            let report = "<b>[ANALISI TATTICA PRELIMINARE]</b><br><br>";
             
-            if (text.includes("anziano") || text.includes("persona") || text.includes("disperso")) {
-                advice += "<li>Priorità: Verificare ultimi contatti e patologie.</li>";
-                advice += "<li>Tattica: Ricerca a cerchi concentrici dal punto zero.</li>";
-                advice += "<li>Risorse: Richiedere Unità Cinofile Molecolari.</li>";
+            if (text.includes("disperso") || text.includes("ricerca")) {
+                report += "• <b>VALUTAZIONE:</b> Scenario ad alta criticità temporale.<br>";
+                report += "• <b>TATTICA:</b> Avvio protocollo Ricerca a Griglia. Saturazione aree primarie (LKP/PLS).<br>";
+                report += "• <b>LOGISTICA:</b> Richiesta immediata unità cinofile e supporto droni termici.<br>";
+            } else if (text.includes("incendio") || text.includes("fuoco")) {
+                report += "• <b>VALUTAZIONE:</b> Pericolo ambientale evolutivo.<br>";
+                report += "• <b>TATTICA:</b> Monitoraggio fronti di propagazione e messa in sicurezza vie di fuga.<br>";
+                report += "• <b>LOGISTICA:</b> Coordinamento obbligatorio con SOPI/VVF.<br>";
+            } else {
+                report += "• <b>VALUTAZIONE:</b> Operazione di routine o supporto logistico.<br>";
+                report += "• <b>TATTICA:</b> Presidio e monitoraggio secondo protocollo standard.<br>";
             }
-            if (text.includes("bosco") || text.includes("montagna")) {
-                advice += "<li>Sicurezza: Dotare operatori di GPS e radio VHF.</li>";
-                advice += "<li>Tech: Impiego Droni con termocamera consigliato.</li>";
-            }
-            if (text.includes("incendio") || text.includes("fuoco")) {
-                advice += "<li>Pericolo: Vento e vie di fuga prioritari.</li>";
-                advice += "<li>Contatto: Interfaccia immediata con Vigili del Fuoco.</li>";
-            }
-            
-            if (advice === "<b>SISTEMA IA: Suggerimenti Operativi</b><br><ul>") {
-                advice += "<li>Inserisci più dettagli per un'analisi specifica.</li><li>Assicurati di avere il kit di primo soccorso.</li>";
-            }
-            
-            advice += "</ul>";
-            resBox.innerHTML = advice;
-        }, 800);
+            report += "<br><small><i>Rapporto generato automaticamente da Merlini-AI Protocol</i></small>";
+            box.innerHTML = report;
+        }, 1000);
     }
 
-    // --- TELEGRAM ---
+    // --- TELEGRAM PROFESSIONALE ---
     async function invioTelegramBot() {
-        const name = document.getElementById('ev_name').value || "MISSIONE S.A.R.";
+        const name = document.getElementById('ev_name').value.toUpperCase() || "INTERVENTO NON SPECIFICATO";
         const type = document.getElementById('ev_type').value;
+        const time = document.getElementById('ev_time').value || "ASAP";
         const ente = document.getElementById('ev_ente').value || "N.D.";
-        const resp = document.getElementById('ev_resp').value || "N.D.";
+        const resp = document.getElementById('ev_resp').value || "DA ASSEGNARE";
         
         let gps = "";
         if (marker) {
             const l = marker.getLatLng();
-            gps = `\n📍 *POSIZIONE:* [Apri Mappa](http://maps.google.com/maps?q=${l.lat},${l.lng})`;
+            gps = `\n📍 *COORDINATE GPS:* ${l.lat.toFixed(5)}, ${l.lng.toFixed(5)}\n🔗 [MAPPA OPERATIVA](https://www.google.com/maps?q=${l.lat},${l.lng})`;
         }
 
-        const msg = `🚨 *ALLERTA UNITÀ MERLINI*\n━━━━━━━━━━━━━━\n📌 *INTERVENTO:* ${name}\n⚠️ *STATO:* ${type}\n🏛️ *ENTE:* ${ente}\n👤 *RESP:* ${resp}${gps}\n━━━━━━━━━━━━━━\n_Inviato da Merlini-AI_`;
+        const msg = `🛑 *ORDINE DI MISSIONE - UNITÀ MERLINI*\n━━━━━━━━━━━━━━━━━━━━\n📌 *INTERVENTO:* ${name}\n⚠️ *ATTIVAZIONE:* ${type}\n🕒 *ORARIO:* ${time}\n🏛️ *ENTE:* ${ente}\n👤 *RESPONSABILE:* ${resp}${gps}\n━━━━━━━━━━━━━━━━━━━━\n_Inviato tramite Protocollo Formale Merlini AI_`;
 
         try {
             const r = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
@@ -235,70 +197,47 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
             });
-            if(r.ok) alert("✅ INVIATO CON SUCCESSO!");
-        } catch (e) { alert("Errore connessione."); }
+            if(r.ok) alert("✅ MISSIONE TRASMESSA CON SUCCESSO");
+        } catch (e) { alert("Errore di trasmissione API."); }
     }
 
-    // --- MAPPA ---
+    // --- MAPPA & CLOUD ---
     function initMappa() {
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        map.on('click', e => {
-            if(marker) map.removeLayer(marker);
-            marker = L.marker(e.latlng).addTo(map);
-        });
-    }
-
-    async function mapSearch() {
-        const q = document.getElementById('mapInput').value;
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
-        const d = await r.json();
-        if(d.length > 0) {
-            const p = [d[0].lat, d[0].lon];
-            map.setView(p, 16);
-            if(marker) map.removeLayer(marker);
-            marker = L.marker(p).addTo(map);
-        }
+        map.on('click', e => { if(marker) map.removeLayer(marker); marker = L.marker(e.latlng).addTo(map); });
     }
 
     function syncCloud() {
         database.ref('merlini/scaletta').on('value', s => {
             const data = s.val() || {};
             document.getElementById('lista-scaletta').innerHTML = Object.values(data).reverse().map(m => `
-                <div style="background:#0d1117; padding:15px; border-radius:10px; margin-top:10px; border-left:4px solid var(--pc-blue);">
-                    <b>${m.n}</b><br><small>${m.t} - ${m.r}</small>
-                </div>
+                <div class="sc-item"><b>${m.n}</b><br><small>${m.t} | Resp: ${m.r}</small></div>
             `).join('');
         });
-
-        database.ref('merlini/anagrafica').on('value', s => {
-            const list = Object.values(s.val() || {}).sort((a,b) => a.nome.localeCompare(b.nome));
-            updateUI(list);
-        });
+        database.ref('merlini/anagrafica').on('value', s => { renderAnagrafica(Object.values(s.val() || {})); });
     }
 
-    function updateUI(list) {
+    function renderAnagrafica(list) {
         document.getElementById('lista-volontari').innerHTML = list.map((v, i) => `
-            <div class="v-card">
-                <div id="qrv-${i}" class="qr-box"></div>
-                <div style="flex:1"><b>${v.nome}</b></div>
-                <button onclick="rimuoviV('${v.id}')" style="color:var(--danger); background:none; border:none;">✕</button>
+            <div style="display:flex; align-items:center; gap:15px; background:#0d1117; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid var(--border);">
+                <div id="qrv-${i}" class="qr-box"></div><div style="flex:1"><b>${v.nome}</b></div>
             </div>
         `).join('');
-        list.forEach((v, i) => new QRCode(document.getElementById(`qrv-${i}`), { text: v.id, width: 70, height: 70 }));
-
+        list.forEach((v, i) => new QRCode(document.getElementById(`qrv-${i}`), { text: v.id, width: 65, height: 65 }));
+        
         document.getElementById('lista-appello').innerHTML = list.map(v => `
-            <div class="card" style="border-left:10px solid ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
+            <div class="card" style="border-left:8px solid ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}; padding:15px;">
                 <b>${v.nome}</b>: ${v.stato} (${v.ora})
             </div>
         `).join('');
     }
 
     function pubblicaMissione() {
-        const obj = { n: document.getElementById('ev_name').value.toUpperCase(), t: document.getElementById('ev_type').value, r: document.getElementById('ev_resp').value, ts: Date.now() };
-        if(!obj.n) return alert("Scrivi l'evento");
+        const obj = { n: document.getElementById('ev_name').value.toUpperCase(), t: document.getElementById('ev_type').value, r: document.getElementById('ev_resp').value };
+        if(!obj.n) return alert("Specificare evento");
         database.ref('merlini/scaletta').push(obj);
-        alert("Salvato!");
+        alert("Missione Archiviata");
     }
 
     function salvaVolontario() {
@@ -314,12 +253,10 @@
         scanner.start({ facingMode: "environment" }, { fps: 12, qrbox: 280 }, id => {
             const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             database.ref('merlini/anagrafica/'+id).update({ stato: "PRESENTE", ora: h });
-            alert("REGISTRATO!");
+            alert("OPERATORE REGISTRATO");
             scanner.stop();
         });
     }
-
-    function rimuoviV(id) { if(confirm("Eliminare?")) database.ref('merlini/anagrafica/'+id).remove(); }
 
     function showSection(id, btn) {
         document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
@@ -328,7 +265,6 @@
         btn.classList.add('active');
         if(id === 'missione') setTimeout(() => map.invalidateSize(), 400);
     }
-
     setInterval(() => { document.getElementById('clockDisplay').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
