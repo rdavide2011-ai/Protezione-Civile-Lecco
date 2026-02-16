@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V5.5</title>
+    <title>S.A.R. UNITÀ MERLINI - V5.6</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -26,7 +26,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* HEADER CON LOGO */
+        /* HEADER CON LOGO ESTERNO */
         .top-bar { 
             background: var(--panel-bg); 
             padding: 8px 15px; 
@@ -35,14 +35,11 @@
             justify-content: space-between; 
             border-bottom: 2px solid var(--pc-yellow); 
         }
-        .logo-section { display: flex; align-items: center; gap: 10px; }
-        .pc-logo {
-            width: 35px;
-            height: 35px;
-            background: #fff;
-            border-radius: 4px;
-            padding: 2px;
-            border: 1px solid var(--pc-blue);
+        .logo-section { display: flex; align-items: center; gap: 12px; }
+        .pc-logo-img {
+            height: 40px;
+            width: auto;
+            display: block;
         }
 
         .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
@@ -85,11 +82,7 @@
 
 <div id="loginOverlay">
     <div style="text-align:center; background:var(--panel-bg); padding:40px; border-radius:20px; border:2px solid var(--pc-yellow); width:90%; max-width:350px;">
-        <svg class="pc-logo" viewBox="0 0 100 100" style="width:60px; height:60px; margin-bottom:20px;">
-            <rect width="100" height="100" fill="#fff"/>
-            <path d="M10 10 L90 10 L50 85 Z" fill="#0056b3"/>
-            <circle cx="50" cy="40" r="15" fill="#ffcc00"/>
-        </svg>
+        <img src="logo.svg" alt="Logo" style="width:80px; height:80px; margin-bottom:20px;">
         <h2 style="color:var(--pc-yellow); margin-top:0;">S.A.R. MERLINI</h2>
         <input type="password" id="loginInput" inputmode="numeric" style="font-size:30px; text-align:center; letter-spacing:10px;" placeholder="PIN">
         <button onclick="checkLogin()" class="btn btn-blue" style="margin-top:20px;">ENTRA</button>
@@ -98,14 +91,10 @@
 
 <div class="top-bar">
     <div class="logo-section">
-        <svg class="pc-logo" viewBox="0 0 100 100">
-            <rect width="100" height="100" fill="#fff"/>
-            <path d="M10 10 L90 10 L50 85 Z" fill="#0056b3"/>
-            <circle cx="50" cy="40" r="15" fill="#ffcc00"/>
-        </svg>
+        <img src="logo.svg" alt="Logo PC" class="pc-logo-img">
         <div>
-            <div style="font-size:12px; font-weight:bold; color:var(--pc-yellow);">S.A.R. MERLINI</div>
-            <div style="font-size:9px; color:var(--success);">UNITÀ OPERATIVA</div>
+            <div style="font-size:14px; font-weight:bold; color:var(--pc-yellow); line-height:1;">S.A.R. MERLINI</div>
+            <div style="font-size:9px; color:var(--success); letter-spacing:1px;">CONSOLE OPERATIVA</div>
         </div>
     </div>
     <span id="save-indicator" style="font-size:8px; color:#8b949e;">AUTO-SAVE OK</span>
@@ -165,38 +154,10 @@
         <div id="map"></div>
     </div>
 
-    <div id="page-settori" class="module-page">
-        <div id="lista-settori"></div>
-        <div class="card">
-            <label>Nome Settore</label><input type="text" id="sec-nome">
-            <label>Squadra Assegnata</label><input type="text" id="sec-squadra">
-            <button class="btn btn-blue" onclick="addSettore()">ASSEGNA SETTORE</button>
-        </div>
-    </div>
-
-    <div id="page-presenze" class="module-page">
-        <div id="lista-presenze-dinamica"></div>
-        <div class="card"><label>Firma Coordinatore</label><canvas id="signature-pad"></canvas></div>
-        <button class="btn btn-success" onclick="exportPDF('appello')">📄 GENERA PDF APPELLO</button>
-    </div>
-
-    <div id="page-diario" class="module-page">
-        <div id="log-container"></div>
-        <div class="card">
-            <textarea id="log-input" rows="3" placeholder="Nuova nota operativa..."></textarea>
-            <button class="btn btn-blue" onclick="addLog()">SALVA NEL DIARIO</button>
-        </div>
-        <button class="btn btn-success" onclick="exportPDF('diario')">📄 GENERA PDF DIARIO</button>
-    </div>
-
-    <div id="page-volontari" class="module-page">
-        <div id="lista-volontari"></div>
-        <div class="card">
-            <label>Cognome e Nome</label><input type="text" id="v-nome">
-            <label>Ruolo / Qualifica</label><input type="text" id="v-ruolo">
-            <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI VOLONTARIO</button>
-        </div>
-    </div>
+    <div id="page-settori" class="module-page"><div id="lista-settori"></div><div class="card"><label>Settore</label><input type="text" id="sec-nome"><label>Squadra</label><input type="text" id="sec-squadra"><button class="btn btn-blue" onclick="addSettore()">ASSEGNA</button></div></div>
+    <div id="page-presenze" class="module-page"><div id="lista-presenze-dinamica"></div><div class="card"><label>Firma</label><canvas id="signature-pad"></canvas></div><button class="btn btn-success" onclick="exportPDF('appello')">📄 PDF APPELLO</button></div>
+    <div id="page-diario" class="module-page"><div id="log-container"></div><div class="card"><textarea id="log-input" rows="3"></textarea><button class="btn btn-blue" onclick="addLog()">SALVA NOTA</button></div><button class="btn btn-success" onclick="exportPDF('diario')">📄 PDF DIARIO</button></div>
+    <div id="page-volontari" class="module-page"><div id="lista-volontari"></div><div class="card"><label>Nome</label><input type="text" id="v-nome"><label>Ruolo</label><input type="text" id="v-ruolo"><button class="btn btn-success" onclick="addVolontario()">AGGIUNGI</button></div></div>
 </div>
 
 <script>
@@ -208,7 +169,7 @@
     let presenze = JSON.parse(localStorage.getItem('merlini_pre')) || {};
     let log = JSON.parse(localStorage.getItem('merlini_log')) || [];
     let settori = JSON.parse(localStorage.getItem('merlini_set')) || [];
-    let map, drawing = false;
+    let map;
 
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_VALIDO) {
@@ -248,27 +209,22 @@
     }
 
     async function sendTelegram() {
-        const evento = document.getElementById('f_evento').value;
-        const squadre = document.getElementById('f_squadre').value;
-        const tipo = document.getElementById('f_tipo').value;
-        const data = document.getElementById('f_data').value;
-        const ora = document.getElementById('f_ora').value;
-        const note = document.getElementById('f_note').value;
+        const ev = document.getElementById('f_evento').value;
+        const sq = document.getElementById('f_squadre').value;
+        const ti = document.getElementById('f_tipo').value;
+        const dt = document.getElementById('f_data').value;
+        const or = document.getElementById('f_ora').value;
+        const nt = document.getElementById('f_note').value;
 
-        let msg = `🚨 *ALLERTA MERLINI*\n\n`;
-        msg += `📌 *EVENTO:* ${evento || 'N/D'}\n`;
-        msg += `👥 *SQUADRE:* ${squadre || 'N/D'}\n`;
-        msg += `⚠️ *URGENZA:* ${tipo}\n`;
-        if(tipo === '🟡 PROGRAMMATA') {
-            msg += `📅 *DATA:* ${data || 'N/D'}\n⏰ *ORA:* ${ora || 'N/D'}\n`;
-        }
-        if(note) msg += `\n📝 *NOTE:* ${note}`;
+        let m = `🚨 *ALLERTA MERLINI*\n\n📌 *EV:* ${ev}\n👥 *SQ:* ${sq}\n⚠️ *URG:* ${ti}\n`;
+        if(ti.includes('GIALLO')) m += `📅 *DATA:* ${dt}\n⏰ *ORA:* ${or}\n`;
+        if(nt) m += `\n📝 *NOTE:* ${nt}`;
 
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
+            body: JSON.stringify({chat_id: ID_GRUPPO, text: m, parse_mode: 'Markdown'})
         });
-        alert("Allerta Inviata!");
+        alert("Inviato!");
     }
 
     function initMap() {
@@ -283,6 +239,7 @@
         document.getElementById('page-' + id).classList.add('active');
         if(btn) btn.classList.add('active');
         if(id === 'mappa') setTimeout(() => map.invalidateSize(), 200);
+        if(id !== 'mappa') document.getElementById('btn-send-pos').style.display = 'none';
     }
 
     function goToMapForCoords() {
@@ -303,79 +260,47 @@
 
     async function sendMapPosition() {
         const c = map.getCenter();
-        const link = `https://www.google.com/maps?q=${c.lat},${c.lng}`;
-        const msg = `📍 *POSIZIONE OPERATIVA MERLINI*\n\n🔗 [Apri Navigatore Google Maps](${link})`;
+        const l = `https://www.google.com/maps?q=${c.lat},${c.lng}`;
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
+            body: JSON.stringify({chat_id: ID_GRUPPO, text: `📍 *POSIZIONE OPERATIVA*\n\n🔗 [Maps](${l})`, parse_mode: 'Markdown'})
         });
-        alert("Posizione Inviata!");
+        alert("Inviata!");
     }
 
     function addVolontario() {
         const n = document.getElementById('v-nome').value.toUpperCase();
         const r = document.getElementById('v-ruolo').value;
-        if(n) {
-            volontari.push({nome:n, ruolo:r});
-            localStorage.setItem('merlini_vol', JSON.stringify(volontari));
-            updateAll();
-            document.getElementById('v-nome').value = ""; document.getElementById('v-ruolo').value = "";
-        }
+        if(n) { volontari.push({nome:n, ruolo:r}); localStorage.setItem('merlini_vol', JSON.stringify(volontari)); updateAll(); }
     }
 
     function updateAll() {
-        document.getElementById('lista-volontari').innerHTML = volontari.map((v,i) => `
-            <div class="list-item"><div><b>${v.nome}</b><br><small>${v.ruolo}</small></div><span onclick="delVolontario(${i})" style="color:var(--danger)">✕</span></div>`).join('');
-        
+        document.getElementById('lista-volontari').innerHTML = volontari.map((v,i) => `<div class="list-item"><b>${v.nome}</b><span onclick="delVol(${i})">✕</span></div>`).join('');
         document.getElementById('lista-presenze-dinamica').innerHTML = volontari.map(v => {
-            const s = presenze[v.nome] || {stato:''};
-            return `
-                <div class="presenza-row">
-                    <b>${v.nome}</b> - <small>${v.ruolo}</small>
-                    <div class="presenza-btns">
-                        <button class="p-btn ${s.stato==='presente'?'active-presente':''}" onclick="setPre('${v.nome}','presente')">Presente</button>
-                        <button class="p-btn ${s.stato==='assente'?'active-assente':''}" onclick="setPre('${v.nome}','assente')">Assente</button>
-                        <button class="p-btn ${s.stato==='ritardo'?'active-ritardo':''}" onclick="setPre('${v.nome}','ritardo')">Ritardo</button>
-                    </div>
-                </div>`;
+            const s = presenze[v.nome]?.stato || '';
+            return `<div class="presenza-row"><b>${v.nome}</b><div class="presenza-btns">
+                <button class="p-btn ${s==='presente'?'active-presente':''}" onclick="setPre('${v.nome}','presente')">P</button>
+                <button class="p-btn ${s==='assente'?'active-assente':''}" onclick="setPre('${v.nome}','assente')">A</button>
+            </div></div>`;
         }).join('');
-        
-        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `<div class="list-item"><b>${s.nome}</b> -> ${s.sq} <span onclick="delSet(${i})">✕</span></div>`).join('');
-        document.getElementById('log-container').innerHTML = log.map(l => `<div class="log-entry"><small style="color:var(--pc-yellow)">${l.ora}</small> ${l.txt}</div>`).reverse().join('');
+        document.getElementById('log-container').innerHTML = log.map(l => `<div><small>${l.ora}</small> ${l.txt}</div>`).reverse().join('');
     }
 
     function setPre(n, s) { presenze[n] = {stato:s}; localStorage.setItem('merlini_pre', JSON.stringify(presenze)); updateAll(); }
-    function delVolontario(i) { volontari.splice(i, 1); localStorage.setItem('merlini_vol', JSON.stringify(volontari)); updateAll(); }
-    function delSet(i) { settori.splice(i, 1); localStorage.setItem('merlini_set', JSON.stringify(settori)); updateAll(); }
+    function delVol(i) { volontari.splice(i, 1); localStorage.setItem('merlini_vol', JSON.stringify(volontari)); updateAll(); }
 
     function addLog() {
         const t = document.getElementById('log-input').value;
         if(!t) return;
-        const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        log.push({ora, txt:t});
+        log.push({ora: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}), txt:t});
         localStorage.setItem('merlini_log', JSON.stringify(log));
-        document.getElementById('log-input').value = "";
-        updateAll();
+        document.getElementById('log-input').value = ""; updateAll();
     }
 
-    function addSettore() {
-        const n = document.getElementById('sec-nome').value;
-        const s = document.getElementById('sec-squadra').value;
-        if(n) { settori.push({nome:n, sq:s}); localStorage.setItem('merlini_set', JSON.stringify(settori)); addLog(`Assegnato settore ${n}`); updateAll(); }
-    }
-
-    const canvas = document.getElementById('signature-pad');
-    const ctx = canvas.getContext('2d');
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const r=canvas.getBoundingClientRect(); ctx.moveTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); });
-    canvas.addEventListener('touchmove', (e) => { if(!drawing) return; const r=canvas.getBoundingClientRect(); ctx.lineTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); ctx.stroke(); });
-    canvas.addEventListener('touchend', () => drawing=false);
-
-    function exportPDF(tipo) {
+    function exportPDF(t) {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text(`UNITÀ MERLINI - REPORT ${tipo.toUpperCase()}`, 10, 10);
-        const d = tipo === 'appello' ? volontari.map(v => [v.nome, (presenze[v.nome]?.stato || 'N/D')]) : log.map(l => [l.ora, l.txt]);
-        doc.autoTable({ head: [['Info 1', 'Info 2']], body: d });
-        doc.save(`${tipo}.pdf`);
+        doc.text(`REPORT ${t.toUpperCase()}`, 10, 10);
+        doc.save(`${t}.pdf`);
     }
 </script>
 </body>
