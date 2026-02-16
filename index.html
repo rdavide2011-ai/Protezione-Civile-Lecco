@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V5.2</title>
+    <title>S.A.R. UNITÀ MERLINI - V5.3 SAFE</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -45,21 +45,20 @@
         .btn-success { background: var(--success); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--pc-yellow); color: var(--pc-yellow); }
 
-        /* MAPPA */
-        #page-mappa { height: 100%; width: 100%; position: absolute; padding:0; }
         #map { height: 100%; width: 100%; }
         .map-controls { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; }
         .search-group { display: flex; gap: 5px; margin-bottom: 5px; }
         .search-group input { margin: 0; background: white; color: black; }
-        
-        #btn-send-pos { display: none; background: var(--danger); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        #btn-send-pos { display: none; background: var(--danger); color: white; }
 
         .list-item { background: #0d1117; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; }
         .presenza-row { background: var(--panel-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 10px; }
         .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .p-btn { padding: 10px; border: none; border-radius: 6px; font-size: 9px; font-weight: bold; background: #21262d; color: #8b949e; cursor: pointer; }
+        .p-btn { padding: 10px; border: none; border-radius: 6px; font-size: 9px; font-weight: bold; background: #21262d; color: #8b949e; }
         .active-presente { background: var(--success) !important; color: white !important; }
-        
+        .active-assente { background: var(--danger) !important; color: white !important; }
+        .active-ritardo { background: var(--warning) !important; color: white !important; }
+
         #signature-pad { border: 1px dashed var(--pc-yellow); background: white; width: 100%; height: 120px; border-radius: 8px; }
         #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
@@ -75,7 +74,11 @@
 </div>
 
 <div class="top-bar">
-    <div style="display:flex; align-items:center;"><div style="background:var(--pc-yellow); color:black; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">M</div><span style="font-size:12px; font-weight:bold;">S.A.R. CONSOLE V5.2</span></div>
+    <div style="display:flex; align-items:center;">
+        <div style="background:var(--pc-yellow); color:black; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">M</div>
+        <span style="font-size:12px; font-weight:bold;">S.A.R. V5.3 SAFE</span>
+    </div>
+    <span id="save-status" style="font-size:9px; color:var(--success);">● DATI PROTETTI</span>
 </div>
 
 <div class="module-nav">
@@ -92,10 +95,10 @@
     <div id="page-allerta" class="module-page active">
         <div class="centered-container">
             <div class="card">
-                <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
-                <label>Squadre Impegnate</label><input type="text" id="f_squadre" placeholder="Es: Squadra 1, Squadra 2">
+                <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona" oninput="saveDraft()">
+                <label>Squadre Impegnate</label><input type="text" id="f_squadre" placeholder="Es: Squadra 1..." oninput="saveDraft()">
                 <label>Urgenza</label>
-                <select id="f_tipo">
+                <select id="f_tipo" onchange="saveDraft()">
                     <option value="🔴 IMMEDIATA">ROSSO (Immediata)</option>
                     <option value="🟡 PROGRAMMATA">GIALLO (Programmata)</option>
                 </select>
@@ -106,7 +109,7 @@
         </div>
     </div>
 
-    <div id="page-mappa" class="module-page">
+    <div id="page-mappa" class="module-page" style="padding:0; position:absolute; height:100%; width:100%;">
         <div class="map-controls">
             <div class="search-group">
                 <input type="text" id="map-search-input" placeholder="Cerca via o città...">
@@ -134,15 +137,19 @@
 
     <div id="page-diario" class="module-page">
         <div id="log-container"></div>
-        <div class="card"><textarea id="log-input" rows="3"></textarea><button class="btn btn-blue" onclick="addLog()">NOTAZIONE</button></div>
+        <div class="card">
+            <textarea id="log-input" rows="3" placeholder="Scrivi qui il log..."></textarea>
+            <button class="btn btn-blue" onclick="addLog()">REGISTRA EVENTO</button>
+        </div>
+        <button class="btn btn-success" onclick="exportPDF('diario')">📄 PDF DIARIO</button>
     </div>
 
     <div id="page-volontari" class="module-page">
         <div id="lista-volontari"></div>
         <div class="card">
             <label>Cognome e Nome</label><input type="text" id="v-nome">
-            <label>Qualifica</label><input type="text" id="v-ruolo">
-            <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI</button>
+            <label>Ruolo / Cosa fa</label><input type="text" id="v-ruolo">
+            <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI VOLONTARIO</button>
         </div>
     </div>
 </div>
@@ -152,17 +159,38 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_VALIDO = "123456789";
 
+    // CARICAMENTO DATI (Auto-Backup)
     let volontari = JSON.parse(localStorage.getItem('merlini_vol')) || [];
     let presenze = JSON.parse(localStorage.getItem('merlini_pre')) || {};
     let log = JSON.parse(localStorage.getItem('merlini_log')) || [];
     let settori = JSON.parse(localStorage.getItem('merlini_set')) || [];
     let map, drawing = false;
 
+    // Login e Inizializzazione
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_VALIDO) {
             document.getElementById('loginOverlay').style.display = 'none';
-            initMap(); updateAll();
+            initMap(); loadDraft(); updateAll();
         } else { alert("PIN ERRATO"); }
+    }
+
+    // Backup Istantaneo dei campi testo
+    function saveDraft() {
+        const draft = {
+            evento: document.getElementById('f_evento').value,
+            squadre: document.getElementById('f_squadre').value,
+            tipo: document.getElementById('f_tipo').value
+        };
+        localStorage.setItem('merlini_draft', JSON.stringify(draft));
+    }
+
+    function loadDraft() {
+        const draft = JSON.parse(localStorage.getItem('merlini_draft'));
+        if(draft) {
+            document.getElementById('f_evento').value = draft.evento || "";
+            document.getElementById('f_squadre').value = draft.squadre || "";
+            document.getElementById('f_tipo').value = draft.tipo || "🔴 IMMEDIATA";
+        }
     }
 
     function initMap() {
@@ -177,14 +205,12 @@
         document.getElementById('page-' + id).classList.add('active');
         if(btn) btn.classList.add('active');
         if(id === 'mappa') setTimeout(() => map.invalidateSize(), 200);
-        // Nascondi pulsante invio posizione se non arriviamo da Allerta
         if(id !== 'mappa') document.getElementById('btn-send-pos').style.display = 'none';
     }
 
     function goToMapForCoords() {
         showPage('mappa', document.getElementById('nav-mappa'));
         document.getElementById('btn-send-pos').style.display = 'block';
-        alert("Spostati sulla mappa o cerca un luogo, poi premi il tasto rosso per inviare le coordinate.");
     }
 
     async function searchMap() {
@@ -193,24 +219,21 @@
         const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
         const data = await resp.json();
         if(data.length > 0) {
-            const lat = data[0].lat; const lon = data[0].lon;
-            map.setView([lat, lon], 16);
-            L.marker([lat, lon]).addTo(map).bindPopup(query).openPopup();
+            map.setView([data[0].lat, data[0].lon], 16);
+            L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup(query).openPopup();
         }
     }
 
     async function sendMapPosition() {
         const center = map.getCenter();
         const googleLink = `https://www.google.com/maps?q=${center.lat},${center.lng}`;
-        const msg = `📍 *POSIZIONE OPERATIVA*\nIl coordinatore ha segnato questo punto:\n\n🔗 [Apri su Google Maps](${googleLink})`;
-        
+        const msg = `📍 *POSIZIONE OPERATIVA*\n\n🔗 [Apri su Google Maps](${googleLink})`;
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
         });
-        alert("Coordinate inviate con successo!");
-        addLog(`Inviate coordinate: ${center.lat.toFixed(5)}, ${center.lng.toFixed(5)}`);
-        showPage('allerta', document.getElementById('nav-allerta'));
+        alert("Coordinate Inviate!");
+        addLog(`Inviata posizione: ${center.lat.toFixed(5)}, ${center.lng.toFixed(5)}`);
     }
 
     async function sendTelegram() {
@@ -219,11 +242,11 @@
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
         });
-        alert("Allerta Inviata");
-        addLog(`Allerta inviata per: ${document.getElementById('f_evento').value}`);
+        alert("Telegram Inviato!");
+        addLog(`Inviata Allerta: ${document.getElementById('f_evento').value}`);
     }
 
-    // LOGICA VOLONTARI/APPELLO (Collegate)
+    // LOGICA DATI
     function addVolontario() {
         const nome = document.getElementById('v-nome').value.toUpperCase();
         const ruolo = document.getElementById('v-ruolo').value;
@@ -231,19 +254,16 @@
             volontari.push({nome, ruolo});
             localStorage.setItem('merlini_vol', JSON.stringify(volontari));
             updateAll();
+            document.getElementById('v-nome').value = ""; document.getElementById('v-ruolo').value = "";
         }
     }
 
-    function delVolontario(i) {
-        volontari.splice(i, 1);
-        localStorage.setItem('merlini_vol', JSON.stringify(volontari));
-        updateAll();
-    }
-
     function updateAll() {
+        // Volontari
         document.getElementById('lista-volontari').innerHTML = volontari.map((v,i) => `
-            <div class="list-item"><div><b>${v.nome}</b><br><small>${v.ruolo}</small></div><span onclick="delVolontario(${i})">✕</span></div>`).join('');
+            <div class="list-item"><div><b>${v.nome}</b><br><small>${v.ruolo}</small></div><span onclick="delVolontario(${i})" style="color:var(--danger)">✕</span></div>`).join('');
 
+        // Appello
         document.getElementById('lista-presenze-dinamica').innerHTML = volontari.map(v => {
             const s = presenze[v.nome] || {stato:''};
             return `
@@ -257,15 +277,18 @@
                 </div>`;
         }).join('');
 
-        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `<div class="list-item"><b>${s.nome}</b> - ${s.sq}</div>`).join('');
-        document.getElementById('log-container').innerHTML = log.map(l => `<div class="log-entry"><small>${l.ora}</small> ${l.txt}</div>`).reverse().join('');
+        // Settori
+        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `
+            <div class="list-item"><div><b>${s.nome}</b><br><small>${s.sq}</small></div><span onclick="delSet(${i})">✕</span></div>`).join('');
+
+        // Diario
+        document.getElementById('log-container').innerHTML = log.map(l => `
+            <div class="log-entry"><small style="color:var(--pc-yellow)">${l.ora}</small> ${l.txt}</div>`).reverse().join('');
     }
 
-    function setPre(n, s) {
-        presenze[n] = {stato:s};
-        localStorage.setItem('merlini_pre', JSON.stringify(presenze));
-        updateAll();
-    }
+    function setPre(n, s) { presenze[n] = {stato:s}; localStorage.setItem('merlini_pre', JSON.stringify(presenze)); updateAll(); }
+    function delVolontario(i) { volontari.splice(i, 1); localStorage.setItem('merlini_vol', JSON.stringify(volontari)); updateAll(); }
+    function delSet(i) { settori.splice(i, 1); localStorage.setItem('merlini_set', JSON.stringify(settori)); updateAll(); }
 
     function addLog() {
         const txt = document.getElementById('log-input').value;
@@ -280,10 +303,16 @@
     function addSettore() {
         const n = document.getElementById('sec-nome').value;
         const s = document.getElementById('sec-squadra').value;
-        if(n) { settori.push({nome:n, sq:s}); localStorage.setItem('merlini_set', JSON.stringify(settori)); addLog(`Settore ${n} -> ${s}`); updateAll(); }
+        if(n) {
+            settori.push({nome:n, sq:s});
+            localStorage.setItem('merlini_set', JSON.stringify(settori));
+            addLog(`Settore ${n} assegnato a ${s}`);
+            document.getElementById('sec-nome').value = ""; document.getElementById('sec-squadra').value = "";
+            updateAll();
+        }
     }
 
-    // FIRMA (Canvas ridimensionabile)
+    // FIRMA
     const canvas = document.getElementById('signature-pad');
     const ctx = canvas.getContext('2d');
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const r=canvas.getBoundingClientRect(); ctx.moveTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); });
@@ -292,9 +321,9 @@
 
     function exportPDF(tipo) {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text("REPORT S.A.R. MERLINI", 10, 10);
-        const rows = tipo === 'appello' ? volontari.map(v => [v.nome, (presenze[v.nome]?.stato || 'assente')]) : log.map(l => [l.ora, l.txt]);
-        doc.autoTable({ head: [['Info 1', 'Info 2']], body: rows });
+        doc.text(`REPORT MERLINI - ${tipo.toUpperCase()}`, 10, 10);
+        const data = tipo === 'appello' ? volontari.map(v => [v.nome, (presenze[v.nome]?.stato || 'N.D.')]) : log.map(l => [l.ora, l.txt]);
+        doc.autoTable({ head: [['Info 1', 'Info 2']], body: data });
         doc.save(`${tipo}.pdf`);
     }
 </script>
