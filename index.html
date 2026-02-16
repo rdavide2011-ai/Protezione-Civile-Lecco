@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V21.0 FINAL</title>
+    <title>S.A.R. UNITÀ MERLINI - V22.0 GPS</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -80,7 +80,7 @@
 </div>
 
 <div class="top-bar">
-    <span><b>S.A.R. MERLINI</b> <small style="color:var(--pc-yellow)">V21.0</small></span>
+    <span><b>S.A.R. MERLINI</b> <small style="color:var(--pc-yellow)">V22.0 GPS</small></span>
     <div style="text-align:right">
         <div style="font-size:10px;"><span class="status-dot"></span>DATABASE LIVE</div>
         <div id="clockDisplay" style="font-size:12px; font-weight: bold;">00:00:00</div>
@@ -125,14 +125,14 @@
         </div>
 
         <div class="card">
-            <h3>POSIZIONE GPS</h3>
+            <h3>POSIZIONE GPS (RITROVO)</h3>
             <div class="map-search">
                 <input type="text" id="mapInput" placeholder="Cerca indirizzo...">
                 <button onclick="mapSearch()" class="btn btn-blue" style="width:80px; margin:0;">GO</button>
             </div>
             <div id="map"></div>
             
-            <button class="btn btn-tg" onclick="invioTelegramBot()">✈️ INVIA MISSIONE AL GRUPPO TELEGRAM</button>
+            <button class="btn btn-tg" onclick="invioTelegramBot()">✈️ INVIA MISSIONE E POSIZIONE GPS</button>
         </div>
 
         <div class="card">
@@ -167,7 +167,7 @@
 </div>
 
 <script>
-    // CREDENZIALI GIOVANNI - MEMORIZZATE
+    // CREDENZIALI MEMORIZZATE
     const TG_TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const TG_CHAT_ID = "-1003709844017";
 
@@ -201,7 +201,7 @@
         document.getElementById('area-prog').style.display = (v === 'PROGRAMMATA') ? 'block' : 'none';
     }
 
-    // --- FUNZIONE BOT TELEGRAM DIRETTA ---
+    // --- FUNZIONE BOT TELEGRAM CON LINK GPS ---
     async function invioTelegramBot() {
         const name = document.getElementById('ev_name').value || "MISSIONE S.A.R.";
         const type = document.getElementById('ev_type').value;
@@ -211,7 +211,17 @@
         const prot = document.getElementById('ev_prot').value || "N.D.";
         const resp = document.getElementById('ev_resp').value || "N.D.";
 
-        const msg = `🚨 *ALLERTA UNITÀ MERLINI*\n\n📌 *INTERVENTO:* ${name}\n⚠️ *TIPO:* ${type}\n📅 *DATA:* ${date}\n🕒 *ORA:* ${time}\n🏛️ *ENTE:* ${ente}\n🆔 *PROT:* ${prot}\n👤 *RESP:* ${resp}`;
+        let gpsInfo = "\n📍 *POSIZIONE:* Non specificata";
+        if (marker) {
+            const latlng = marker.getLatLng();
+            const lat = latlng.lat.toFixed(6);
+            const lng = latlng.lng.toFixed(6);
+            gpsInfo = `\n📍 *POSIZIONE:* ${lat}, ${lng}\n🔗 [APRI NAVIGATORE](https://www.google.com/maps?q=${lat},${lng})`;
+        } else {
+            alert("⚠️ AVVISO: Non hai messo il segnaposto sulla mappa. Il messaggio verrà inviato senza coordinate GPS.");
+        }
+
+        const msg = `🚨 *ALLERTA UNITÀ MERLINI*\n\n📌 *INTERVENTO:* ${name}\n⚠️ *TIPO:* ${type}\n📅 *DATA:* ${date}\n🕒 *ORA:* ${time}\n🏛️ *ENTE:* ${ente}\n🆔 *PROT:* ${prot}\n👤 *RESP:* ${resp}${gpsInfo}`;
 
         try {
             const r = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
@@ -219,9 +229,9 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
             });
-            if(r.ok) { alert("✅ MESSAGGIO INVIATO CON SUCCESSO!"); }
-            else { alert("❌ ERRORE INVIO. Verifica connessione."); }
-        } catch (e) { alert("❌ ERRORE API TELEGRAM."); }
+            if(r.ok) { alert("✅ MESSAGGIO E GPS INVIATI!"); }
+            else { alert("❌ ERRORE INVIO."); }
+        } catch (e) { alert("❌ ERRORE CONNESSIONE."); }
     }
 
     // --- MAPPA ---
