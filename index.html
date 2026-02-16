@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V11.0 INTEGRALE</title>
+    <title>S.A.R. UNITÀ MERLINI - V12.0 COMPLETA</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -22,43 +22,38 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* HEADER & NAV */
-        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 2px solid var(--pc-yellow); z-index: 100; }
+        .top-bar { background: var(--panel-bg); padding: 8px 15px; display: flex; align-items: center; border-bottom: 2px solid var(--pc-yellow); z-index: 100; }
         .pc-logo-img { height: 35px; margin-right: 12px; }
+
         .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
         .nav-btn { padding: 10px 14px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
         .nav-btn.active { background: var(--pc-yellow); color: black; }
 
-        /* CONTENT */
         .main-content { flex: 1; overflow-y: auto; padding-bottom: 60px; position: relative; }
         .module-page { display: none; padding: 15px; }
         .module-page.active { display: block; }
 
-        /* CARDS */
-        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 500px; margin-inline: auto; }
-        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 12px; }
+        .card { background: var(--panel-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 500px; margin-inline: auto; }
+        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 10px; }
         input, select, textarea { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; margin-top: 5px; font-size: 14px; }
         
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; font-size: 12px; }
+        .btn { padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; font-size: 11px; }
         .btn-blue { background: var(--pc-blue); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-warning { background: var(--warning); color: white; }
         .btn-danger { background: var(--danger); color: white; }
 
-        /* MODALE SELEZIONE STATO (Post-Scansione) */
-        #statusModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:30px; }
-        .status-box { background: var(--panel-bg); padding: 25px; border-radius: 20px; border: 2px solid var(--pc-yellow); width: 100%; max-width: 400px; text-align: center; }
-
-        /* SCANNER & QR */
+        #statusModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
         #reader { width: 100%; border-radius: 12px; border: 2px solid var(--pc-yellow); overflow: hidden; background: #000; }
         .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; align-items: center; gap: 15px; position: relative; }
         .qr-small { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; }
+        .tag { background: rgba(255, 204, 0, 0.1); color: var(--pc-yellow); font-size: 9px; padding: 2px 6px; border: 1px solid var(--pc-yellow); border-radius: 4px; margin-right: 3px; }
 
-        /* MAP */
         #map { height: 100%; width: 100%; }
         #page-mappa { padding: 0; position: absolute; width: 100%; height: 100%; }
         .map-overlay { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; pointer-events: none; }
         .map-overlay > * { pointer-events: auto; }
+        canvas#signature-pad { border: 1px dashed var(--pc-yellow); background: white; width: 100%; height: 120px; border-radius: 8px; margin-top: 10px; }
 
         #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 100000; display: flex; align-items: center; justify-content: center; }
     </style>
@@ -66,23 +61,22 @@
 <body>
 
 <div id="loginOverlay">
-    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow);">
-        <img src="logo.svg" style="width:80px; margin-bottom:15px;">
-        <h2 style="color:var(--pc-yellow); margin:0;">S.A.R. MERLINI</h2>
-        <p style="font-size:10px;">INSERIRE PIN OPERATIVO</p>
-        <input type="password" id="loginInput" inputmode="numeric" style="text-align:center; font-size:24px;">
+    <div class="card" style="text-align:center;">
+        <img src="logo.svg" style="width:70px; margin-bottom:10px;">
+        <h2 style="color:var(--pc-yellow);">MERLINI CONSOLE</h2>
+        <input type="password" id="loginInput" placeholder="PIN" style="text-align:center; font-size:22px;">
         <button onclick="checkLogin()" class="btn btn-blue">ACCEDI</button>
     </div>
 </div>
 
 <div id="statusModal">
-    <div class="status-box">
-        <h2 id="scannedName" style="color:var(--pc-yellow); margin-top:0;">NOME</h2>
-        <p style="margin-bottom:20px;">Registra lo stato di arrivo:</p>
+    <div class="card" style="text-align:center; width:100%; max-width:400px; border:2px solid var(--pc-yellow);">
+        <h2 id="scannedName" style="color:var(--pc-yellow);">NOME</h2>
+        <p>Registra arrivo:</p>
         <button class="btn btn-success" onclick="processStatus('PRESENTE')">✅ PRESENTE</button>
         <button class="btn btn-warning" onclick="processStatus('RITARDO')">⏳ IN RITARDO</button>
         <button class="btn btn-danger" onclick="processStatus('ASSENTE')">❌ ASSENTE</button>
-        <button class="btn" style="background:#333; color:white;" onclick="closeStatusModal()">ANNULLA</button>
+        <button class="btn" style="background:#444; color:white;" onclick="document.getElementById('statusModal').style.display='none'">ANNULLA</button>
     </div>
 </div>
 
@@ -90,15 +84,17 @@
     <img src="logo.svg" class="pc-logo-img">
     <div style="line-height:1">
         <span style="font-weight:bold; color:var(--pc-yellow); font-size:14px;">UNITÀ MERLINI</span><br>
-        <span style="font-size:9px; color:var(--success);">V11.0 INTEGRALE</span>
+        <span style="font-size:9px; color:var(--success);">V12.0 MASTER</span>
     </div>
 </div>
 
 <div class="module-nav">
     <button class="nav-btn" onclick="showPage('allerta', this)">🚨 Allerta</button>
-    <button class="nav-btn active" id="nav-scanner" onclick="showPage('scanner', this)">📷 Scanner</button>
+    <button class="nav-btn" id="nav-mappa" onclick="showPage('mappa', this)">🗺️ Mappa</button>
+    <button class="nav-btn active" onclick="showPage('scanner', this)">📷 Scanner</button>
     <button class="nav-btn" onclick="showPage('volontari', this)">👥 Anagrafica</button>
     <button class="nav-btn" onclick="showPage('presenze', this)">📝 Appello</button>
+    <button class="nav-btn" onclick="showPage('settori', this)">📐 Settori</button>
     <button class="nav-btn" onclick="showPage('diario', this)">📖 Diario</button>
 </div>
 
@@ -106,30 +102,34 @@
     
     <div id="page-scanner" class="module-page active">
         <div class="card">
-            <h3 style="margin-top:0; color:var(--pc-yellow);">CHECK-IN RAPIDO</h3>
+            <h3>CHECK-IN QR</h3>
             <div id="reader"></div>
-            <button class="btn btn-blue" onclick="startScanner()">ATTIVA FOTOCAMERA</button>
-            <button class="btn btn-danger" onclick="stopScanner()">SPEGNI</button>
+            <button class="btn btn-blue" onclick="startScanner()">APRI FOTOCAMERA</button>
+            <button class="btn btn-danger" onclick="stopScanner()">CHIUDI</button>
         </div>
     </div>
 
     <div id="page-allerta" class="module-page">
         <div class="card">
             <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
+            <label>Squadre</label><input type="text" id="f_squadre" placeholder="Es: SAR 1, SAR 2">
             <label>Urgenza</label>
-            <select id="f_tipo" onchange="document.getElementById('date-fields').style.display=(this.value==='GIALLO'?'block':'none')">
+            <select id="f_tipo" onchange="document.getElementById('data-ora-box').style.display=(this.value==='GIALLO'?'block':'none')">
                 <option value="ROSSO">🔴 IMMEDIATA</option>
                 <option value="GIALLO">🟡 PROGRAMMATA</option>
             </select>
-            <div id="date-fields" style="display:none;"><label>Data/Ora</label><input type="datetime-local" id="f_data"></div>
-            <button class="btn btn-blue" onclick="showPage('mappa')">IMPOSTA PUNTO RITROVO 🗺️</button>
+            <div id="data-ora-box" style="display:none;"><label>Data/Ora</label><input type="datetime-local" id="f_data"></div>
+            <label>Note</label><textarea id="f_note" rows="2"></textarea>
+            <button class="btn btn-blue" onclick="showPage('mappa', document.getElementById('nav-mappa'))">AVANTI: POSIZIONE 🗺️</button>
         </div>
     </div>
 
     <div id="page-mappa" class="module-page">
         <div class="map-overlay">
-            <div id="send-panel" style="display:none; background:var(--panel-bg); padding:10px; border-radius:10px; border:2px solid var(--success);">
-                <button class="btn btn-success" onclick="sendAlert()">🚀 INVIA ALLERTA TELEGRAM</button>
+            <input type="text" id="map-search" placeholder="Cerca luogo..." style="background:white; color:black; margin-bottom:5px;">
+            <button onclick="searchMap()" class="btn btn-blue" style="width:50px;">🔍</button>
+            <div id="send-panel" style="display:none; background:var(--panel-bg); padding:10px; border:2px solid var(--success); border-radius:10px; margin-top:5px;">
+                <button class="btn btn-success" onclick="sendAlert()">🚀 INVIA TELEGRAM</button>
             </div>
         </div>
         <div id="map"></div>
@@ -137,44 +137,77 @@
 
     <div id="page-volontari" class="module-page">
         <div class="card">
-            <label>Nuovo Volontario</label><input type="text" id="v_nome" placeholder="Cognome e Nome">
-            <button class="btn btn-success" onclick="addVolontario()">GENERA IDENTITÀ QR</button>
+            <label>Nome e Cognome</label><input type="text" id="v_nome">
+            <label>Qualifica</label>
+            <select id="v_ruolo"><option>Volontario</option><option>Capo Squadra</option><option>Coordinatore</option></select>
+            <label>Specializzazioni</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; font-size:10px;">
+                <label><input type="checkbox" class="v_spec" value="🐕 Cinofilo"> Cinofilo</label>
+                <label><input type="checkbox" class="v_spec" value="🚒 Autista"> Autista</label>
+                <label><input type="checkbox" class="v_spec" value="🩺 BLSD"> BLSD</label>
+                <label><input type="checkbox" class="v_spec" value="🔍 SAR"> SAR</label>
+                <label><input type="checkbox" class="v_spec" value="🪚 Motosega"> Motosega</label>
+                <label><input type="checkbox" class="v_spec" value="🛠️ Logista"> Logista</label>
+            </div>
+            <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI E GENERA QR</button>
         </div>
-        <div id="lista-anagrafica"></div>
+        <div id="lista-volontari"></div>
     </div>
 
     <div id="page-presenze" class="module-page">
+        <div class="card">
+            <label>Filtra per Specialità</label>
+            <select id="filtro-spec" onchange="updateUI()"><option value="TUTTI">Mostra Tutti</option><option value="🐕 Cinofilo">Cinofili</option><option value="🚒 Autista">Autisti</option></select>
+        </div>
         <div id="lista-appello"></div>
-        <button class="btn btn-blue" onclick="exportPDF('appello')">📄 ESPORTA PDF FIRMATO</button>
+        <div class="card">
+            <label>Firma Responsabile</label><canvas id="signature-pad"></canvas>
+            <button class="btn btn-success" onclick="exportPDF('appello')">📄 PDF APPELLO</button>
+        </div>
+    </div>
+
+    <div id="page-settori" class="module-page">
+        <div id="lista-settori"></div>
+        <div class="card">
+            <label>Settore/Zona</label><input type="text" id="sec-nome">
+            <label>Squadra Assegnata</label><input type="text" id="sec-sq">
+            <button class="btn btn-blue" onclick="addSettore()">ASSEGNA ZONA</button>
+        </div>
     </div>
 
     <div id="page-diario" class="module-page">
-        <div id="log-container" class="card" style="font-size:12px; max-height:450px; overflow-y:auto; line-height:1.5;"></div>
-        <button class="btn btn-danger" onclick="if(confirm('Resetta diario?')){log=[]; localStorage.setItem('merl_v11_log', '[]'); updateUI();}">PULISCI DIARIO</button>
+        <div id="log-container" class="card" style="font-size:12px; max-height:400px; overflow-y:auto;"></div>
+        <div class="card">
+            <textarea id="log-input" placeholder="Nota manuale..."></textarea>
+            <button class="btn btn-blue" onclick="addLogManual()">SALVA NOTA</button>
+            <button class="btn btn-success" onclick="exportPDF('diario')">📄 PDF DIARIO</button>
+        </div>
     </div>
 
 </div>
 
 <script>
-    const PIN_VALIDO = "123456789";
     const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const ID_GRUPPO = "-1003709844017";
+    const PIN_VALIDO = "123456789";
 
     let map, marker, html5QrCode;
-    let volontari = JSON.parse(localStorage.getItem('merl_v11_vol')) || [];
-    let presenze = JSON.parse(localStorage.getItem('merl_v11_pre')) || {};
-    let log = JSON.parse(localStorage.getItem('merl_v11_log')) || [];
+    let volontari = JSON.parse(localStorage.getItem('merl_v12_vol')) || [];
+    let presenze = JSON.parse(localStorage.getItem('merl_v12_pre')) || {};
+    let log = JSON.parse(localStorage.getItem('merl_v12_log')) || [];
+    let settori = JSON.parse(localStorage.getItem('merl_v12_set')) || [];
     let currentVol = null;
 
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_VALIDO) {
-            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('loginOverlay').style.display='none';
             initMap(); updateUI();
         } else { alert("PIN ERRATO"); }
     }
 
-    // --- MAPPA & ALLERTA ---
+    // MAPPA E TELEGRAM
     function initMap() {
+        if(map) return;
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         map.on('click', (e) => {
@@ -184,18 +217,34 @@
         });
     }
 
-    async function sendAlert() {
-        const ev = document.getElementById('f_evento').value;
-        const pos = marker.getLatLng();
-        const msg = `🚨 *ALLERTA MERLINI*\n📌 EVENTO: ${ev.toUpperCase()}\n📍 RITROVO: [Mappa](https://www.google.com/maps?q=${pos.lat},${pos.lng})`;
-        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
-        });
-        alert("Inviato!");
+    async function searchMap() {
+        const q = document.getElementById('map-search').value;
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
+        const d = await r.json();
+        if(d.length>0) {
+            map.setView([d[0].lat, d[0].lon], 16);
+            if(marker) map.removeLayer(marker);
+            marker = L.marker([d[0].lat, d[0].lon]).addTo(map);
+            document.getElementById('send-panel').style.display='block';
+        }
     }
 
-    // --- SCANNER CON SCELTA STATO ---
+    async function sendAlert() {
+        const ev = document.getElementById('f_evento').value;
+        const sq = document.getElementById('f_squadre').value;
+        const ur = document.getElementById('f_tipo').value;
+        const nt = document.getElementById('f_note').value;
+        const pos = marker.getLatLng();
+        const link = `http://maps.google.com/maps?q=${pos.lat},${pos.lng}`;
+        let m = `🚨 *ALLERTA MERLINI*\n📌 *EVENTO:* ${ev.toUpperCase()}\n👥 *SQUADRE:* ${sq}\n⚠️ *URGENZA:* ${ur}\n📝 *NOTE:* ${nt}\n📍 *RITROVO:* [Mappa](${link})`;
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chat_id: ID_GRUPPO, text: m, parse_mode: 'Markdown'})
+        });
+        alert("INVIATO");
+    }
+
+    // SCANNER E STATO
     function startScanner() {
         html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
@@ -209,67 +258,68 @@
             }
         });
     }
-
     function stopScanner() { if(html5QrCode) html5QrCode.stop(); }
 
     function processStatus(stato) {
         const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         presenze[currentVol.nome] = { stato, ora };
-        localStorage.setItem('merl_v11_pre', JSON.stringify(presenze));
-        
-        // Log automatico
-        log.push({ ora, txt: `CHECK-IN: ${currentVol.nome} registrato come ${stato}` });
-        localStorage.setItem('merl_v11_log', JSON.stringify(log));
-        
-        closeStatusModal();
+        localStorage.setItem('merl_v12_pre', JSON.stringify(presenze));
+        addLog(`CHECK-IN: ${currentVol.nome} segnato come ${stato}`);
+        document.getElementById('statusModal').style.display='none';
         updateUI();
     }
 
-    function closeStatusModal() {
-        document.getElementById('statusModal').style.display = 'none';
-        currentVol = null;
-    }
-
-    // --- ANAGRAFICA ---
+    // LOGICA UI
     function addVolontario() {
         const nome = document.getElementById('v_nome').value.toUpperCase();
+        const ruolo = document.getElementById('v_ruolo').value;
+        const specs = Array.from(document.querySelectorAll('.v_spec:checked')).map(c => c.value);
         if(nome) {
-            const id = "QR-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-            volontari.push({ nome, id });
-            localStorage.setItem('merl_v11_vol', JSON.stringify(volontari));
-            document.getElementById('v_nome').value = "";
+            const id = "M-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+            volontari.push({ nome, ruolo, specs, id });
+            localStorage.setItem('merl_v12_vol', JSON.stringify(volontari));
+            document.getElementById('v_nome').value="";
             updateUI();
         }
     }
 
     function updateUI() {
         // Anagrafica
-        document.getElementById('lista-anagrafica').innerHTML = volontari.map((v, i) => `
+        document.getElementById('lista-volontari').innerHTML = volontari.map((v, i) => `
             <div class="v-card">
-                <div id="qr-${i}" class="qr-small"></div>
-                <b>${v.nome}</b>
-                <button onclick="delVol(${i})" style="margin-left:auto; border:none; background:none; color:red;">✕</button>
+                <div id="qr-${i}" class="qr-small" onclick="showFullQR('${v.nome}','${v.id}')"></div>
+                <div><b>${v.nome}</b> (${v.ruolo})<br>${v.specs.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+                <button onclick="delVol(${i})" style="margin-left:auto; color:red; border:none; background:none;">✕</button>
             </div>
         `).join('');
         volontari.forEach((v, i) => new QRCode(document.getElementById(`qr-${i}`), {text:v.id, width:60, height:60}));
 
         // Appello
-        document.getElementById('lista-appello').innerHTML = volontari.map(v => {
+        const f = document.getElementById('filtro-spec').value;
+        const filtrati = f === 'TUTTI' ? volontari : volontari.filter(v => v.specs.includes(f));
+        document.getElementById('lista-appello').innerHTML = filtrati.map(v => {
             const p = presenze[v.nome] || { stato: 'ASSENTE', ora: '-' };
-            let bColor = p.stato === 'PRESENTE' ? 'var(--success)' : (p.stato === 'RITARDO' ? 'var(--warning)' : 'var(--danger)');
-            return `<div class="card" style="display:flex; justify-content:space-between; border-left: 8px solid ${bColor}">
-                <b>${v.nome}</b>
-                <span style="font-size:11px; font-weight:bold;">${p.stato} (${p.ora})</span>
+            let color = p.stato === 'PRESENTE' ? 'var(--success)' : (p.stato === 'RITARDO' ? 'var(--warning)' : 'var(--danger)');
+            return `<div class="card" style="border-left:8px solid ${color}; display:flex; justify-content:space-between;">
+                <b>${v.nome}</b> <span>${p.stato} (${p.ora})</span>
             </div>`;
         }).join('');
 
-        // Diario
-        document.getElementById('log-container').innerHTML = log.map(l => `<div><b>[${l.ora}]</b> ${l.txt}</div>`).reverse().join('');
+        // Settori e Diario
+        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `<div class="v-card">📌 ${s.nome} | SQ: ${s.sq} <button onclick="delSet(${i})">✕</button></div>`).join('');
+        document.getElementById('log-container').innerHTML = log.map(l => `<div>[${l.ora}] ${l.txt}</div>`).reverse().join('');
     }
 
-    function delVol(i) {
-        if(confirm("Eliminare?")) { volontari.splice(i,1); localStorage.setItem('merl_v11_vol', JSON.stringify(volontari)); updateUI(); }
+    function addLog(txt) {
+        const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        log.push({ ora, txt });
+        localStorage.setItem('merl_v12_log', JSON.stringify(log));
+        updateUI();
     }
+    function addLogManual() { const t = document.getElementById('log-input').value; if(t) { addLog(t); document.getElementById('log-input').value=""; } }
+    function addSettore() { const n = document.getElementById('sec-nome').value; const s = document.getElementById('sec-sq').value; if(n) { settori.push({nome:n, sq:s}); localStorage.setItem('merl_v12_set', JSON.stringify(settori)); updateUI(); } }
+    function delVol(i) { volontari.splice(i,1); localStorage.setItem('merl_v12_vol', JSON.stringify(volontari)); updateUI(); }
+    function delSet(i) { settori.splice(i,1); localStorage.setItem('merl_v12_set', JSON.stringify(settori)); updateUI(); }
 
     function showPage(id, btn) {
         document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
@@ -280,11 +330,21 @@
         if(id !== 'scanner') stopScanner();
     }
 
+    function showFullQR(n, id) { alert("ID QR per " + n + ": " + id); }
+
+    // FIRMA
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); });
+    canvas.addEventListener('touchmove', (e) => { if(drawing) { const r=canvas.getBoundingClientRect(); ctx.lineTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); ctx.stroke(); }});
+    canvas.addEventListener('touchend', () => drawing=false);
+
     function exportPDF(t) {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text(`S.A.R. MERLINI - REPORT ${t.toUpperCase()}`, 10, 10);
+        doc.text(`UNITÀ MERLINI - ${t.toUpperCase()}`, 10, 10);
         const data = t === 'appello' ? volontari.map(v => [v.nome, presenze[v.nome]?.stato || 'ASSENTE']) : log.map(l => [l.ora, l.txt]);
-        doc.autoTable({ head: [['Dato', 'Stato/Nota']], body: data, startY: 20 });
+        doc.autoTable({ head: [['Info', 'Stato']], body: data, startY: 20 });
         doc.save(`Merlini_${t}.pdf`);
     }
 </script>
