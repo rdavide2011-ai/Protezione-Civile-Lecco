@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V5 GEOMAP</title>
+    <title>S.A.R. UNITÀ MERLINI - V5.1</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -25,29 +25,45 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* NAV */
-        .module-nav { display: flex; background: #000; padding: 5px; gap: 5px; overflow-x: auto; border-bottom: 2px solid var(--pc-yellow); z-index: 1000; }
-        .nav-btn { padding: 10px 15px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
+        /* HEADER & NAV */
+        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--pc-yellow); }
+        .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+        .nav-btn { padding: 10px 14px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
         .nav-btn.active { background: var(--pc-yellow); color: black; }
 
-        /* MAIN CONTENT */
-        .main-content { flex: 1; position: relative; overflow-y: auto; padding-bottom: 20px; }
-        .module-page { display: none; padding: 15px; }
+        .main-content { flex: 1; position: relative; overflow-y: auto; }
+        .module-page { display: none; padding: 20px; }
         .module-page.active { display: block; }
-        .full-map { display: none; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 10; }
-        .full-map.active { display: block; }
 
+        /* ALLERTA CENTRATA */
+        .centered-container { max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; }
+
+        /* CARD & INPUTS */
         .card { background: var(--panel-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
-        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; margin: 5px 0 10px 0; }
         label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; }
-
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; width: 100%; }
+        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; margin: 5px 0 12px 0; }
+        
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 5px; }
         .btn-blue { background: var(--pc-blue); color: white; }
         .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
 
-        /* SETTORI */
-        .settore-badge { display: flex; justify-content: space-between; background: #0d1117; padding: 10px; border-radius: 8px; border-left: 4px solid var(--pc-yellow); margin-bottom: 5px; }
+        /* MAPPA */
+        #page-mappa { height: 100%; width: 100%; position: absolute; padding:0; }
+        #map { height: 100%; width: 100%; }
+        .map-search { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; display: flex; gap: 5px; }
+        .map-search input { margin: 0; background: white; color: black; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
 
+        /* LISTE */
+        .list-item { background: #0d1117; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; }
+        .presenza-row { background: var(--panel-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 10px; }
+        .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .p-btn { padding: 10px; border: none; border-radius: 6px; font-size: 9px; font-weight: bold; background: #21262d; color: #8b949e; cursor: pointer; }
+        .active-presente { background: var(--success) !important; color: white !important; }
+        .active-assente { background: var(--danger) !important; color: white !important; }
+        .active-ritardo { background: var(--warning) !important; color: white !important; }
+
+        #signature-pad { border: 1px dashed var(--pc-yellow); background: white; width: 100%; height: 120px; border-radius: 8px; }
         #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -56,9 +72,13 @@
 <div id="loginOverlay">
     <div style="text-align:center; background:var(--panel-bg); padding:40px; border-radius:20px; border:2px solid var(--pc-yellow); width:90%; max-width:350px;">
         <h2 style="color:var(--pc-yellow)">S.A.R. MERLINI</h2>
-        <input type="password" id="loginInput" inputmode="numeric" style="font-size:30px; text-align:center;" placeholder="PIN">
-        <button onclick="checkLogin()" class="btn btn-blue">ENTRA</button>
+        <input type="password" id="loginInput" inputmode="numeric" style="font-size:30px; text-align:center; letter-spacing:10px;" placeholder="PIN">
+        <button onclick="checkLogin()" class="btn btn-blue" style="margin-top:20px;">ENTRA</button>
     </div>
+</div>
+
+<div class="top-bar">
+    <div style="display:flex; align-items:center;"><div style="background:var(--pc-yellow); color:black; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">M</div><span style="font-size:12px; font-weight:bold;">S.A.R. CONSOLE V5.1</span></div>
 </div>
 
 <div class="module-nav">
@@ -67,126 +87,225 @@
     <button class="nav-btn" onclick="showPage('settori', this)">📐 Settori</button>
     <button class="nav-btn" onclick="showPage('presenze', this)">📝 Appello</button>
     <button class="nav-btn" onclick="showPage('diario', this)">📖 Diario</button>
+    <button class="nav-btn" onclick="showPage('volontari', this)">👥 Volontari</button>
 </div>
 
 <div class="main-content">
+    
     <div id="page-allerta" class="module-page active">
-        <div class="card">
-            <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Scomparsa">
-            <label>LKP (Ultima Posizione)</label><input type="text" id="f_luogo" placeholder="Coordinate">
-            <button class="btn btn-danger" onclick="transmitTelegram()">🚀 INVIA TELEGRAM</button>
+        <div class="centered-container">
+            <div class="card">
+                <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona">
+                <label>LKP / Luogo</label><input type="text" id="f_luogo" placeholder="Via o Coordinate">
+                <label>Urgenza</label>
+                <select id="f_tipo">
+                    <option value="🔴 IMMEDIATA">ROSSO (Immediata)</option>
+                    <option value="🟡 PROGRAMMATA">GIALLO (Programmata)</option>
+                </select>
+                <button class="btn btn-danger" onclick="sendTelegram()">🚀 INVIA TELEGRAM</button>
+            </div>
         </div>
     </div>
 
-    <div id="page-mappa" class="full-map">
-        <div id="map" style="width:100%; height:100%;"></div>
-        <div style="position:absolute; bottom:20px; left:10px; z-index:1001; display:flex; flex-direction:column; gap:5px;">
-            <button onclick="addMarker('BASE')" style="background:var(--pc-blue); color:white; border:none; padding:10px; border-radius:5px; font-weight:bold;">📍 BASE</button>
-            <button onclick="addMarker('RITROVAMENTO')" style="background:var(--danger); color:white; border:none; padding:10px; border-radius:5px; font-weight:bold;">🔎 POI</button>
+    <div id="page-mappa" class="module-page">
+        <div class="map-search">
+            <input type="text" id="map-search-input" placeholder="Cerca via, città...">
+            <button onclick="searchMap()" class="btn btn-blue" style="width:auto; padding:0 15px; margin:0;">🔍</button>
         </div>
+        <div id="map"></div>
     </div>
 
     <div id="page-settori" class="module-page">
-        <h3 style="color:var(--pc-yellow)">PIANO DI RICERCA</h3>
-        <div id="lista-settori" style="margin-bottom:15px;"></div>
+        <div id="lista-settori"></div>
         <div class="card">
-            <label>Nome Settore</label><input type="text" id="sec-nome" placeholder="Es: Settore A">
-            <label>Squadra Assegnata</label><input type="text" id="sec-squadra" placeholder="Es: Squadra 1">
-            <label>Stato</label>
-            <select id="sec-stato">
-                <option value="DA BONIFICARE">DA BONIFICARE</option>
-                <option value="IN CORSO">IN CORSO</option>
-                <option value="BONIFICATO">BONIFICATO ✅</option>
-            </select>
-            <button class="btn btn-blue" onclick="aggiungiSettore()">AGGIUNGI SETTORE</button>
+            <label>Settore</label><input type="text" id="sec-nome">
+            <label>Squadra</label><input type="text" id="sec-squadra">
+            <button class="btn btn-blue" onclick="addSettore()">SALVA SETTORE</button>
         </div>
     </div>
 
     <div id="page-presenze" class="module-page">
         <div id="lista-presenze-dinamica"></div>
-        <button class="btn btn-success" onclick="generaPDF()">GENERA VERBALE</button>
+        <div class="card"><label>Firma Coordinatore</label><canvas id="signature-pad"></canvas></div>
+        <button class="btn btn-success" onclick="exportPDF('appello')">📄 PDF APPELLO</button>
     </div>
-    
+
     <div id="page-diario" class="module-page">
         <div id="log-container"></div>
-        <input type="text" id="log-input" placeholder="Annotazione...">
-        <button class="btn btn-blue" onclick="aggiungiLog()">LOG</button>
+        <div class="card">
+            <textarea id="log-input" rows="3" placeholder="Annotazione diario..."></textarea>
+            <button class="btn btn-blue" onclick="addLog()">AGGIUNGI NOTA</button>
+        </div>
+        <button class="btn btn-success" onclick="exportPDF('diario')">📄 PDF DIARIO</button>
+    </div>
+
+    <div id="page-volontari" class="module-page">
+        <div id="lista-volontari"></div>
+        <div class="card">
+            <label>Cognome e Nome</label><input type="text" id="v-nome">
+            <label>Ruolo / Cosa fa</label><input type="text" id="v-ruolo">
+            <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI VOLONTARIO</button>
+        </div>
     </div>
 </div>
 
 <script>
-    let map, idleTimer;
-    let settori = JSON.parse(localStorage.getItem('sarSettori')) || [];
+    const TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
+    const ID_GRUPPO = "-1003709844017";
     const PIN_VALIDO = "123456789";
 
+    let volontari = JSON.parse(localStorage.getItem('merlini_vol')) || [];
+    let presenze = JSON.parse(localStorage.getItem('merlini_pre')) || {};
+    let log = JSON.parse(localStorage.getItem('merlini_log')) || [];
+    let settori = JSON.parse(localStorage.getItem('merlini_set')) || [];
+    let map, drawing = false;
+
+    // LOGIN
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_VALIDO) {
             document.getElementById('loginOverlay').style.display = 'none';
-            initMap();
-            renderSettori();
+            initMap(); updateAll();
         } else { alert("PIN ERRATO"); }
     }
 
+    // MAPPA CON RICERCA
     function initMap() {
-        if (map) return;
+        if(map) return;
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }
 
+    async function searchMap() {
+        const query = document.getElementById('map-search-input').value;
+        if(!query) return;
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
+        const data = await resp.json();
+        if(data.length > 0) {
+            map.setView([data[0].lat, data[0].lon], 16);
+            L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup(query).openPopup();
+        } else { alert("Luogo non trovato"); }
+    }
+
     function showPage(id, btn) {
-        document.querySelectorAll('.module-page, .full-map').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        
-        const target = document.getElementById('page-' + id);
-        target.classList.add('active');
+        document.getElementById('page-' + id).classList.add('active');
         btn.classList.add('active');
-        
-        if(id === 'mappa') {
-            setTimeout(() => map.invalidateSize(), 200);
+        if(id === 'mappa') setTimeout(() => map.invalidateSize(), 200);
+        if(id === 'presenze') {
+            const canvas = document.getElementById('signature-pad');
+            canvas.width = canvas.offsetWidth;
         }
     }
 
-    function addMarker(tipo) {
-        const center = map.getCenter();
-        const color = tipo === 'BASE' ? 'blue' : 'red';
-        L.marker(center).addTo(map).bindPopup(tipo).openPopup();
-        alert(tipo + " segnato sulle coordinate attuali della mappa.");
+    // GESTIONE VOLONTARI
+    function addVolontario() {
+        const nome = document.getElementById('v-nome').value.toUpperCase();
+        const ruolo = document.getElementById('v-ruolo').value;
+        if(nome) {
+            volontari.push({nome, ruolo});
+            localStorage.setItem('merlini_vol', JSON.stringify(volontari));
+            updateAll();
+        }
     }
 
-    // --- LOGICA SETTORI ---
-    function aggiungiSettore() {
+    function delVolontario(i) {
+        if(confirm("Eliminare volontario?")) {
+            volontari.splice(i, 1);
+            localStorage.setItem('merlini_vol', JSON.stringify(volontari));
+            updateAll();
+        }
+    }
+
+    // AGGIORNAMENTO UI
+    function updateAll() {
+        // Volontari
+        document.getElementById('lista-volontari').innerHTML = volontari.map((v,i) => `
+            <div class="list-item">
+                <div><b>${v.nome}</b><br><small>${v.ruolo}</small></div>
+                <span onclick="delVolontario(${i})" style="color:var(--danger); cursor:pointer">✕</span>
+            </div>`).join('');
+
+        // Appello
+        document.getElementById('lista-presenze-dinamica').innerHTML = volontari.map(v => {
+            const s = presenze[v.nome] || {stato:''};
+            return `
+                <div class="presenza-row">
+                    <b>${v.nome}</b><br><small>${v.ruolo}</small>
+                    <div class="presenza-btns">
+                        <button class="p-btn ${s.stato==='presente'?'active-presente':''}" onclick="setPre('${v.nome}','presente')">Presente</button>
+                        <button class="p-btn ${s.stato==='assente'?'active-assente':''}" onclick="setPre('${v.nome}','assente')">Assente</button>
+                        <button class="p-btn ${s.stato==='ritardo'?'active-ritardo':''}" onclick="setPre('${v.nome}','ritardo')">Ritardo</button>
+                    </div>
+                </div>`;
+        }).join('');
+
+        // Settori e Diario
+        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `
+            <div class="list-item"><div><b>${s.nome}</b><br><small>${s.sq}</small></div><span onclick="delSet(${i})">✕</span></div>`).join('');
+        document.getElementById('log-container').innerHTML = log.map(l => `
+            <div class="log-entry"><small style="color:var(--pc-yellow)">${l.ora}</small><br>${l.txt}</div>`).reverse().join('');
+    }
+
+    function setPre(n, s) {
+        let o = (s==='ritardo') ? prompt("Ora prevista:") : "";
+        presenze[n] = {stato:s, ora:o};
+        localStorage.setItem('merlini_pre', JSON.stringify(presenze));
+        updateAll();
+    }
+
+    function addLog() {
+        const txt = document.getElementById('log-input').value;
+        if(!txt) return;
+        const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        log.push({ora, txt});
+        localStorage.setItem('merlini_log', JSON.stringify(log));
+        document.getElementById('log-input').value = "";
+        updateAll();
+    }
+
+    function addSettore() {
         const nome = document.getElementById('sec-nome').value;
         const sq = document.getElementById('sec-squadra').value;
-        const stato = document.getElementById('sec-stato').value;
-        if(!nome) return;
-        settori.push({nome, sq, stato});
-        localStorage.setItem('sarSettori', JSON.stringify(settori));
-        renderSettori();
+        if(nome) {
+            settori.push({nome, sq});
+            localStorage.setItem('merlini_set', JSON.stringify(settori));
+            addLog(`Assegnato Settore ${nome} a ${sq}`);
+            updateAll();
+        }
     }
 
-    function renderSettori() {
-        const cont = document.getElementById('lista-settori');
-        cont.innerHTML = settori.map((s, i) => `
-            <div class="settore-badge">
-                <div>
-                    <b>${s.nome}</b><br>
-                    <small>${s.sq || 'Nessuna squadra'}</small>
-                </div>
-                <div style="text-align:right">
-                    <span style="font-size:10px; color:${s.stato === 'BONIFICATO' ? 'var(--success)' : 'var(--warning)'}">${s.stato}</span><br>
-                    <span onclick="rimuoviSettore(${i})" style="color:var(--danger); cursor:pointer">✕</span>
-                </div>
-            </div>
-        `).join('');
+    async function sendTelegram() {
+        const msg = `🚨 *ALLERTA MERLINI*\nEVENTO: ${document.getElementById('f_evento').value}\nLUOGO: ${document.getElementById('f_luogo').value}\nURGENZA: ${document.getElementById('f_tipo').value}`;
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
+        });
+        alert("Allerta Inviata");
     }
 
-    function rimuoviSettore(i) {
-        settori.splice(i, 1);
-        localStorage.setItem('sarSettori', JSON.stringify(settori));
-        renderSettori();
+    // FIRMA
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const r=canvas.getBoundingClientRect(); ctx.moveTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); });
+    canvas.addEventListener('touchmove', (e) => { if(!drawing) return; const r=canvas.getBoundingClientRect(); ctx.lineTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); ctx.stroke(); });
+    canvas.addEventListener('touchend', () => drawing=false);
+    function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+    function exportPDF(tipo) {
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        doc.text(tipo.toUpperCase(), 10, 20);
+        if(tipo === 'appello') {
+            const rows = volontari.map(v => [v.nome, (presenze[v.nome]?.stato || 'assente').toUpperCase()]);
+            doc.autoTable({ startY: 30, head: [['NOME', 'STATO']], body: rows });
+        } else {
+            const rows = log.map(l => [l.ora, l.txt]);
+            doc.autoTable({ startY: 30, head: [['ORA', 'EVENTO']], body: rows });
+        }
+        doc.save(`${tipo}.pdf`);
     }
 
-    function resetTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => location.reload(), 600000); }
+    function resetTimer() {} // Disabilitato per test
 </script>
 </body>
 </html>
