@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V22.0 GPS</title>
+    <title>S.A.R. UNITÀ MERLINI - V23.0 AI-TECH</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     
@@ -19,6 +17,7 @@
             --bg-dark: #0a0e14; --panel-bg: #161b22; --pc-yellow: #ffcc00;
             --pc-blue: #0088cc; --danger: #eb3b5a; --text-main: #e6edf3;
             --success: #2ea043; --border: #30363d; --tg-color: #0088cc;
+            --ai-purple: #a855f7;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -41,31 +40,29 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* CARDS */
-        .card { background: var(--panel-bg); border-radius: 18px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card { background: var(--panel-bg); border-radius: 18px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
         h3 { margin: 0 0 20px 0; color: var(--pc-yellow); font-size: 18px; text-transform: uppercase; letter-spacing: 1px; border-left: 4px solid var(--pc-yellow); padding-left: 15px; }
         
         label { font-size: 10px; color: var(--pc-yellow); font-weight: 900; text-transform: uppercase; display: block; margin-top: 18px; letter-spacing: 0.5px; }
-        input, select, textarea { width: 100%; padding: 14px; margin-top: 6px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 12px; font-size: 15px; transition: 0.3s; }
-        input:focus { border-color: var(--pc-yellow); outline: none; }
+        input, select, textarea { width: 100%; padding: 14px; margin-top: 6px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 12px; font-size: 15px; }
 
         /* BUTTONS */
         .btn { padding: 18px; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn:active { transform: scale(0.97); }
         .btn-blue { background: var(--pc-blue); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-tg { background: var(--tg-color); color: white; border-bottom: 4px solid #005a87; }
+        .btn-ai { background: var(--ai-purple); color: white; border-bottom: 4px solid #6b21a8; }
 
-        /* SPECIAL LOGICS */
-        #area-prog { display: none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px dashed var(--pc-yellow); }
-        #map { height: 380px; width: 100%; border-radius: 18px; border: 2px solid var(--border); margin-top: 10px; }
+        /* AI ADVISOR BOX */
+        #ai-response { display: none; background: #2d1b4d; border: 1px solid var(--ai-purple); padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 14px; line-height: 1.5; color: #e9d5ff; }
+
+        #map { height: 350px; width: 100%; border-radius: 18px; border: 2px solid var(--border); margin-top: 10px; }
         .map-search { display: flex; gap: 10px; margin-bottom: 10px; }
 
         /* LISTS */
-        .sc-item { background: #0d1117; padding: 18px; border-radius: 14px; margin-top: 15px; border-left: 6px solid var(--pc-blue); }
         .v-card { background: #0d1117; padding: 15px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border); }
         .qr-box { background: white; padding: 5px; border-radius: 10px; width: 70px; height: 70px; }
 
-        /* OVERLAYS */
         #loginScreen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -74,22 +71,19 @@
 <div id="loginScreen">
     <div class="card" style="text-align:center; width: 90%; max-width: 420px; border: 2px solid var(--pc-yellow);">
         <h2 style="color:var(--pc-yellow);">UNITÀ MERLINI - SAR</h2>
-        <input type="password" id="pinInput" inputmode="numeric" placeholder="PIN CODE" style="text-align:center; font-size:35px; letter-spacing:15px;">
-        <button onclick="checkAccess()" class="btn btn-blue">ACCEDI AL SISTEMA</button>
+        <input type="password" id="pinInput" inputmode="numeric" placeholder="PIN" style="text-align:center; font-size:35px; letter-spacing:15px;">
+        <button onclick="checkAccess()" class="btn btn-blue">ACCEDI</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <span><b>S.A.R. MERLINI</b> <small style="color:var(--pc-yellow)">V22.0 GPS</small></span>
-    <div style="text-align:right">
-        <div style="font-size:10px;"><span class="status-dot"></span>DATABASE LIVE</div>
-        <div id="clockDisplay" style="font-size:12px; font-weight: bold;">00:00:00</div>
-    </div>
+    <span><b>MERLINI COMMAND</b> <small style="color:var(--pc-yellow)">V23.0 <b style="color:var(--ai-purple)">AI</b></small></span>
+    <div id="clockDisplay" style="font-size:12px; font-weight: bold;">00:00:00</div>
 </div>
 
 <div class="module-nav">
     <button class="nav-btn active" onclick="showSection('missione', this)">🚨 Missione</button>
-    <button class="nav-btn" onclick="showSection('scanner', this)">📷 QR Scanner</button>
+    <button class="nav-btn" onclick="showSection('scanner', this)">📷 Scanner</button>
     <button class="nav-btn" onclick="showSection('volontari', this)">👥 Anagrafica</button>
     <button class="nav-btn" onclick="showSection('presenze', this)">📝 Appello</button>
 </div>
@@ -98,52 +92,43 @@
     
     <div id="sec-missione" class="module-page active">
         <div class="card">
-            <h3>DATI INTERVENTO</h3>
-            <label>Tipo Emergenza</label>
-            <input type="text" id="ev_name" placeholder="Es: Ricerca Disperso">
+            <h3>LOGISTICA MISSIONE</h3>
+            <label>Cosa sta succedendo? (Descrizione libera)</label>
+            <input type="text" id="ev_name" placeholder="Esempio: Ricerca disperso anziano in zona boschiva">
+
+            <button class="btn btn-ai" onclick="aiAnalyze()">🧠 CHIEDI ANALISI TATTICA IA</button>
+            <div id="ai-response"></div>
 
             <label>Tipo Attivazione</label>
-            <select id="ev_type" onchange="toggleProgFields(this.value)">
+            <select id="ev_type">
                 <option value="IMMEDIATA">IMMEDIATA</option>
                 <option value="PROGRAMMATA">PROGRAMMATA</option>
-                <option value="STANDBY">STAND-BY</option>
             </select>
 
-            <div id="area-prog">
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1"><label>Data</label><input type="date" id="ev_date"></div>
-                    <div style="flex:1"><label>Ora Ritrovo</label><input type="time" id="ev_time"></div>
-                </div>
-            </div>
-
-            <label>Ente / Protocollo / Responsabile</label>
+            <label>Dettagli Coordinamento</label>
             <input type="text" id="ev_ente" placeholder="Ente Richiedente">
-            <input type="text" id="ev_prot" placeholder="Numero Protocollo" style="margin-top:10px;">
-            <input type="text" id="ev_resp" placeholder="Nome Coordinatore" style="margin-top:10px;">
+            <input type="text" id="ev_resp" placeholder="Responsabile" style="margin-top:10px;">
 
-            <button class="btn btn-success" onclick="pubblicaMissione()">➕ SALVA IN SCALETTA</button>
+            <button class="btn btn-success" onclick="pubblicaMissione()">➕ AGGIUNGI IN SCALETTA</button>
         </div>
 
         <div class="card">
-            <h3>POSIZIONE GPS (RITROVO)</h3>
-            <div class="map-search">
-                <input type="text" id="mapInput" placeholder="Cerca indirizzo...">
-                <button onclick="mapSearch()" class="btn btn-blue" style="width:80px; margin:0;">GO</button>
-            </div>
+            <h3>MAPPA E POSIZIONE</h3>
+            <div class="map-search"><input type="text" id="mapInput" placeholder="Cerca indirizzo..."><button onclick="mapSearch()" class="btn btn-blue" style="width:80px; margin:0;">GO</button></div>
             <div id="map"></div>
             
-            <button class="btn btn-tg" onclick="invioTelegramBot()">✈️ INVIA MISSIONE E POSIZIONE GPS</button>
+            <button class="btn btn-tg" onclick="invioTelegramBot()">✈️ INVIA ALLERTA SMART A TELEGRAM</button>
         </div>
 
         <div class="card">
-            <h3>SCALETTA ATTIVA</h3>
+            <h3>SCALETTA EVENTI</h3>
             <div id="lista-scaletta"></div>
         </div>
     </div>
 
     <div id="sec-scanner" class="module-page">
         <div class="card" style="text-align:center;">
-            <h3>LETTURA QR CODE</h3>
+            <h3>SCANNER QR</h3>
             <div id="reader-box" style="width:100%; border-radius:15px; overflow:hidden; background:black;"></div>
             <button class="btn btn-blue" onclick="startCamera()">AVVIA SCANNER</button>
         </div>
@@ -151,23 +136,22 @@
 
     <div id="sec-volontari" class="module-page">
         <div class="card">
-            <label>NUOVO VOLONTARIO</label>
+            <h3>REGISTRA VOLONTARIO</h3>
             <input type="text" id="vol_name" placeholder="NOME E COGNOME">
-            <button class="btn btn-success" onclick="salvaVolontario()">AGGIUNGI AL DATABASE</button>
+            <button class="btn btn-success" onclick="salvaVolontario()">AGGIUNGI AL CLOUD</button>
         </div>
         <div id="lista-volontari"></div>
     </div>
 
     <div id="sec-presenze" class="module-page">
-        <h3>REPARTO IN CAMPO</h3>
+        <h3>LISTA PRESENTI</h3>
         <div id="lista-appello"></div>
-        <button class="btn btn-blue" onclick="downloadPDF()">📄 SCARICA REPORT PDF</button>
     </div>
 
 </div>
 
 <script>
-    // CREDENZIALI MEMORIZZATE
+    // CREDENZIALI GIOVANNI MEMORIZZATE
     const TG_TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
     const TG_CHAT_ID = "-1003709844017";
 
@@ -188,40 +172,62 @@
     function checkAccess() {
         if(document.getElementById('pinInput').value === "123456789") {
             document.getElementById('loginScreen').style.display='none';
-            initAll();
-        } else { alert("ACCESSO NEGATO"); }
+            initApp();
+        } else { alert("PIN ERRATO"); }
     }
 
-    function initAll() {
+    function initApp() {
         initMappa();
         syncCloud();
     }
 
-    function toggleProgFields(v) {
-        document.getElementById('area-prog').style.display = (v === 'PROGRAMMATA') ? 'block' : 'none';
+    // --- FUNZIONE LOGICA IA ---
+    function aiAnalyze() {
+        const text = document.getElementById('ev_name').value.toLowerCase();
+        const resBox = document.getElementById('ai-response');
+        resBox.style.display = 'block';
+        resBox.innerHTML = "<b>Analisi IA in corso...</b>";
+
+        setTimeout(() => {
+            let advice = "<b>SISTEMA IA: Suggerimenti Operativi</b><br><ul>";
+            
+            if (text.includes("anziano") || text.includes("persona") || text.includes("disperso")) {
+                advice += "<li>Priorità: Verificare ultimi contatti e patologie.</li>";
+                advice += "<li>Tattica: Ricerca a cerchi concentrici dal punto zero.</li>";
+                advice += "<li>Risorse: Richiedere Unità Cinofile Molecolari.</li>";
+            }
+            if (text.includes("bosco") || text.includes("montagna")) {
+                advice += "<li>Sicurezza: Dotare operatori di GPS e radio VHF.</li>";
+                advice += "<li>Tech: Impiego Droni con termocamera consigliato.</li>";
+            }
+            if (text.includes("incendio") || text.includes("fuoco")) {
+                advice += "<li>Pericolo: Vento e vie di fuga prioritari.</li>";
+                advice += "<li>Contatto: Interfaccia immediata con Vigili del Fuoco.</li>";
+            }
+            
+            if (advice === "<b>SISTEMA IA: Suggerimenti Operativi</b><br><ul>") {
+                advice += "<li>Inserisci più dettagli per un'analisi specifica.</li><li>Assicurati di avere il kit di primo soccorso.</li>";
+            }
+            
+            advice += "</ul>";
+            resBox.innerHTML = advice;
+        }, 800);
     }
 
-    // --- FUNZIONE BOT TELEGRAM CON LINK GPS ---
+    // --- TELEGRAM ---
     async function invioTelegramBot() {
         const name = document.getElementById('ev_name').value || "MISSIONE S.A.R.";
         const type = document.getElementById('ev_type').value;
-        const date = document.getElementById('ev_date').value || "Oggi";
-        const time = document.getElementById('ev_time').value || "Immediato";
         const ente = document.getElementById('ev_ente').value || "N.D.";
-        const prot = document.getElementById('ev_prot').value || "N.D.";
         const resp = document.getElementById('ev_resp').value || "N.D.";
-
-        let gpsInfo = "\n📍 *POSIZIONE:* Non specificata";
+        
+        let gps = "";
         if (marker) {
-            const latlng = marker.getLatLng();
-            const lat = latlng.lat.toFixed(6);
-            const lng = latlng.lng.toFixed(6);
-            gpsInfo = `\n📍 *POSIZIONE:* ${lat}, ${lng}\n🔗 [APRI NAVIGATORE](https://www.google.com/maps?q=${lat},${lng})`;
-        } else {
-            alert("⚠️ AVVISO: Non hai messo il segnaposto sulla mappa. Il messaggio verrà inviato senza coordinate GPS.");
+            const l = marker.getLatLng();
+            gps = `\n📍 *POSIZIONE:* [Apri Mappa](http://maps.google.com/maps?q=${l.lat},${l.lng})`;
         }
 
-        const msg = `🚨 *ALLERTA UNITÀ MERLINI*\n\n📌 *INTERVENTO:* ${name}\n⚠️ *TIPO:* ${type}\n📅 *DATA:* ${date}\n🕒 *ORA:* ${time}\n🏛️ *ENTE:* ${ente}\n🆔 *PROT:* ${prot}\n👤 *RESP:* ${resp}${gpsInfo}`;
+        const msg = `🚨 *ALLERTA UNITÀ MERLINI*\n━━━━━━━━━━━━━━\n📌 *INTERVENTO:* ${name}\n⚠️ *STATO:* ${type}\n🏛️ *ENTE:* ${ente}\n👤 *RESP:* ${resp}${gps}\n━━━━━━━━━━━━━━\n_Inviato da Merlini-AI_`;
 
         try {
             const r = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
@@ -229,9 +235,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
             });
-            if(r.ok) { alert("✅ MESSAGGIO E GPS INVIATI!"); }
-            else { alert("❌ ERRORE INVIO."); }
-        } catch (e) { alert("❌ ERRORE CONNESSIONE."); }
+            if(r.ok) alert("✅ INVIATO CON SUCCESSO!");
+        } catch (e) { alert("Errore connessione."); }
     }
 
     // --- MAPPA ---
@@ -246,7 +251,6 @@
 
     async function mapSearch() {
         const q = document.getElementById('mapInput').value;
-        if(!q) return;
         const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
         const d = await r.json();
         if(d.length > 0) {
@@ -257,29 +261,12 @@
         }
     }
 
-    // --- CLOUD ---
-    function pubblicaMissione() {
-        const obj = {
-            n: document.getElementById('ev_name').value.toUpperCase(),
-            t: document.getElementById('ev_type').value,
-            d: document.getElementById('ev_date').value || "Oggi",
-            o: document.getElementById('ev_time').value || "Ora",
-            e: document.getElementById('ev_ente').value,
-            p: document.getElementById('ev_prot').value,
-            r: document.getElementById('ev_resp').value,
-            ts: Date.now()
-        };
-        if(!obj.n) return alert("Inserisci Nome Evento");
-        database.ref('merlini/scaletta').push(obj);
-        alert("Scaletta Aggiornata!");
-    }
-
     function syncCloud() {
         database.ref('merlini/scaletta').on('value', s => {
             const data = s.val() || {};
             document.getElementById('lista-scaletta').innerHTML = Object.values(data).reverse().map(m => `
-                <div class="sc-item">
-                    <b>${m.n}</b><br><small>${m.t} | ${m.d} ore ${m.o}</small>
+                <div style="background:#0d1117; padding:15px; border-radius:10px; margin-top:10px; border-left:4px solid var(--pc-blue);">
+                    <b>${m.n}</b><br><small>${m.t} - ${m.r}</small>
                 </div>
             `).join('');
         });
@@ -294,17 +281,24 @@
         document.getElementById('lista-volontari').innerHTML = list.map((v, i) => `
             <div class="v-card">
                 <div id="qrv-${i}" class="qr-box"></div>
-                <div style="flex:1"><b>${v.nome}</b><br><small>ID: ${v.id}</small></div>
-                <button onclick="rimuoviV('${v.id}')" style="background:none; border:none; color:var(--danger); font-size:20px;">✕</button>
+                <div style="flex:1"><b>${v.nome}</b></div>
+                <button onclick="rimuoviV('${v.id}')" style="color:var(--danger); background:none; border:none;">✕</button>
             </div>
         `).join('');
         list.forEach((v, i) => new QRCode(document.getElementById(`qrv-${i}`), { text: v.id, width: 70, height: 70 }));
 
         document.getElementById('lista-appello').innerHTML = list.map(v => `
-            <div class="card" style="border-left:12px solid ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
+            <div class="card" style="border-left:10px solid ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
                 <b>${v.nome}</b>: ${v.stato} (${v.ora})
             </div>
         `).join('');
+    }
+
+    function pubblicaMissione() {
+        const obj = { n: document.getElementById('ev_name').value.toUpperCase(), t: document.getElementById('ev_type').value, r: document.getElementById('ev_resp').value, ts: Date.now() };
+        if(!obj.n) return alert("Scrivi l'evento");
+        database.ref('merlini/scaletta').push(obj);
+        alert("Salvato!");
     }
 
     function salvaVolontario() {
@@ -320,7 +314,7 @@
         scanner.start({ facingMode: "environment" }, { fps: 12, qrbox: 280 }, id => {
             const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             database.ref('merlini/anagrafica/'+id).update({ stato: "PRESENTE", ora: h });
-            alert("PRESENZA REGISTRATA!");
+            alert("REGISTRATO!");
             scanner.stop();
         });
     }
