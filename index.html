@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V18.0</title>
+    <title>S.A.R. UNITÀ MERLINI - V21.0 FINAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,166 +18,160 @@
         :root {
             --bg-dark: #0a0e14; --panel-bg: #161b22; --pc-yellow: #ffcc00;
             --pc-blue: #0088cc; --danger: #eb3b5a; --text-main: #e6edf3;
-            --success: #2ea043; --border: #30363d; --telegram: #0088cc;
+            --success: #2ea043; --border: #30363d; --tg-color: #0088cc;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* HEADER & NAV */
-        .top-bar { background: var(--panel-bg); padding: 12px 20px; border-bottom: 2px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-        .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
-        .nav-btn { padding: 12px 18px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; }
-        .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); }
+        /* HEADER */
+        .top-bar { background: var(--panel-bg); padding: 15px 20px; border-bottom: 3px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        /* NAV */
+        .module-nav { display: flex; background: #000; padding: 10px; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+        .nav-btn { padding: 12px 20px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: 0.3s; }
+        .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255, 204, 0, 0.2); }
 
         /* CONTENT */
-        .main-content { flex: 1; overflow-y: auto; padding: 15px; }
-        .module-page { display: none; max-width: 650px; margin: 0 auto; }
-        .module-page.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .main-content { flex: 1; overflow-y: auto; padding: 15px; background: radial-gradient(circle at top, #1c2128 0%, #0a0e14 100%); }
+        .module-page { display: none; max-width: 750px; margin: 0 auto; }
+        .module-page.active { display: block; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* CARDS & INPUTS */
-        .card { background: var(--panel-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        h3 { margin: 0 0 15px 0; color: var(--pc-yellow); font-size: 16px; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        /* CARDS */
+        .card { background: var(--panel-bg); border-radius: 18px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h3 { margin: 0 0 20px 0; color: var(--pc-yellow); font-size: 18px; text-transform: uppercase; letter-spacing: 1px; border-left: 4px solid var(--pc-yellow); padding-left: 15px; }
         
-        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 15px; }
-        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 14px; }
-        
-        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 12px; text-transform: uppercase; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        label { font-size: 10px; color: var(--pc-yellow); font-weight: 900; text-transform: uppercase; display: block; margin-top: 18px; letter-spacing: 0.5px; }
+        input, select, textarea { width: 100%; padding: 14px; margin-top: 6px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 12px; font-size: 15px; transition: 0.3s; }
+        input:focus { border-color: var(--pc-yellow); outline: none; }
+
+        /* BUTTONS */
+        .btn { padding: 18px; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn:active { transform: scale(0.97); }
         .btn-blue { background: var(--pc-blue); color: white; }
         .btn-success { background: var(--success); color: white; }
-        .btn-tg { background: var(--telegram); color: white; box-shadow: 0 4px #006699; }
-        .btn-tg:active { transform: translateY(2px); box-shadow: none; }
+        .btn-tg { background: var(--tg-color); color: white; border-bottom: 4px solid #005a87; }
 
         /* SPECIAL LOGICS */
-        #prog-area { display: none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px dashed var(--pc-yellow); }
-        .map-search { display: flex; gap: 5px; margin-bottom: 10px; }
-        #map { height: 350px; width: 100%; border-radius: 12px; border: 1px solid var(--border); }
+        #area-prog { display: none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px dashed var(--pc-yellow); }
+        #map { height: 380px; width: 100%; border-radius: 18px; border: 2px solid var(--border); margin-top: 10px; }
+        .map-search { display: flex; gap: 10px; margin-bottom: 10px; }
 
         /* LISTS */
-        .scaletta-item { background: #0d1117; padding: 15px; border-radius: 10px; margin-top: 10px; border-left: 5px solid var(--pc-blue); }
-        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
-        .qr-thumb { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; }
+        .sc-item { background: #0d1117; padding: 18px; border-radius: 14px; margin-top: 15px; border-left: 6px solid var(--pc-blue); }
+        .v-card { background: #0d1117; padding: 15px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border); }
+        .qr-box { background: white; padding: 5px; border-radius: 10px; width: 70px; height: 70px; }
 
-        /* MODALS & LOGIN */
+        /* OVERLAYS */
         #loginScreen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; align-items: center; justify-content: center; }
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100000; flex-direction:column; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen">
-    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow); width: 90%; max-width: 400px;">
-        <h2 style="color:var(--pc-yellow);">S.A.R. UNITÀ MERLINI</h2>
-        <input type="password" id="pinInput" inputmode="numeric" placeholder="CODICE PIN" style="text-align:center; font-size:30px; letter-spacing:10px;">
-        <button onclick="login()" class="btn btn-blue">ENTRA NEL SISTEMA</button>
+    <div class="card" style="text-align:center; width: 90%; max-width: 420px; border: 2px solid var(--pc-yellow);">
+        <h2 style="color:var(--pc-yellow);">UNITÀ MERLINI - SAR</h2>
+        <input type="password" id="pinInput" inputmode="numeric" placeholder="PIN CODE" style="text-align:center; font-size:35px; letter-spacing:15px;">
+        <button onclick="checkAccess()" class="btn btn-blue">ACCEDI AL SISTEMA</button>
     </div>
 </div>
 
 <div class="top-bar">
-    <span><b>UNITÀ MERLINI</b> <small style="color:var(--pc-yellow)">V18.0</small></span>
+    <span><b>S.A.R. MERLINI</b> <small style="color:var(--pc-yellow)">V21.0</small></span>
     <div style="text-align:right">
-        <div id="syncStatus" style="font-size:9px; color:var(--success); font-weight:bold;">● CLOUD ONLINE</div>
-        <div id="clock" style="font-size:11px;">00:00:00</div>
+        <div style="font-size:10px;"><span class="status-dot"></span>DATABASE LIVE</div>
+        <div id="clockDisplay" style="font-size:12px; font-weight: bold;">00:00:00</div>
     </div>
 </div>
 
 <div class="module-nav">
-    <button class="nav-btn active" onclick="goPage('missione', this)">🚨 Missione</button>
-    <button class="nav-btn" onclick="goPage('scanner', this)">📷 Scanner</button>
-    <button class="nav-btn" onclick="goPage('volontari', this)">👥 Anagrafica</button>
-    <button class="nav-btn" onclick="goPage('presenze', this)">📝 Appello</button>
+    <button class="nav-btn active" onclick="showSection('missione', this)">🚨 Missione</button>
+    <button class="nav-btn" onclick="showSection('scanner', this)">📷 QR Scanner</button>
+    <button class="nav-btn" onclick="showSection('volontari', this)">👥 Anagrafica</button>
+    <button class="nav-btn" onclick="showSection('presenze', this)">📝 Appello</button>
 </div>
 
 <div class="main-content">
     
-    <div id="page-missione" class="module-page active">
+    <div id="sec-missione" class="module-page active">
         <div class="card">
-            <h3>NUOVA ATTIVAZIONE</h3>
-            
-            <label>Tipo di Evento</label>
-            <input type="text" id="m_evento" placeholder="Es: Ricerca Disperso">
+            <h3>DATI INTERVENTO</h3>
+            <label>Tipo Emergenza</label>
+            <input type="text" id="ev_name" placeholder="Es: Ricerca Disperso">
 
-            <label>Tipo di Attivazione</label>
-            <select id="m_tipo" onchange="toggleProg(this.value)">
-                <option value="IMMEDIATA">IMMEDIATA (SUBITO)</option>
-                <option value="PROGRAMMATA">PROGRAMMATA (DATA/ORA)</option>
+            <label>Tipo Attivazione</label>
+            <select id="ev_type" onchange="toggleProgFields(this.value)">
+                <option value="IMMEDIATA">IMMEDIATA</option>
+                <option value="PROGRAMMATA">PROGRAMMATA</option>
                 <option value="STANDBY">STAND-BY</option>
             </select>
 
-            <div id="prog-area">
+            <div id="area-prog">
                 <div style="display:flex; gap:10px;">
-                    <div style="flex:1">
-                        <label>Data</label>
-                        <input type="date" id="m_data">
-                    </div>
-                    <div style="flex:1">
-                        <label>Ora Ritrovo</label>
-                        <input type="time" id="m_ora">
-                    </div>
+                    <div style="flex:1"><label>Data</label><input type="date" id="ev_date"></div>
+                    <div style="flex:1"><label>Ora Ritrovo</label><input type="time" id="ev_time"></div>
                 </div>
             </div>
 
-            <label>Autorità Richiedente</label>
-            <input type="text" id="m_ente" placeholder="Es: CC Galbiate / Prefettura">
+            <label>Ente / Protocollo / Responsabile</label>
+            <input type="text" id="ev_ente" placeholder="Ente Richiedente">
+            <input type="text" id="ev_prot" placeholder="Numero Protocollo" style="margin-top:10px;">
+            <input type="text" id="ev_resp" placeholder="Nome Coordinatore" style="margin-top:10px;">
 
-            <label>Protocollo / Codice</label>
-            <input type="text" id="m_prot" placeholder="Es: Prot. 2026/04">
-
-            <label>Responsabile Coordinamento</label>
-            <input type="text" id="m_resp" placeholder="Nome Responsabile">
-
-            <button class="btn btn-success" onclick="salvaMissione()">➕ AGGIUNGI ALLA SCALETTA</button>
+            <button class="btn btn-success" onclick="pubblicaMissione()">➕ SALVA IN SCALETTA</button>
         </div>
 
         <div class="card">
-            <h3>LOCALIZZAZIONE / MAPPA</h3>
+            <h3>POSIZIONE GPS</h3>
             <div class="map-search">
-                <input type="text" id="searchBox" placeholder="Via, Paese...">
-                <button onclick="cercaMappa()" class="btn btn-blue" style="width:90px; margin:0;">CERCA</button>
+                <input type="text" id="mapInput" placeholder="Cerca indirizzo...">
+                <button onclick="mapSearch()" class="btn btn-blue" style="width:80px; margin:0;">GO</button>
             </div>
             <div id="map"></div>
             
-            <button class="btn btn-tg" onclick="inviaTelegram()">✈️ INVIA ALLERTA TELEGRAM</button>
+            <button class="btn btn-tg" onclick="invioTelegramBot()">✈️ INVIA MISSIONE AL GRUPPO TELEGRAM</button>
         </div>
 
         <div class="card">
-            <h3>SCALETTA EVENTI ATTIVI</h3>
-            <div id="scaletta-lista"></div>
+            <h3>SCALETTA ATTIVA</h3>
+            <div id="lista-scaletta"></div>
         </div>
     </div>
 
-    <div id="page-scanner" class="module-page">
-        <div class="card">
-            <div id="scanner-view" style="width:100%; border-radius:15px; overflow:hidden;"></div>
-            <button class="btn btn-blue" onclick="startScan()">ATTIVA CAMERA</button>
+    <div id="sec-scanner" class="module-page">
+        <div class="card" style="text-align:center;">
+            <h3>LETTURA QR CODE</h3>
+            <div id="reader-box" style="width:100%; border-radius:15px; overflow:hidden; background:black;"></div>
+            <button class="btn btn-blue" onclick="startCamera()">AVVIA SCANNER</button>
         </div>
     </div>
 
-    <div id="page-volontari" class="module-page">
+    <div id="sec-volontari" class="module-page">
         <div class="card">
             <label>NUOVO VOLONTARIO</label>
-            <input type="text" id="new_nome" placeholder="COGNOME NOME">
-            <button class="btn btn-success" onclick="addVol()">SALVA NEL DATABASE</button>
+            <input type="text" id="vol_name" placeholder="NOME E COGNOME">
+            <button class="btn btn-success" onclick="salvaVolontario()">AGGIUNGI AL DATABASE</button>
         </div>
-        <div id="lista-anagrafica"></div>
+        <div id="lista-volontari"></div>
     </div>
 
-    <div id="page-presenze" class="module-page">
+    <div id="sec-presenze" class="module-page">
+        <h3>REPARTO IN CAMPO</h3>
         <div id="lista-appello"></div>
-        <button class="btn btn-blue" onclick="exportPDF()">📄 SCARICA REPORT PDF</button>
+        <button class="btn btn-blue" onclick="downloadPDF()">📄 SCARICA REPORT PDF</button>
     </div>
 
-</div>
-
-<div id="qrModal" class="modal" onclick="this.style.display='none'">
-    <h2 id="zoomName" style="color:var(--pc-yellow);"></h2>
-    <div id="qrFull" style="background:white; padding:15px; border-radius:15px;"></div>
 </div>
 
 <script>
-    // CONFIGURAZIONE FIREBASE
-    const firebaseConfig = {
+    // CREDENZIALI GIOVANNI - MEMORIZZATE
+    const TG_TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
+    const TG_CHAT_ID = "-1003709844017";
+
+    const fbConf = {
         apiKey: "AIzaSyB5AhJZSLu3om-VUsoQBX9KazvtzAkAoa0",
         authDomain: "merlini-sar.firebaseapp.com",
         databaseURL: "https://merlini-sar-default-rtdb.firebaseio.com", 
@@ -188,29 +181,50 @@
         appId: "1:654419107383:web:d84686c7c305e87d6969b2"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
+    firebase.initializeApp(fbConf);
+    const database = firebase.database();
     let map, marker, scanner;
-    const PIN_CORRETTO = "123456789";
 
-    function login() {
-        if(document.getElementById('pinInput').value === PIN_CORRETTO) {
+    function checkAccess() {
+        if(document.getElementById('pinInput').value === "123456789") {
             document.getElementById('loginScreen').style.display='none';
-            initMain();
-        } else { alert("PIN ERRATO"); }
+            initAll();
+        } else { alert("ACCESSO NEGATO"); }
     }
 
-    function initMain() {
+    function initAll() {
         initMappa();
-        syncData();
+        syncCloud();
     }
 
-    function toggleProg(val) {
-        document.getElementById('prog-area').style.display = (val === 'PROGRAMMATA') ? 'block' : 'none';
+    function toggleProgFields(v) {
+        document.getElementById('area-prog').style.display = (v === 'PROGRAMMATA') ? 'block' : 'none';
     }
 
-    // MAPPA
+    // --- FUNZIONE BOT TELEGRAM DIRETTA ---
+    async function invioTelegramBot() {
+        const name = document.getElementById('ev_name').value || "MISSIONE S.A.R.";
+        const type = document.getElementById('ev_type').value;
+        const date = document.getElementById('ev_date').value || "Oggi";
+        const time = document.getElementById('ev_time').value || "Immediato";
+        const ente = document.getElementById('ev_ente').value || "N.D.";
+        const prot = document.getElementById('ev_prot').value || "N.D.";
+        const resp = document.getElementById('ev_resp').value || "N.D.";
+
+        const msg = `🚨 *ALLERTA UNITÀ MERLINI*\n\n📌 *INTERVENTO:* ${name}\n⚠️ *TIPO:* ${type}\n📅 *DATA:* ${date}\n🕒 *ORA:* ${time}\n🏛️ *ENTE:* ${ente}\n🆔 *PROT:* ${prot}\n👤 *RESP:* ${resp}`;
+
+        try {
+            const r = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
+            });
+            if(r.ok) { alert("✅ MESSAGGIO INVIATO CON SUCCESSO!"); }
+            else { alert("❌ ERRORE INVIO. Verifica connessione."); }
+        } catch (e) { alert("❌ ERRORE API TELEGRAM."); }
+    }
+
+    // --- MAPPA ---
     function initMappa() {
         map = L.map('map').setView([45.856, 9.397], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -220,8 +234,8 @@
         });
     }
 
-    async function cercaMappa() {
-        const q = document.getElementById('searchBox').value;
+    async function mapSearch() {
+        const q = document.getElementById('mapInput').value;
         if(!q) return;
         const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
         const d = await r.json();
@@ -233,112 +247,85 @@
         }
     }
 
-    // TELEGRAM
-    function inviaTelegram() {
-        const evento = document.getElementById('m_evento').value || "EMERGENZA SAR";
-        const tipo = document.getElementById('m_tipo').value;
-        const data = document.getElementById('m_data').value || "Oggi";
-        const ora = document.getElementById('m_ora').value || "Subito";
-        const ente = document.getElementById('m_ente').value || "N.D.";
-        const resp = document.getElementById('m_resp').value || "N.D.";
-
-        const msg = `🚨 *ALLERTA UNITÀ MERLINI*%0A%0A📌 *EVENTO:* ${evento}%0A⚠️ *TIPO:* ${tipo}%0A📅 *DATA:* ${data}%0A🕒 *ORA:* ${ora}%0A🏛️ *ENTE:* ${ente}%0A👤 *RESP:* ${resp}%0A%0A_Si prega di confermare la disponibilità._`;
-        
-        window.open(`https://t.me/share/url?url=${msg}`, '_blank');
-    }
-
-    // DATABASE
-    function salvaMissione() {
-        const m = {
-            evento: document.getElementById('m_evento').value.toUpperCase(),
-            tipo: document.getElementById('m_tipo').value,
-            data: document.getElementById('m_data').value || "Oggi",
-            ora: document.getElementById('m_ora').value || "Adesso",
-            ente: document.getElementById('m_ente').value,
-            prot: document.getElementById('m_prot').value,
-            resp: document.getElementById('m_resp').value,
-            t: Date.now()
+    // --- CLOUD ---
+    function pubblicaMissione() {
+        const obj = {
+            n: document.getElementById('ev_name').value.toUpperCase(),
+            t: document.getElementById('ev_type').value,
+            d: document.getElementById('ev_date').value || "Oggi",
+            o: document.getElementById('ev_time').value || "Ora",
+            e: document.getElementById('ev_ente').value,
+            p: document.getElementById('ev_prot').value,
+            r: document.getElementById('ev_resp').value,
+            ts: Date.now()
         };
-        if(!m.evento) return alert("Inserisci tipo evento!");
-        db.ref('merlini/scaletta').push(m);
-        alert("Scaletta aggiornata!");
+        if(!obj.n) return alert("Inserisci Nome Evento");
+        database.ref('merlini/scaletta').push(obj);
+        alert("Scaletta Aggiornata!");
     }
 
-    function syncData() {
-        // Scaletta
-        db.ref('merlini/scaletta').on('value', snap => {
-            const d = snap.val() || {};
-            document.getElementById('scaletta-lista').innerHTML = Object.values(d).reverse().map(m => `
-                <div class="scaletta-item">
-                    <b>${m.evento}</b><br>
-                    <small>${m.tipo} - ${m.data} ${m.ora}</small><br>
-                    <small>Prot: ${m.prot} | Ente: ${m.ente}</small>
+    function syncCloud() {
+        database.ref('merlini/scaletta').on('value', s => {
+            const data = s.val() || {};
+            document.getElementById('lista-scaletta').innerHTML = Object.values(data).reverse().map(m => `
+                <div class="sc-item">
+                    <b>${m.n}</b><br><small>${m.t} | ${m.d} ore ${m.o}</small>
                 </div>
             `).join('');
         });
 
-        // Volontari
-        db.ref('merlini/volontari').on('value', snap => {
-            const list = Object.values(snap.val() || {}).sort((a,b) => a.nome.localeCompare(b.nome));
-            
-            // UI Anagrafica
-            document.getElementById('lista-anagrafica').innerHTML = list.map((v, i) => `
-                <div class="v-card">
-                    <div id="qrmin-${i}" class="qr-thumb" onclick="zoom('${v.nome}','${v.id}')"></div>
-                    <div style="flex:1"><b>${v.nome}</b></div>
-                    <button onclick="del('${v.id}')" style="background:none; border:none; color:var(--danger);">✕</button>
-                </div>
-            `).join('');
-            list.forEach((v, i) => {
-                document.getElementById(`qrmin-${i}`).innerHTML = "";
-                new QRCode(document.getElementById(`qrmin-${i}`), { text: v.id, width: 60, height: 60 });
-            });
-
-            // UI Appello
-            document.getElementById('lista-appello').innerHTML = list.map(v => `
-                <div class="card" style="border-left:10px solid ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
-                    <b>${v.nome}</b>: ${v.stato} (${v.ora})
-                </div>
-            `).join('');
+        database.ref('merlini/anagrafica').on('value', s => {
+            const list = Object.values(s.val() || {}).sort((a,b) => a.nome.localeCompare(b.nome));
+            updateUI(list);
         });
     }
 
-    function addVol() {
-        const n = document.getElementById('new_nome').value.toUpperCase().trim();
+    function updateUI(list) {
+        document.getElementById('lista-volontari').innerHTML = list.map((v, i) => `
+            <div class="v-card">
+                <div id="qrv-${i}" class="qr-box"></div>
+                <div style="flex:1"><b>${v.nome}</b><br><small>ID: ${v.id}</small></div>
+                <button onclick="rimuoviV('${v.id}')" style="background:none; border:none; color:var(--danger); font-size:20px;">✕</button>
+            </div>
+        `).join('');
+        list.forEach((v, i) => new QRCode(document.getElementById(`qrv-${i}`), { text: v.id, width: 70, height: 70 }));
+
+        document.getElementById('lista-appello').innerHTML = list.map(v => `
+            <div class="card" style="border-left:12px solid ${v.stato==='PRESENTE'?'var(--success)':'var(--danger)'}">
+                <b>${v.nome}</b>: ${v.stato} (${v.ora})
+            </div>
+        `).join('');
+    }
+
+    function salvaVolontario() {
+        const n = document.getElementById('vol_name').value.toUpperCase().trim();
         if(!n) return;
         const id = "M-" + btoa(n).substr(0,8);
-        db.ref('merlini/volontari/'+id).set({ id, nome: n, stato: "ASSENTE", ora: "--:--" });
-        document.getElementById('new_nome').value = "";
+        database.ref('merlini/anagrafica/'+id).set({ id, nome: n, stato: "ASSENTE", ora: "--:--" });
+        document.getElementById('vol_name').value = "";
     }
 
-    function startScan() {
-        scanner = new Html5Qrcode("scanner-view");
-        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, id => {
+    function startCamera() {
+        scanner = new Html5Qrcode("reader-box");
+        scanner.start({ facingMode: "environment" }, { fps: 12, qrbox: 280 }, id => {
             const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            db.ref('merlini/volontari/'+id).update({ stato: "PRESENTE", ora: h });
-            alert("Rilevato: " + id);
+            database.ref('merlini/anagrafica/'+id).update({ stato: "PRESENTE", ora: h });
+            alert("PRESENZA REGISTRATA!");
             scanner.stop();
         });
     }
 
-    function zoom(n, id) {
-        document.getElementById('zoomName').innerText = n;
-        document.getElementById('qrFull').innerHTML = "";
-        new QRCode(document.getElementById('qrFull'), { text: id, width: 250, height: 250 });
-        document.getElementById('qrModal').style.display = 'flex';
-    }
+    function rimuoviV(id) { if(confirm("Eliminare?")) database.ref('merlini/anagrafica/'+id).remove(); }
 
-    function del(id) { if(confirm("Eliminare?")) db.ref('merlini/volontari/'+id).remove(); }
-
-    function goPage(id, btn) {
+    function showSection(id, btn) {
         document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('page-'+id).classList.add('active');
+        document.getElementById('sec-'+id).classList.add('active');
         btn.classList.add('active');
         if(id === 'missione') setTimeout(() => map.invalidateSize(), 400);
     }
 
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    setInterval(() => { document.getElementById('clockDisplay').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
