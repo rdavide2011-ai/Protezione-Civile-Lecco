@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V14.0 TOTALE</title>
+    <title>S.A.R. MERLINI V16.3 - TOTAL SYNC</title>
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     
@@ -16,327 +15,226 @@
         :root {
             --bg-dark: #0a0e14; --panel-bg: #161b22; --pc-yellow: #ffcc00;
             --pc-blue: #0056b3; --danger: #eb3b5a; --text-main: #e6edf3;
-            --success: #2ea043; --border: #30363d; --warning: #f39c12;
+            --success: #2ea043; --border: #30363d;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        /* HEADER */
-        .top-bar { background: var(--panel-bg); padding: 10px 15px; display: flex; align-items: center; border-bottom: 2px solid var(--pc-yellow); z-index: 1000; }
-        .pc-logo-img { height: 35px; margin-right: 12px; }
-
-        /* NAVIGATION */
-        .module-nav { display: flex; background: #000; padding: 8px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
-        .nav-btn { padding: 10px 14px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: 0.2s; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* NAVBAR & HEADER */
+        .top-bar { background: var(--panel-bg); padding: 12px; border-bottom: 2px solid var(--pc-yellow); display: flex; align-items: center; justify-content: space-between; z-index: 100; }
+        .module-nav { display: flex; background: #000; padding: 6px; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+        .nav-btn { padding: 12px; background: var(--panel-bg); color: #8b949e; border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: 0.2s; text-transform: uppercase; }
         .nav-btn.active { background: var(--pc-yellow); color: black; border-color: var(--pc-yellow); }
 
-        /* MAIN AREA */
-        .main-content { flex: 1; overflow-y: auto; position: relative; padding-bottom: 30px; }
-        .module-page { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
-        .module-page.active { display: block; }
+        /* CONTENUTO */
+        .main-content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 40px; }
+        .module-page { display: none; }
+        .module-page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* CARDS & FORMS */
-        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); max-width: 550px; margin-inline: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 12px; margin-bottom: 4px; }
-        input, select, textarea { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; transition: border 0.3s; }
-        input:focus { border-color: var(--pc-yellow); }
+        /* CARDS & INPUTS */
+        .card { background: var(--panel-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.4); max-width: 500px; margin-inline: auto; }
+        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-top: 10px; }
+        input { width: 100%; padding: 14px; margin-top: 6px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--pc-yellow); outline: none; }
         
-        .btn { padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 12px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-        .btn-blue { background: var(--pc-blue); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-
-        /* MODALS (ZOOM & STATUS) */
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
-        .modal-content { background: var(--panel-bg); border: 2px solid var(--pc-yellow); border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; text-align: center; }
-        #qrFullContainer { background: white; padding: 15px; border-radius: 10px; display: inline-block; margin: 15px 0; }
-
-        /* VOLUNTEER CARDS */
-        .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--pc-yellow); display: flex; align-items: center; gap: 15px; }
-        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; cursor: pointer; }
-        .tag { background: rgba(255, 204, 0, 0.1); color: var(--pc-yellow); font-size: 9px; padding: 2px 6px; border: 1px solid var(--pc-yellow); border-radius: 4px; margin-top: 4px; display: inline-block; }
-
-        /* MAP */
-        #map { height: 400px; width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; margin-top: 12px; cursor: pointer; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
         
-        #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 1000000; display: flex; align-items: center; justify-content: center; }
+        /* SCANNER & QR */
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid var(--pc-yellow); background: black; min-height: 250px; }
+        .v-card { background: #0d1117; padding: 14px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border-left: 6px solid var(--pc-yellow); }
+        .qr-small { background: white; padding: 4px; border-radius: 6px; width: 60px; height: 60px; cursor: pointer; }
+
+        /* MODALI */
+        #loginOverlay { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; align-items: center; justify-content: center; }
+        #qrZoomModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.96); z-index: 100000; flex-direction:column; align-items:center; justify-content:center; padding: 20px; }
+        #qrFull { background:white; padding:15px; border-radius:15px; margin: 20px 0; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow);">
-        <img src="logo.svg" style="width:80px; margin-bottom:15px;">
-        <h2 style="color:var(--pc-yellow); margin:0;">S.A.R. UNITÀ MERLINI</h2>
-        <p style="font-size:10px; margin-top:5px; opacity:0.7;">SISTEMA GESTIONALE PROTETTO</p>
-        <input type="password" id="loginInput" pattern="[0-9]*" inputmode="numeric" placeholder="•••••••••" style="text-align:center; font-size:28px; letter-spacing:8px; margin-top:20px;">
-        <button onclick="checkLogin()" class="btn btn-blue">ACCEDI AL SISTEMA</button>
+    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow); width: 90%;">
+        <h2 style="color:var(--pc-yellow); margin:0;">MERLINI SYNC V16.3</h2>
+        <p style="font-size: 10px; opacity: 0.7; margin-bottom: 20px;">INSERIRE PIN DI ACCESSO</p>
+        <input type="password" id="loginInput" inputmode="numeric" pattern="[0-9]*" placeholder="•••••••••" style="text-align:center; font-size:30px; letter-spacing:8px;">
+        <button onclick="checkLogin()" class="btn" style="background:var(--pc-blue); color:white;">ENTRA NEL SISTEMA</button>
     </div>
 </div>
 
-<div id="qrZoomModal" class="modal-overlay" onclick="this.style.display='none'">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 id="zoomName" style="color:var(--pc-yellow); margin:0;">NOME</h2>
-        <div id="qrFullContainer"></div>
-        <p style="font-size:12px; opacity:0.8;">Mostra questo codice allo scanner</p>
-        <button class="btn btn-danger" onclick="document.getElementById('qrZoomModal').style.display='none'">CHIUDI</button>
-    </div>
-</div>
-
-<div id="statusModal" class="modal-overlay">
-    <div class="modal-content">
-        <h2 id="scannedName" style="color:var(--pc-yellow); margin:0;">NOME</h2>
-        <p style="margin-bottom:20px;">Registra stato arrivo:</p>
-        <button class="btn btn-success" onclick="processStatus('PRESENTE')">✅ PRESENTE</button>
-        <button class="btn btn-warning" onclick="processStatus('RITARDO')">⏳ IN RITARDO</button>
-        <button class="btn btn-danger" onclick="processStatus('ASSENTE')">❌ ASSENTE</button>
-        <button class="btn" style="background:#444; color:white;" onclick="closeStatusModal()">ANNULLA</button>
-    </div>
+<div id="qrZoomModal" onclick="this.style.display='none'">
+    <h2 id="zoomName" style="color:var(--pc-yellow); margin:0; text-align: center;"></h2>
+    <div id="qrFull"></div>
+    <button class="btn btn-danger" style="max-width: 200px;">CHIUDI</button>
 </div>
 
 <div class="top-bar">
-    <img src="logo.svg" class="pc-logo-img">
-    <div style="line-height:1">
-        <span style="font-weight:bold; color:var(--pc-yellow); font-size:15px;">MERLINI V14.0</span><br>
-        <span id="liveClock" style="font-size:10px; color:var(--success);">00:00:00</span>
+    <span style="font-size: 14px;"><b>S.A.R. MERLINI</b></span>
+    <div style="text-align: right;">
+        <div id="syncStatus" style="font-size:9px; color:var(--success); font-weight:bold;">● CLOUD SINCRONIZZATO</div>
+        <div id="liveClock" style="font-size:11px; opacity:0.8;">00:00:00</div>
     </div>
 </div>
 
 <div class="module-nav">
-    <button class="nav-btn" onclick="showPage('allerta', this)">🚨 Allerta</button>
-    <button class="nav-btn active" id="nav-scanner" onclick="showPage('scanner', this)">📷 Scanner</button>
+    <button class="nav-btn active" onclick="showPage('scanner', this)">📷 Scanner</button>
     <button class="nav-btn" onclick="showPage('volontari', this)">👥 Anagrafica</button>
     <button class="nav-btn" onclick="showPage('presenze', this)">📝 Appello</button>
-    <button class="nav-btn" onclick="showPage('diario', this)">📖 Diario</button>
 </div>
 
 <div class="main-content">
     
     <div id="page-scanner" class="module-page active">
         <div class="card">
-            <h3 style="margin:0; color:var(--pc-yellow);">CHECK-IN OPERATIVO</h3>
-            <p style="font-size:11px; opacity:0.7;">Inquadra il QR Code del volontario</p>
+            <h3 style="margin-top:0; font-size: 16px;">RILEVAMENTO PRESENZE</h3>
             <div id="reader"></div>
-            <button class="btn btn-blue" onclick="startScanner()">ATTIVA FOTOCAMERA</button>
-            <button class="btn btn-danger" onclick="stopScanner()">SPEGNI CAMERA</button>
-        </div>
-    </div>
-
-    <div id="page-allerta" class="module-page">
-        <div class="card">
-            <label>Tipo Evento</label>
-            <input type="text" id="f_evento" placeholder="Es: Ricerca Persona Scomparsa">
-            <label>Punto di Ritrovo</label>
-            <div id="map"></div>
-            <p style="font-size:10px; color:var(--pc-yellow);">* Clicca sulla mappa per segnare il punto</p>
-            <button class="btn btn-success" onclick="sendTelegramAlert()">🚀 INVIA ALLERTA TELEGRAM</button>
+            <button class="btn" style="background:var(--pc-blue); color:white;" onclick="startScanner()">ACCENDI CAMERA</button>
         </div>
     </div>
 
     <div id="page-volontari" class="module-page">
         <div class="card">
-            <label>Nuovo Volontario (Cognome Nome)</label>
-            <input type="text" id="v_nome" placeholder="ROSSI MARIO">
-            <label>Ruolo/Qualifica</label>
-            <select id="v_ruolo">
-                <option>Volontario</option>
-                <option>Capo Squadra</option>
-                <option>Coordinatore</option>
-            </select>
-            <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI E GENERA QR</button>
+            <label>NUOVO VOLONTARIO (COGNOME NOME)</label>
+            <input type="text" id="v_nome" placeholder="ES: ROSSI MARIO">
+            <button class="btn" style="background:var(--success); color:white;" onclick="addVolontario()">AGGIUNGI AL CLOUD</button>
         </div>
         <div id="lista-volontari"></div>
     </div>
 
     <div id="page-presenze" class="module-page">
+        <h3 style="margin-top:0; font-size: 16px; text-align: center;">STATO REPARTO IN TEMPO REALE</h3>
         <div id="lista-appello"></div>
-        <button class="btn btn-blue" onclick="exportPDF()">📄 ESPORTA PDF REPARTO</button>
-    </div>
-
-    <div id="page-diario" class="module-page">
-        <div id="log-container" class="card" style="font-size:12px; max-height:450px; overflow-y:auto; line-height:1.6;"></div>
-        <div class="card">
-            <label>Nota Manuale</label>
-            <textarea id="manualNote" rows="2" placeholder="Scrivi un aggiornamento..."></textarea>
-            <button class="btn btn-blue" onclick="saveManualNote()">REGISTRA NOTA</button>
-            <button class="btn btn-danger" style="margin-top:20px; opacity:0.5;" onclick="clearAllData()">RESET TOTALE DATI</button>
+        <div class="card" style="margin-top: 20px; border: 1px dashed var(--danger);">
+            <button class="btn" style="background:var(--danger); color:white; opacity:0.7;" onclick="resetAppello()">RESET GIORNALIERO</button>
         </div>
     </div>
-
 </div>
 
 <script>
-    const PIN_OPERATIVO = "123456789";
-    const TELEGRAM_TOKEN = "8237203800:AAGzZi2zgPyAa6bCunZkNCzH7hlz5rNykVA";
-    const TELEGRAM_CHAT_ID = "-1003709844017";
+    // CONFIGURAZIONE FIREBASE (DATI FORNITI)
+    const firebaseConfig = {
+        apiKey: "AIzaSyB5AhJZSLu3om-VUsoQBX9KazvtzAkAoa0",
+        authDomain: "merlini-sar.firebaseapp.com",
+        databaseURL: "https://merlini-sar-default-rtdb.firebaseio.com", 
+        projectId: "merlini-sar",
+        storageBucket: "merlini-sar.firebasestorage.app",
+        messagingSenderId: "654419107383",
+        appId: "1:654419107383:web:d84686c7c305e87d6969b2"
+    };
 
-    let html5QrCode, map, marker;
-    let volontari = JSON.parse(localStorage.getItem('merl_v14_vol')) || [];
-    let presenze = JSON.parse(localStorage.getItem('merl_v14_pre')) || {};
-    let log = JSON.parse(localStorage.getItem('merl_v14_log')) || [];
-    let currentVol = null;
+    // Inizializzazione Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    // LOGIN
+    const PIN_VALIDO = "123456789";
+    let html5QrCode;
+
+    // Login e Attivazione Sync
     function checkLogin() {
-        if(document.getElementById('loginInput').value === PIN_OPERATIVO) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            initMap();
-            updateUI();
-        } else {
-            alert("ACCESSO NEGATO: PIN ERRATO");
+        const input = document.getElementById('loginInput').value;
+        if(input === PIN_VALIDO) {
+            document.getElementById('loginOverlay').style.display='none';
+            initSync(); 
+        } else { 
+            alert("PIN ERRATO"); 
             document.getElementById('loginInput').value = "";
         }
     }
 
-    // CLOCK
-    setInterval(() => {
-        document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
-    }, 1000);
-
-    // MAPPA
-    function initMap() {
-        map = L.map('map').setView([45.856, 9.397], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        map.on('click', function(e) {
-            if (marker) map.removeLayer(marker);
-            marker = L.marker(e.latlng).addTo(map);
+    // SINCRONIZZAZIONE REAL-TIME
+    function initSync() {
+        db.ref('merlini/volontari').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            const list = Object.values(data).sort((a, b) => a.nome.localeCompare(b.nome));
+            renderInterface(list);
         });
     }
 
-    // TELEGRAM
-    async function sendTelegramAlert() {
-        const evento = document.getElementById('f_evento').value || "ESERCITAZIONE";
-        let posLink = "";
-        if(marker) {
-            const lat = marker.getLatLng().lat;
-            const lng = marker.getLatLng().lng;
-            posLink = `\n📍 POSIZIONE: https://www.google.com/maps?q=${lat},${lng}`;
-        }
-        const messaggio = `🚨 *ALLERTA S.A.R. MERLINI*\n📌 EVENTO: ${evento.toUpperCase()}${posLink}`;
-        
-        try {
-            await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: messaggio, parse_mode: 'Markdown' })
-            });
-            alert("ALLERTA INVIATA!");
-        } catch(e) { alert("ERRORE INVIO TELEGRAM"); }
-    }
-
-    // SCANNER
-    function startScanner() {
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
-            const v = volontari.find(x => x.id === id);
-            if(v) {
-                if(navigator.vibrate) navigator.vibrate(100);
-                currentVol = v;
-                document.getElementById('scannedName').innerText = v.nome;
-                document.getElementById('statusModal').style.display = 'flex';
-                stopScanner();
-            }
-        }).catch(err => console.error(err));
-    }
-
-    function stopScanner() { if(html5QrCode) html5QrCode.stop(); }
-
-    function processStatus(stato) {
-        const ora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        presenze[currentVol.nome] = { stato, ora };
-        addLog(`CHECK-IN: ${currentVol.nome} -> ${stato}`);
-        closeStatusModal();
-        updateUI();
-    }
-
-    function closeStatusModal() { document.getElementById('statusModal').style.display = 'none'; }
-
-    // ANAGRAFICA
+    // AGGIUNTA VOLONTARIO
     function addVolontario() {
         const nome = document.getElementById('v_nome').value.toUpperCase().trim();
-        const ruolo = document.getElementById('v_ruolo').value;
-        if(nome) {
-            // ID generato dal nome per sincronizzazione teorica
-            const id = "M-" + btoa(nome).substr(0, 8).toUpperCase();
-            if(!volontari.find(x => x.id === id)) {
-                volontari.push({ nome, ruolo, id });
-                saveData();
-                document.getElementById('v_nome').value = "";
-                updateUI();
-            } else { alert("VOLONTARIO GIÀ IN LISTA"); }
-        }
+        if(!nome) return;
+        
+        // Creiamo un ID pulito basato sul nome per evitare doppioni tra device
+        const safeId = btoa(nome).replace(/=/g, "").substr(0, 10);
+        
+        db.ref('merlini/volontari/' + safeId).set({
+            id: safeId,
+            nome: nome,
+            stato: "ASSENTE",
+            ora: "--:--"
+        });
+        document.getElementById('v_nome').value = "";
     }
 
-    // UI UPDATES
-    function updateUI() {
+    function renderInterface(list) {
+        // Render Anagrafica
         const vList = document.getElementById('lista-volontari');
-        vList.innerHTML = volontari.map((v, i) => `
+        vList.innerHTML = list.map((v, i) => `
             <div class="v-card">
-                <div id="qr-min-${i}" class="qr-small" onclick="showFullQR('${v.nome}','${v.id}')"></div>
-                <div style="flex:1">
-                    <b>${v.nome}</b><br>
-                    <span class="tag">${v.ruolo}</span>
-                </div>
-                <button onclick="delVol(${i})" style="color:var(--danger); background:none; border:none; font-size:18px;">✕</button>
+                <div id="qr-min-${i}" class="qr-small" onclick="showZoom('${v.nome}','${v.id}')"></div>
+                <div style="flex:1"><b>${v.nome}</b></div>
+                <button onclick="delVol('${v.id}')" style="background:none; border:none; color:var(--danger); font-size:18px; padding:10px;">✕</button>
             </div>
         `).join('');
         
-        volontari.forEach((v, i) => {
+        list.forEach((v, i) => {
             document.getElementById(`qr-min-${i}`).innerHTML = "";
             new QRCode(document.getElementById(`qr-min-${i}`), { text: v.id, width: 60, height: 60 });
         });
 
+        // Render Appello
         const aList = document.getElementById('lista-appello');
-        aList.innerHTML = volontari.map(v => {
-            const p = presenze[v.nome] || { stato: 'ASSENTE', ora: '--:--' };
-            let color = p.stato === 'PRESENTE' ? 'var(--success)' : (p.stato === 'RITARDO' ? 'var(--warning)' : 'var(--danger)');
-            return `<div class="card" style="border-left:10px solid ${color}; display:flex; justify-content:space-between; align-items:center;">
-                <b>${v.nome}</b>
-                <span style="font-weight:bold; font-size:12px;">${p.stato} (${p.ora})</span>
+        aList.innerHTML = list.map(v => {
+            const color = v.stato === 'PRESENTE' ? 'var(--success)' : 'var(--danger)';
+            return `<div class="card" style="border-left:10px solid ${color}; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding: 12px;">
+                <b style="font-size:14px;">${v.nome}</b>
+                <span style="font-size:11px; font-weight:bold; color:${color}">${v.stato} [${v.ora}]</span>
             </div>`;
         }).join('');
-
-        document.getElementById('log-container').innerHTML = log.map(l => `<div><b>[${l.ora}]</b> ${l.txt}</div>`).reverse().join('');
     }
 
-    function showFullQR(nome, id) {
+    // FUNZIONE SCANNER
+    function startScanner() {
+        if(html5QrCode) html5QrCode.stop();
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (id) => {
+            const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            
+            db.ref('merlini/volontari/' + id).update({
+                stato: "PRESENTE",
+                ora: ora
+            }).then(() => {
+                if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                alert("REGISTRATO: " + id);
+            });
+            html5QrCode.stop();
+        }).catch(err => alert("Errore camera: " + err));
+    }
+
+    function showZoom(nome, id) {
         document.getElementById('zoomName').innerText = nome;
-        const container = document.getElementById('qrFullContainer');
-        container.innerHTML = "";
-        new QRCode(container, { text: id, width: 250, height: 250 });
+        document.getElementById('qrFull').innerHTML = "";
+        new QRCode(document.getElementById('qrFull'), { text: id, width: 250, height: 250 });
         document.getElementById('qrZoomModal').style.display = 'flex';
     }
 
-    // UTILS
-    function addLog(txt) {
-        const ora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        log.push({ ora, txt });
-        saveData();
-    }
-
-    function saveManualNote() {
-        const note = document.getElementById('manualNote').value;
-        if(note) {
-            addLog("NOTA: " + note);
-            document.getElementById('manualNote').value = "";
-            updateUI();
+    function delVol(id) {
+        if(confirm("Eliminare definitivamente questo volontario dal Cloud?")) {
+            db.ref('merlini/volontari/' + id).remove();
         }
     }
 
-    function saveData() {
-        localStorage.setItem('merl_v14_vol', JSON.stringify(volontari));
-        localStorage.setItem('merl_v14_pre', JSON.stringify(presenze));
-        localStorage.setItem('merl_v14_log', JSON.stringify(log));
-    }
-
-    function delVol(i) {
-        if(confirm("ELIMINARE DEFINITIVAMENTE IL VOLONTARIO?")) {
-            volontari.splice(i,1);
-            saveData();
-            updateUI();
+    function resetAppello() {
+        if(confirm("Vuoi azzerare tutte le presenze di oggi?")) {
+            db.ref('merlini/volontari').once('value', snap => {
+                const updates = {};
+                snap.forEach(child => {
+                    updates[child.key + '/stato'] = "ASSENTE";
+                    updates[child.key + '/ora'] = "--:--";
+                });
+                db.ref('merlini/volontari').update(updates);
+            });
         }
     }
 
@@ -344,34 +242,14 @@
         document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('page-' + id).classList.add('active');
-        if(btn) btn.classList.add('active');
-        if(id === 'allerta') setTimeout(() => map.invalidateSize(), 400);
-        if(id !== 'scanner' && html5QrCode) stopScanner();
+        btn.classList.add('active');
+        if(id !== 'scanner' && html5QrCode) html5QrCode.stop().catch(() => {});
     }
 
-    function clearAllData() {
-        if(confirm("ATTENZIONE! CANCELLARE TUTTI I DATI, VOLONTARI E DIARIO?")) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
+    setInterval(() => { 
+        document.getElementById('liveClock').innerText = new Date().toLocaleTimeString(); 
+    }, 1000);
 
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text("S.A.R. UNITÀ MERLINI - REPORT MISSIONE", 14, 20);
-        doc.setFontSize(10);
-        doc.text("Data Report: " + new Date().toLocaleString(), 14, 28);
-        
-        const rows = volontari.map(v => [v.nome, v.ruolo, presenze[v.nome]?.stato || 'ASSENTE', presenze[v.nome]?.ora || '--:--']);
-        doc.autoTable({
-            startY: 35,
-            head: [['Volontario', 'Ruolo', 'Stato', 'Ora Check-in']],
-            body: rows
-        });
-        doc.save("Report_Merlini.pdf");
-    }
 </script>
 </body>
 </html>
