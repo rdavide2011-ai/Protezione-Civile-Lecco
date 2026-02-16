@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V5.3 SAFE</title>
+    <title>S.A.R. UNITÀ MERLINI - V5.4</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -20,6 +20,7 @@
             --text-main: #e6edf3;
             --success: #2ea043;
             --border: #30363d;
+            --warning: #f39c12;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -34,10 +35,10 @@
         .module-page { display: none; padding: 20px; }
         .module-page.active { display: block; }
 
-        .centered-container { max-width: 400px; margin: 0 auto; }
+        .centered-container { max-width: 450px; margin: 0 auto; }
         .card { background: var(--panel-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
-        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; }
-        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; margin: 5px 0 12px 0; }
+        label { font-size: 10px; color: var(--pc-yellow); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 2px; }
+        input, textarea, select { width: 100%; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-size: 14px; margin: 5px 0 15px 0; }
         
         .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 5px; }
         .btn-blue { background: var(--pc-blue); color: white; }
@@ -45,12 +46,12 @@
         .btn-success { background: var(--success); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--pc-yellow); color: var(--pc-yellow); }
 
+        /* Hidden section for Yellow alert */
+        #data-ora-input { display: none; background: rgba(243, 156, 18, 0.1); padding: 10px; border-radius: 8px; border: 1px solid var(--warning); margin-bottom: 15px; }
+
         #map { height: 100%; width: 100%; }
         .map-controls { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; }
-        .search-group { display: flex; gap: 5px; margin-bottom: 5px; }
-        .search-group input { margin: 0; background: white; color: black; }
-        #btn-send-pos { display: none; background: var(--danger); color: white; }
-
+        
         .list-item { background: #0d1117; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; justify-content: space-between; align-items: center; }
         .presenza-row { background: var(--panel-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 10px; }
         .presenza-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
@@ -76,9 +77,9 @@
 <div class="top-bar">
     <div style="display:flex; align-items:center;">
         <div style="background:var(--pc-yellow); color:black; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">M</div>
-        <span style="font-size:12px; font-weight:bold;">S.A.R. V5.3 SAFE</span>
+        <span style="font-size:12px; font-weight:bold;">S.A.R. CONSOLE V5.4</span>
     </div>
-    <span id="save-status" style="font-size:9px; color:var(--success);">● DATI PROTETTI</span>
+    <span style="font-size:9px; color:var(--success);">● AUTO-SAVE ATTIVO</span>
 </div>
 
 <div class="module-nav">
@@ -95,27 +96,42 @@
     <div id="page-allerta" class="module-page active">
         <div class="centered-container">
             <div class="card">
-                <label>Evento</label><input type="text" id="f_evento" placeholder="Es: Ricerca Persona" oninput="saveDraft()">
-                <label>Squadre Impegnate</label><input type="text" id="f_squadre" placeholder="Es: Squadra 1..." oninput="saveDraft()">
+                <label>Evento / Missione</label>
+                <input type="text" id="f_evento" placeholder="Es: Ricerca Persona Scomparsa" oninput="saveDraft()">
+                
+                <label>Squadre Richieste</label>
+                <input type="text" id="f_squadre" placeholder="Es: Unità Cinofila, Squadra Terra 1" oninput="saveDraft()">
+                
                 <label>Urgenza</label>
-                <select id="f_tipo" onchange="saveDraft()">
+                <select id="f_tipo" onchange="toggleUrgenza(); saveDraft();">
                     <option value="🔴 IMMEDIATA">ROSSO (Immediata)</option>
                     <option value="🟡 PROGRAMMATA">GIALLO (Programmata)</option>
                 </select>
-                <button class="btn btn-danger" onclick="sendTelegram()">🚀 INVIA TELEGRAM</button>
+
+                <div id="data-ora-input">
+                    <label>Data Intervento</label>
+                    <input type="date" id="f_data" onchange="saveDraft()">
+                    <label>Ora Ritrovo</label>
+                    <input type="time" id="f_ora" onchange="saveDraft()">
+                </div>
+
+                <label>Note Aggiuntive</label>
+                <textarea id="f_note" rows="3" placeholder="Info extra, equipaggiamento, etc..." oninput="saveDraft()"></textarea>
+
+                <button class="btn btn-danger" onclick="sendTelegram()">🚀 INVIA ALLERTA TELEGRAM</button>
                 <div style="margin: 10px 0; text-align:center; color: #8b949e; font-size: 11px;">OPPURE</div>
-                <button class="btn btn-outline" onclick="goToMapForCoords()">📍 INVIA COORDINATE</button>
+                <button class="btn btn-outline" onclick="goToMapForCoords()">📍 INVIA COORDINATE GOOGLE MAPS</button>
             </div>
         </div>
     </div>
 
     <div id="page-mappa" class="module-page" style="padding:0; position:absolute; height:100%; width:100%;">
         <div class="map-controls">
-            <div class="search-group">
-                <input type="text" id="map-search-input" placeholder="Cerca via o città...">
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="text" id="map-search-input" placeholder="Cerca via o città..." style="margin:0; background:white; color:black;">
                 <button onclick="searchMap()" class="btn btn-blue" style="width:auto; margin:0; padding:0 15px;">🔍</button>
             </div>
-            <button id="btn-send-pos" class="btn" onclick="sendMapPosition()">📲 INVIA POSIZIONE A TELEGRAM</button>
+            <button id="btn-send-pos" class="btn" style="display:none; background:var(--danger); color:white;" onclick="sendMapPosition()">📲 INVIA POSIZIONE A TELEGRAM</button>
         </div>
         <div id="map"></div>
     </div>
@@ -123,33 +139,33 @@
     <div id="page-settori" class="module-page">
         <div id="lista-settori"></div>
         <div class="card">
-            <label>Settore</label><input type="text" id="sec-nome">
-            <label>Squadra</label><input type="text" id="sec-squadra">
-            <button class="btn btn-blue" onclick="addSettore()">SALVA SETTORE</button>
+            <label>Nome Settore</label><input type="text" id="sec-nome">
+            <label>Squadra Assegnata</label><input type="text" id="sec-squadra">
+            <button class="btn btn-blue" onclick="addSettore()">ASSEGNA SETTORE</button>
         </div>
     </div>
 
     <div id="page-presenze" class="module-page">
         <div id="lista-presenze-dinamica"></div>
         <div class="card"><label>Firma Coordinatore</label><canvas id="signature-pad"></canvas></div>
-        <button class="btn btn-success" onclick="exportPDF('appello')">📄 PDF APPELLO</button>
+        <button class="btn btn-success" onclick="exportPDF('appello')">📄 GENERA PDF APPELLO</button>
     </div>
 
     <div id="page-diario" class="module-page">
         <div id="log-container"></div>
         <div class="card">
-            <textarea id="log-input" rows="3" placeholder="Scrivi qui il log..."></textarea>
-            <button class="btn btn-blue" onclick="addLog()">REGISTRA EVENTO</button>
+            <textarea id="log-input" rows="3" placeholder="Annotazione per il diario operativo..."></textarea>
+            <button class="btn btn-blue" onclick="addLog()">SALVA NOTA</button>
         </div>
-        <button class="btn btn-success" onclick="exportPDF('diario')">📄 PDF DIARIO</button>
+        <button class="btn btn-success" onclick="exportPDF('diario')">📄 GENERA PDF DIARIO</button>
     </div>
 
     <div id="page-volontari" class="module-page">
         <div id="lista-volontari"></div>
         <div class="card">
             <label>Cognome e Nome</label><input type="text" id="v-nome">
-            <label>Ruolo / Cosa fa</label><input type="text" id="v-ruolo">
-            <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI VOLONTARIO</button>
+            <label>Cosa fa (Ruolo)</label><input type="text" id="v-ruolo">
+            <button class="btn btn-success" onclick="addVolontario()">SALVA IN ANAGRAFICA</button>
         </div>
     </div>
 </div>
@@ -159,14 +175,12 @@
     const ID_GRUPPO = "-1003709844017";
     const PIN_VALIDO = "123456789";
 
-    // CARICAMENTO DATI (Auto-Backup)
     let volontari = JSON.parse(localStorage.getItem('merlini_vol')) || [];
     let presenze = JSON.parse(localStorage.getItem('merlini_pre')) || {};
     let log = JSON.parse(localStorage.getItem('merlini_log')) || [];
     let settori = JSON.parse(localStorage.getItem('merlini_set')) || [];
     let map, drawing = false;
 
-    // Login e Inizializzazione
     function checkLogin() {
         if(document.getElementById('loginInput').value === PIN_VALIDO) {
             document.getElementById('loginOverlay').style.display = 'none';
@@ -174,25 +188,66 @@
         } else { alert("PIN ERRATO"); }
     }
 
-    // Backup Istantaneo dei campi testo
+    function toggleUrgenza() {
+        const val = document.getElementById('f_tipo').value;
+        document.getElementById('data-ora-input').style.display = (val === '🟡 PROGRAMMATA') ? 'block' : 'none';
+    }
+
+    // Auto-Save Drafts
     function saveDraft() {
-        const draft = {
+        const d = {
             evento: document.getElementById('f_evento').value,
             squadre: document.getElementById('f_squadre').value,
-            tipo: document.getElementById('f_tipo').value
+            tipo: document.getElementById('f_tipo').value,
+            data: document.getElementById('f_data').value,
+            ora: document.getElementById('f_ora').value,
+            note: document.getElementById('f_note').value
         };
-        localStorage.setItem('merlini_draft', JSON.stringify(draft));
+        localStorage.setItem('merlini_allerta_draft', JSON.stringify(d));
     }
 
     function loadDraft() {
-        const draft = JSON.parse(localStorage.getItem('merlini_draft'));
-        if(draft) {
-            document.getElementById('f_evento').value = draft.evento || "";
-            document.getElementById('f_squadre').value = draft.squadre || "";
-            document.getElementById('f_tipo').value = draft.tipo || "🔴 IMMEDIATA";
+        const d = JSON.parse(localStorage.getItem('merlini_allerta_draft'));
+        if(d) {
+            document.getElementById('f_evento').value = d.evento || '';
+            document.getElementById('f_squadre').value = d.squadre || '';
+            document.getElementById('f_tipo').value = d.tipo || '🔴 IMMEDIATA';
+            document.getElementById('f_data').value = d.data || '';
+            document.getElementById('f_ora').value = d.ora || '';
+            document.getElementById('f_note').value = d.note || '';
+            toggleUrgenza();
         }
     }
 
+    async function sendTelegram() {
+        const evento = document.getElementById('f_evento').value;
+        const squadre = document.getElementById('f_squadre').value;
+        const tipo = document.getElementById('f_tipo').value;
+        const data = document.getElementById('f_data').value;
+        const ora = document.getElementById('f_ora').value;
+        const note = document.getElementById('f_note').value;
+
+        let msg = `🚨 *ALLERTA MERLINI*\n\n`;
+        msg += `📌 *EVENTO:* ${evento || 'N/D'}\n`;
+        msg += `👥 *SQUADRE:* ${squadre || 'N/D'}\n`;
+        msg += `⚠️ *URGENZA:* ${tipo}\n`;
+        
+        if(tipo === '🟡 PROGRAMMATA') {
+            msg += `📅 *DATA:* ${data || 'N/D'}\n`;
+            msg += `⏰ *ORA:* ${ora || 'N/D'}\n`;
+        }
+
+        if(note) msg += `\n📝 *NOTE:* ${note}`;
+
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
+        });
+        alert("Messaggio Allerta Inviato!");
+        addLog(`Inviata Allerta: ${evento}`);
+    }
+
+    // MAPPA E POSIZIONE
     function initMap() {
         if(map) return;
         map = L.map('map').setView([45.856, 9.397], 13);
@@ -214,44 +269,34 @@
     }
 
     async function searchMap() {
-        const query = document.getElementById('map-search-input').value;
-        if(!query) return;
-        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
-        const data = await resp.json();
-        if(data.length > 0) {
-            map.setView([data[0].lat, data[0].lon], 16);
-            L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup(query).openPopup();
+        const q = document.getElementById('map-search-input').value;
+        if(!q) return;
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
+        const d = await r.json();
+        if(d.length > 0) {
+            map.setView([d[0].lat, d[0].lon], 16);
+            L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup(q).openPopup();
         }
     }
 
     async function sendMapPosition() {
-        const center = map.getCenter();
-        const googleLink = `https://www.google.com/maps?q=${center.lat},${center.lng}`;
-        const msg = `📍 *POSIZIONE OPERATIVA*\n\n🔗 [Apri su Google Maps](${googleLink})`;
+        const c = map.getCenter();
+        const link = `https://www.google.com/maps?q=${c.lat},${c.lng}`;
+        const msg = `📍 *POSIZIONE OPERATIVA MERLINI*\n\n🔗 [Apri Navigatore Google Maps](${link})`;
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
         });
         alert("Coordinate Inviate!");
-        addLog(`Inviata posizione: ${center.lat.toFixed(5)}, ${center.lng.toFixed(5)}`);
+        addLog(`Inviata posizione GPS`);
     }
 
-    async function sendTelegram() {
-        const msg = `🚨 *ALLERTA MERLINI*\n\n📌 *EVENTO:* ${document.getElementById('f_evento').value}\n👥 *SQUADRE:* ${document.getElementById('f_squadre').value}\n⚠️ *URGENZA:* ${document.getElementById('f_tipo').value}`;
-        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({chat_id: ID_GRUPPO, text: msg, parse_mode: 'Markdown'})
-        });
-        alert("Telegram Inviato!");
-        addLog(`Inviata Allerta: ${document.getElementById('f_evento').value}`);
-    }
-
-    // LOGICA DATI
+    // GESTIONE DATI
     function addVolontario() {
-        const nome = document.getElementById('v-nome').value.toUpperCase();
-        const ruolo = document.getElementById('v-ruolo').value;
-        if(nome) {
-            volontari.push({nome, ruolo});
+        const n = document.getElementById('v-nome').value.toUpperCase();
+        const r = document.getElementById('v-ruolo').value;
+        if(n) {
+            volontari.push({nome:n, ruolo:r});
             localStorage.setItem('merlini_vol', JSON.stringify(volontari));
             updateAll();
             document.getElementById('v-nome').value = ""; document.getElementById('v-ruolo').value = "";
@@ -259,11 +304,8 @@
     }
 
     function updateAll() {
-        // Volontari
         document.getElementById('lista-volontari').innerHTML = volontari.map((v,i) => `
             <div class="list-item"><div><b>${v.nome}</b><br><small>${v.ruolo}</small></div><span onclick="delVolontario(${i})" style="color:var(--danger)">✕</span></div>`).join('');
-
-        // Appello
         document.getElementById('lista-presenze-dinamica').innerHTML = volontari.map(v => {
             const s = presenze[v.nome] || {stato:''};
             return `
@@ -276,14 +318,8 @@
                     </div>
                 </div>`;
         }).join('');
-
-        // Settori
-        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `
-            <div class="list-item"><div><b>${s.nome}</b><br><small>${s.sq}</small></div><span onclick="delSet(${i})">✕</span></div>`).join('');
-
-        // Diario
-        document.getElementById('log-container').innerHTML = log.map(l => `
-            <div class="log-entry"><small style="color:var(--pc-yellow)">${l.ora}</small> ${l.txt}</div>`).reverse().join('');
+        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `<div class="list-item"><b>${s.nome}</b> -> ${s.sq} <span onclick="delSet(${i})">✕</span></div>`).join('');
+        document.getElementById('log-container').innerHTML = log.map(l => `<div class="log-entry"><small>${l.ora}</small> ${l.txt}</div>`).reverse().join('');
     }
 
     function setPre(n, s) { presenze[n] = {stato:s}; localStorage.setItem('merlini_pre', JSON.stringify(presenze)); updateAll(); }
@@ -291,10 +327,10 @@
     function delSet(i) { settori.splice(i, 1); localStorage.setItem('merlini_set', JSON.stringify(settori)); updateAll(); }
 
     function addLog() {
-        const txt = document.getElementById('log-input').value;
-        if(!txt) return;
+        const t = document.getElementById('log-input').value;
+        if(!t) return;
         const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        log.push({ora, txt});
+        log.push({ora, txt:t});
         localStorage.setItem('merlini_log', JSON.stringify(log));
         document.getElementById('log-input').value = "";
         updateAll();
@@ -303,13 +339,7 @@
     function addSettore() {
         const n = document.getElementById('sec-nome').value;
         const s = document.getElementById('sec-squadra').value;
-        if(n) {
-            settori.push({nome:n, sq:s});
-            localStorage.setItem('merlini_set', JSON.stringify(settori));
-            addLog(`Settore ${n} assegnato a ${s}`);
-            document.getElementById('sec-nome').value = ""; document.getElementById('sec-squadra').value = "";
-            updateAll();
-        }
+        if(n) { settori.push({nome:n, sq:s}); localStorage.setItem('merlini_set', JSON.stringify(settori)); addLog(`Assegnato settore ${n}`); updateAll(); }
     }
 
     // FIRMA
@@ -321,9 +351,9 @@
 
     function exportPDF(tipo) {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text(`REPORT MERLINI - ${tipo.toUpperCase()}`, 10, 10);
-        const data = tipo === 'appello' ? volontari.map(v => [v.nome, (presenze[v.nome]?.stato || 'N.D.')]) : log.map(l => [l.ora, l.txt]);
-        doc.autoTable({ head: [['Info 1', 'Info 2']], body: data });
+        doc.text(`UNITÀ MERLINI - REPORT ${tipo.toUpperCase()}`, 10, 10);
+        const d = tipo === 'appello' ? volontari.map(v => [v.nome, (presenze[v.nome]?.stato || 'N/D')]) : log.map(l => [l.ora, l.txt]);
+        doc.autoTable({ head: [['Info 1', 'Info 2']], body: d });
         doc.save(`${tipo}.pdf`);
     }
 </script>
