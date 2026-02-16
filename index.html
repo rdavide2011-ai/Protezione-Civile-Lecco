@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S.A.R. UNITÀ MERLINI - V12.0 COMPLETA</title>
+    <title>S.A.R. UNITÀ MERLINI - V12.1 MASTER FIX</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -43,10 +43,13 @@
         .btn-warning { background: var(--warning); color: white; }
         .btn-danger { background: var(--danger); color: white; }
 
-        #statusModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+        /* MODALE QR GIGANTE E STATO */
+        #qrZoomModal, #statusModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+        #qrFullContainer { background: white; padding: 20px; border-radius: 15px; }
+
         #reader { width: 100%; border-radius: 12px; border: 2px solid var(--pc-yellow); overflow: hidden; background: #000; }
         .v-card { background: #0d1117; padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid var(--pc-yellow); display: flex; align-items: center; gap: 15px; position: relative; }
-        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; }
+        .qr-small { background: white; padding: 4px; border-radius: 5px; width: 60px; height: 60px; cursor: pointer; }
         .tag { background: rgba(255, 204, 0, 0.1); color: var(--pc-yellow); font-size: 9px; padding: 2px 6px; border: 1px solid var(--pc-yellow); border-radius: 4px; margin-right: 3px; }
 
         #map { height: 100%; width: 100%; }
@@ -61,12 +64,19 @@
 <body>
 
 <div id="loginOverlay">
-    <div class="card" style="text-align:center;">
+    <div class="card" style="text-align:center; border: 2px solid var(--pc-yellow);">
         <img src="logo.svg" style="width:70px; margin-bottom:10px;">
         <h2 style="color:var(--pc-yellow);">MERLINI CONSOLE</h2>
-        <input type="password" id="loginInput" placeholder="PIN" style="text-align:center; font-size:22px;">
+        <p style="font-size:10px;">INSERIRE PIN NUMERICO</p>
+        <input type="password" id="loginInput" pattern="[0-9]*" inputmode="numeric" placeholder="••••" style="text-align:center; font-size:30px; letter-spacing:10px;">
         <button onclick="checkLogin()" class="btn btn-blue">ACCEDI</button>
     </div>
+</div>
+
+<div id="qrZoomModal" onclick="this.style.display='none'">
+    <h2 id="zoomName" style="color:var(--pc-yellow); margin-bottom:20px;"></h2>
+    <div id="qrFullContainer"></div>
+    <p style="color:white; margin-top:20px;">Tocca per chiudere</p>
 </div>
 
 <div id="statusModal">
@@ -84,7 +94,7 @@
     <img src="logo.svg" class="pc-logo-img">
     <div style="line-height:1">
         <span style="font-weight:bold; color:var(--pc-yellow); font-size:14px;">UNITÀ MERLINI</span><br>
-        <span style="font-size:9px; color:var(--success);">V12.0 MASTER</span>
+        <span style="font-size:9px; color:var(--success);">V12.1 MASTER MASTER</span>
     </div>
 </div>
 
@@ -99,14 +109,8 @@
 </div>
 
 <div class="main-content">
-    
     <div id="page-scanner" class="module-page active">
-        <div class="card">
-            <h3>CHECK-IN QR</h3>
-            <div id="reader"></div>
-            <button class="btn btn-blue" onclick="startScanner()">APRI FOTOCAMERA</button>
-            <button class="btn btn-danger" onclick="stopScanner()">CHIUDI</button>
-        </div>
+        <div class="card"><h3>CHECK-IN QR</h3><div id="reader"></div><button class="btn btn-blue" onclick="startScanner()">APRI FOTOCAMERA</button><button class="btn btn-danger" onclick="stopScanner()">CHIUDI</button></div>
     </div>
 
     <div id="page-allerta" class="module-page">
@@ -115,8 +119,7 @@
             <label>Squadre</label><input type="text" id="f_squadre" placeholder="Es: SAR 1, SAR 2">
             <label>Urgenza</label>
             <select id="f_tipo" onchange="document.getElementById('data-ora-box').style.display=(this.value==='GIALLO'?'block':'none')">
-                <option value="ROSSO">🔴 IMMEDIATA</option>
-                <option value="GIALLO">🟡 PROGRAMMATA</option>
+                <option value="ROSSO">🔴 IMMEDIATA</option><option value="GIALLO">🟡 PROGRAMMATA</option>
             </select>
             <div id="data-ora-box" style="display:none;"><label>Data/Ora</label><input type="datetime-local" id="f_data"></div>
             <label>Note</label><textarea id="f_note" rows="2"></textarea>
@@ -128,9 +131,7 @@
         <div class="map-overlay">
             <input type="text" id="map-search" placeholder="Cerca luogo..." style="background:white; color:black; margin-bottom:5px;">
             <button onclick="searchMap()" class="btn btn-blue" style="width:50px;">🔍</button>
-            <div id="send-panel" style="display:none; background:var(--panel-bg); padding:10px; border:2px solid var(--success); border-radius:10px; margin-top:5px;">
-                <button class="btn btn-success" onclick="sendAlert()">🚀 INVIA TELEGRAM</button>
-            </div>
+            <div id="send-panel" style="display:none; background:var(--panel-bg); padding:10px; border:2px solid var(--success); border-radius:10px; margin-top:5px;"><button class="btn btn-success" onclick="sendAlert()">🚀 INVIA TELEGRAM</button></div>
         </div>
         <div id="map"></div>
     </div>
@@ -138,16 +139,10 @@
     <div id="page-volontari" class="module-page">
         <div class="card">
             <label>Nome e Cognome</label><input type="text" id="v_nome">
-            <label>Qualifica</label>
-            <select id="v_ruolo"><option>Volontario</option><option>Capo Squadra</option><option>Coordinatore</option></select>
+            <label>Qualifica</label><select id="v_ruolo"><option>Volontario</option><option>Capo Squadra</option><option>Coordinatore</option></select>
             <label>Specializzazioni</label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; font-size:10px;">
-                <label><input type="checkbox" class="v_spec" value="🐕 Cinofilo"> Cinofilo</label>
-                <label><input type="checkbox" class="v_spec" value="🚒 Autista"> Autista</label>
-                <label><input type="checkbox" class="v_spec" value="🩺 BLSD"> BLSD</label>
-                <label><input type="checkbox" class="v_spec" value="🔍 SAR"> SAR</label>
-                <label><input type="checkbox" class="v_spec" value="🪚 Motosega"> Motosega</label>
-                <label><input type="checkbox" class="v_spec" value="🛠️ Logista"> Logista</label>
+                <label><input type="checkbox" class="v_spec" value="🐕 Cinofilo"> Cinofilo</label><label><input type="checkbox" class="v_spec" value="🚒 Autista"> Autista</label><label><input type="checkbox" class="v_spec" value="🩺 BLSD"> BLSD</label><label><input type="checkbox" class="v_spec" value="🔍 SAR"> SAR</label><label><input type="checkbox" class="v_spec" value="🪚 Motosega"> Motosega</label><label><input type="checkbox" class="v_spec" value="🛠️ Logista"> Logista</label>
             </div>
             <button class="btn btn-success" onclick="addVolontario()">AGGIUNGI E GENERA QR</button>
         </div>
@@ -155,35 +150,20 @@
     </div>
 
     <div id="page-presenze" class="module-page">
-        <div class="card">
-            <label>Filtra per Specialità</label>
-            <select id="filtro-spec" onchange="updateUI()"><option value="TUTTI">Mostra Tutti</option><option value="🐕 Cinofilo">Cinofili</option><option value="🚒 Autista">Autisti</option></select>
-        </div>
+        <div class="card"><label>Filtra</label><select id="filtro-spec" onchange="updateUI()"><option value="TUTTI">Mostra Tutti</option><option value="🐕 Cinofilo">Cinofili</option><option value="🚒 Autista">Autisti</option></select></div>
         <div id="lista-appello"></div>
-        <div class="card">
-            <label>Firma Responsabile</label><canvas id="signature-pad"></canvas>
-            <button class="btn btn-success" onclick="exportPDF('appello')">📄 PDF APPELLO</button>
-        </div>
+        <div class="card"><label>Firma</label><canvas id="signature-pad"></canvas><button class="btn btn-success" onclick="exportPDF('appello')">📄 PDF APPELLO</button></div>
     </div>
 
     <div id="page-settori" class="module-page">
         <div id="lista-settori"></div>
-        <div class="card">
-            <label>Settore/Zona</label><input type="text" id="sec-nome">
-            <label>Squadra Assegnata</label><input type="text" id="sec-sq">
-            <button class="btn btn-blue" onclick="addSettore()">ASSEGNA ZONA</button>
-        </div>
+        <div class="card"><label>Settore/Zona</label><input type="text" id="sec-nome"><label>Squadra</label><input type="text" id="sec-sq"><button class="btn btn-blue" onclick="addSettore()">ASSEGNA ZONA</button></div>
     </div>
 
     <div id="page-diario" class="module-page">
         <div id="log-container" class="card" style="font-size:12px; max-height:400px; overflow-y:auto;"></div>
-        <div class="card">
-            <textarea id="log-input" placeholder="Nota manuale..."></textarea>
-            <button class="btn btn-blue" onclick="addLogManual()">SALVA NOTA</button>
-            <button class="btn btn-success" onclick="exportPDF('diario')">📄 PDF DIARIO</button>
-        </div>
+        <div class="card"><textarea id="log-input"></textarea><button class="btn btn-blue" onclick="addLogManual()">SALVA NOTA</button><button class="btn btn-success" onclick="exportPDF('diario')">📄 PDF DIARIO</button></div>
     </div>
-
 </div>
 
 <script>
@@ -205,7 +185,6 @@
         } else { alert("PIN ERRATO"); }
     }
 
-    // MAPPA E TELEGRAM
     function initMap() {
         if(map) return;
         map = L.map('map').setView([45.856, 9.397], 13);
@@ -217,26 +196,11 @@
         });
     }
 
-    async function searchMap() {
-        const q = document.getElementById('map-search').value;
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
-        const d = await r.json();
-        if(d.length>0) {
-            map.setView([d[0].lat, d[0].lon], 16);
-            if(marker) map.removeLayer(marker);
-            marker = L.marker([d[0].lat, d[0].lon]).addTo(map);
-            document.getElementById('send-panel').style.display='block';
-        }
-    }
-
     async function sendAlert() {
         const ev = document.getElementById('f_evento').value;
-        const sq = document.getElementById('f_squadre').value;
-        const ur = document.getElementById('f_tipo').value;
-        const nt = document.getElementById('f_note').value;
         const pos = marker.getLatLng();
         const link = `http://maps.google.com/maps?q=${pos.lat},${pos.lng}`;
-        let m = `🚨 *ALLERTA MERLINI*\n📌 *EVENTO:* ${ev.toUpperCase()}\n👥 *SQUADRE:* ${sq}\n⚠️ *URGENZA:* ${ur}\n📝 *NOTE:* ${nt}\n📍 *RITROVO:* [Mappa](${link})`;
+        let m = `🚨 *ALLERTA MERLINI*\n📌 *EVENTO:* ${ev.toUpperCase()}\n📍 *RITROVO:* [Mappa](${link})`;
         await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({chat_id: ID_GRUPPO, text: m, parse_mode: 'Markdown'})
@@ -244,13 +208,11 @@
         alert("INVIATO");
     }
 
-    // SCANNER E STATO
     function startScanner() {
         html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
             const v = volontari.find(x => x.id === id);
             if(v) {
-                if(navigator.vibrate) navigator.vibrate(100);
                 currentVol = v;
                 document.getElementById('scannedName').innerText = v.nome;
                 document.getElementById('statusModal').style.display = 'flex';
@@ -264,12 +226,11 @@
         const ora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         presenze[currentVol.nome] = { stato, ora };
         localStorage.setItem('merl_v12_pre', JSON.stringify(presenze));
-        addLog(`CHECK-IN: ${currentVol.nome} segnato come ${stato}`);
+        addLog(`CHECK-IN: ${currentVol.nome} -> ${stato}`);
         document.getElementById('statusModal').style.display='none';
         updateUI();
     }
 
-    // LOGICA UI
     function addVolontario() {
         const nome = document.getElementById('v_nome').value.toUpperCase();
         const ruolo = document.getElementById('v_ruolo').value;
@@ -278,17 +239,16 @@
             const id = "M-" + Math.random().toString(36).substr(2, 6).toUpperCase();
             volontari.push({ nome, ruolo, specs, id });
             localStorage.setItem('merl_v12_vol', JSON.stringify(volontari));
-            document.getElementById('v_nome').value="";
             updateUI();
         }
     }
 
     function updateUI() {
-        // Anagrafica
+        // Anagrafica con Funzione Zoom QR
         document.getElementById('lista-volontari').innerHTML = volontari.map((v, i) => `
             <div class="v-card">
                 <div id="qr-${i}" class="qr-small" onclick="showFullQR('${v.nome}','${v.id}')"></div>
-                <div><b>${v.nome}</b> (${v.ruolo})<br>${v.specs.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+                <div><b>${v.nome}</b><br>${v.specs.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
                 <button onclick="delVol(${i})" style="margin-left:auto; color:red; border:none; background:none;">✕</button>
             </div>
         `).join('');
@@ -300,14 +260,18 @@
         document.getElementById('lista-appello').innerHTML = filtrati.map(v => {
             const p = presenze[v.nome] || { stato: 'ASSENTE', ora: '-' };
             let color = p.stato === 'PRESENTE' ? 'var(--success)' : (p.stato === 'RITARDO' ? 'var(--warning)' : 'var(--danger)');
-            return `<div class="card" style="border-left:8px solid ${color}; display:flex; justify-content:space-between;">
-                <b>${v.nome}</b> <span>${p.stato} (${p.ora})</span>
-            </div>`;
+            return `<div class="card" style="border-left:8px solid ${color}; display:flex; justify-content:space-between;"><b>${v.nome}</b> <span>${p.stato}</span></div>`;
         }).join('');
 
-        // Settori e Diario
-        document.getElementById('lista-settori').innerHTML = settori.map((s,i) => `<div class="v-card">📌 ${s.nome} | SQ: ${s.sq} <button onclick="delSet(${i})">✕</button></div>`).join('');
         document.getElementById('log-container').innerHTML = log.map(l => `<div>[${l.ora}] ${l.txt}</div>`).reverse().join('');
+    }
+
+    // RIPRISTINATA FUNZIONE ZOOM QR
+    function showFullQR(nome, id) {
+        document.getElementById('zoomName').innerText = nome;
+        document.getElementById('qrFullContainer').innerHTML = "";
+        new QRCode(document.getElementById('qrFullContainer'), { text: id, width: 250, height: 250 });
+        document.getElementById('qrZoomModal').style.display = 'flex';
     }
 
     function addLog(txt) {
@@ -317,10 +281,7 @@
         updateUI();
     }
     function addLogManual() { const t = document.getElementById('log-input').value; if(t) { addLog(t); document.getElementById('log-input').value=""; } }
-    function addSettore() { const n = document.getElementById('sec-nome').value; const s = document.getElementById('sec-sq').value; if(n) { settori.push({nome:n, sq:s}); localStorage.setItem('merl_v12_set', JSON.stringify(settori)); updateUI(); } }
     function delVol(i) { volontari.splice(i,1); localStorage.setItem('merl_v12_vol', JSON.stringify(volontari)); updateUI(); }
-    function delSet(i) { settori.splice(i,1); localStorage.setItem('merl_v12_set', JSON.stringify(settori)); updateUI(); }
-
     function showPage(id, btn) {
         document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -330,21 +291,10 @@
         if(id !== 'scanner') stopScanner();
     }
 
-    function showFullQR(n, id) { alert("ID QR per " + n + ": " + id); }
-
-    // FIRMA
-    const canvas = document.getElementById('signature-pad');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); });
-    canvas.addEventListener('touchmove', (e) => { if(drawing) { const r=canvas.getBoundingClientRect(); ctx.lineTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); ctx.stroke(); }});
-    canvas.addEventListener('touchend', () => drawing=false);
-
     function exportPDF(t) {
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text(`UNITÀ MERLINI - ${t.toUpperCase()}`, 10, 10);
-        const data = t === 'appello' ? volontari.map(v => [v.nome, presenze[v.nome]?.stato || 'ASSENTE']) : log.map(l => [l.ora, l.txt]);
-        doc.autoTable({ head: [['Info', 'Stato']], body: data, startY: 20 });
+        doc.text(`REPORT ${t.toUpperCase()}`, 10, 10);
+        doc.autoTable({ head: [['Info', 'Stato']], body: volontari.map(v=>[v.nome, presenze[v.nome]?.stato||'ASSENTE']) });
         doc.save(`Merlini_${t}.pdf`);
     }
 </script>
